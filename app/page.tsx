@@ -2,7 +2,7 @@ import Image from "next/image";
 import AuthForm from "./Components/AuthForm";
 import Students from '@/public/images/graduation.jpg'
 import Logo from '@/public/images/logo.png'
-import { GraduationCap } from "lucide-react";
+import { ShieldPlusIcon } from "lucide-react";
 import { ThemeToggle } from "./Components/ThemeToggle";
 
 export default function Home() {
@@ -14,8 +14,8 @@ export default function Home() {
         </div>
           <div className="w-full h-full flex flex-col items-center justify-center">
             <div className="flex items-center gap-2 px-2 mx-auto pt-1">
-              <GraduationCap className="h-6 w-6" />
-              <span className="font-semibold">Missing Mark System</span>
+              <ShieldPlusIcon className="h-6 w-6" />
+              <span className="font-semibold">Fika Safe</span>
             </div>
             <div className="">
               <AuthForm></AuthForm>

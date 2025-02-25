@@ -32,7 +32,7 @@ export default function AuthForm() {
     secondName: '',
     email: '',
     password: '',
-    registrationNumber: '',
+    phoneNumber: '0',
     // userType:'STUDENT'
   });
 
@@ -68,9 +68,10 @@ export default function AuthForm() {
     const emailRegex = /^[a-z][a-z0-9._%+-]*@[a-z0-9.-]+\.[a-z]{2,}$/; //This rejects emails like 123@gmail.com and accepts emails like example123@gmail.com, all emails must be lowercase
     return emailRegex.test(email);
   };
-  const validateRegistrationNumber = (regNo: string) => {
-    const pattern = /^[A-Z]{3}\/B\/\d{2}-\d{5}\/\d{4}$/;
-    return pattern.test(regNo);
+
+  const validatePhoneNumber = (value: string) => {
+    // Ensure it starts with '0' and has exactly 10 digits
+    return /^0\d{9}$/.test(value);
   };
 
   const handleSubmit = async () => {
@@ -92,7 +93,7 @@ export default function AuthForm() {
         toast.error('Please fill all the fields')
       }
     }else{
-      if(formData.firstName === ''|| formData.firstName===null || formData.secondName === ''|| formData.secondName===null || formData.email === ''|| formData.email===null || formData.password === ''|| formData.password===null || formData.registrationNumber === ''|| formData.registrationNumber===null){
+      if(formData.firstName === ''|| formData.firstName===null || formData.secondName === ''|| formData.secondName===null || formData.email === ''|| formData.email===null || formData.password === ''|| formData.password===null || formData.phoneNumber === ''|| formData.phoneNumber===null){
         toast.error('Please fill all the fields')
       }
     }
@@ -104,8 +105,8 @@ export default function AuthForm() {
      
 
       if (variant === 'REGISTER') {
-        if (!validateRegistrationNumber(formData.registrationNumber)) {
-          toast.error('Please enter a valid registration number');
+        if (!validatePhoneNumber(formData.phoneNumber)) {
+          toast.error('Please enter a valid phone number');
           return;
         }
         try {
@@ -173,6 +174,26 @@ export default function AuthForm() {
     setDisabled(loading);
   }, [loading]);
 
+  const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value;
+  
+    // Restrict input to numbers only (remove non-digits)
+    value = value.replace(/\D/g, '');
+  
+    // Ensure the phone number starts with "0"
+    if (!value.startsWith('0')) {
+      value = '0' + value;
+    }
+  
+    // Limit to 10 digits only
+    if (value.length > 10) {
+      value = value.slice(0, 10);
+    }
+
+    // the elipses below are called a spread operator which spreads the object into its properties/separates the values of the object into coma separated values to allow us to add the phone number
+    setFormData({ ...formData, phoneNumber: value }); 
+  };  
+
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!event) {
       return;
@@ -216,15 +237,16 @@ export default function AuthForm() {
                onChange={handleChange}
              />
              <Input
-               id='regNo'
-               name='registrationNumber'
-               label='Registration Number'
+               id='phoneNo'
+               name='phoneNumber'
+               label='Phone Number'
                required
-               type='text'
-               placeholder='Enter Registration Number'
+               type='tel'
+               placeholder='Enter Phone Number'
                disabled={disabled}
-               value={formData.registrationNumber}
-               onChange={handleChange}
+               value={formData.phoneNumber}
+               onChange={handlePhoneNumberChange}
+               maxlength={10}
              />
            </>
          )}
