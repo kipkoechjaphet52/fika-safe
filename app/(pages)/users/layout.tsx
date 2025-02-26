@@ -24,17 +24,19 @@ export default async function StudentLayout({
 }>) {
   return (
     <>
-      <div className="max-h-screen flex">
-        <DashboardNav />
-        <div className="flex-1">
+    <div> 
+      <div className="max-h-screen flex-col">
           <header className="border-b">
-            <div className="flex h-16 items-center px-4">
+            <div className="h-16  px-4">
                 <UserNav />
             </div>
           </header>
-          <main className="md:p-8 py-2 px-1">{children}</main>
-        </div>
+          <div className="flex">
+            <DashboardNav />
+            <main className="md:p-8 py-2 px-1">{children}</main>
+          </div>
       </div>
+    </div>
     </>
   );
 }

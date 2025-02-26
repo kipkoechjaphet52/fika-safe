@@ -160,10 +160,7 @@ export function DashboardNav() {
   return (
     <div>
       <nav className="hidden md:block w-64 border-r bg-card min-h-screen p-4 space-y-4">
-        <div className="flex items-center gap-2 px-2 mb-8">
-          <GraduationCap className="h-6 w-6" />
-          <span className="font-semibold">Missing Mark System</span>
-        </div>
+        
         <div className="space-y-1">
           {currentRoutes.map((route) => (
             <Link
