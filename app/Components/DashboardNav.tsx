@@ -7,11 +7,14 @@ import {
   LayoutDashboard,
   School,
   Users,
-  Building2,
+  HelpCircleIcon,
+  SettingsIcon,
   FileSpreadsheet,
   GraduationCapIcon,
   XIcon,
   MenuIcon,
+  MapIcon,
+  MapPin,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -22,27 +25,27 @@ const routes = {
     {
       title: "Dashboard",
       icon: LayoutDashboard,
-      href: "/Admin",
+      href: "/admin",
     },
     {
-      title: "Schools",
-      icon: School,
-      href: "/Admin/schools",
+      title: "Incidents",
+      icon: MapPin,
+      href: "/admin/incidents",
     },
     {
       title: "Users",
       icon: Users,
-      href: "/Admin/users",
+      href: "/admin/users",
     },
     {
       title: "Programs",
       icon: GraduationCapIcon,
-      href: "/Admin/programs",
+      href: "/admin/programs",
     },
     {
       title: "Courses",
       icon: BookOpen,
-      href: "/Admin/courses",
+      href: "/admin/courses",
     },
   ],
   DEAN: [
@@ -116,21 +119,31 @@ const routes = {
       href: "/Lecturer/missing-marks",
     },
   ],
-  STUDENT: [
+  USER: [
     {
       title: "Dashboard",
       icon: LayoutDashboard,
-      href: "/Student",
+      href: "/users",
     },
     {
-      title: "My Courses",
-      icon: BookOpen,
-      href: "/Student/courses",
+      title: "Live Maps",
+      icon: MapIcon,
+      href: "/users/maps",
     },
     {
-      title: "My Missing Mark",
-      icon: FileSpreadsheet,
-      href: "/Student/reported",
+      title: "Incidents",
+      icon: MapPin,
+      href: "/users/incidents",
+    },
+    {
+      title: "Help",
+      icon: HelpCircleIcon,
+      href: "/users/help",
+    },
+    {
+      title: "Settings",
+      icon: SettingsIcon,
+      href: "/users/settings",
     },
   ],
 };
@@ -146,7 +159,7 @@ export function DashboardNav() {
     ? "COD"
     : pathname.includes("/Lecturer")
     ? "LECTURER"
-    : "STUDENT";
+    : "USER";
 
   const currentRoutes = routes[userRole as keyof typeof routes];
 
