@@ -174,6 +174,7 @@ export default function AuthForm() {
     setDisabled(loading);
   }, [loading]);
 
+  //function to handle phone number input
   const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value;
   
