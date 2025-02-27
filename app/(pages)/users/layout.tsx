@@ -33,10 +33,12 @@ export default async function StudentLayout({
           </header>
           <div className="flex">
             <DashboardNav />
-            <main className="md:p-8 py-2 px-1">{children}</main>
+            <main className="">{children}</main>
           </div>
       </div>
     </div>
     </>
   );
 }
+
+{/* <main className="md:p-8 py-2 px-1">{children}</main> */}
