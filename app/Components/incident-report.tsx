@@ -27,11 +27,12 @@ import {
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Textarea } from "./ui/textarea";
 
 const formSchema = z.object({
-  academicYear: z.string(),
-  course: z.string(),
-  lecturer: z.string(),
+  incidentType: z.string(),
+  severity: z.string(),
+  description: z.string(),
 });
 
 export function IncidentReport() {
@@ -47,26 +48,30 @@ export function IncidentReport() {
     <Card>
       <CardHeader>
         <CardTitle>Report an Incident</CardTitle>
-        <CardDescription>Submit a new inccident report</CardDescription>
+        <CardDescription>Submit a new incident report</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
-              name="academicYear"
+              name="incidentType"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Academic Year</FormLabel>
+                  <FormLabel>Incident Type</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select academic year" />
+                        <SelectValue placeholder="Select type of incident" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="2023/2024">2023/2024</SelectItem>
-                      <SelectItem value="2022/2023">2022/2023</SelectItem>
+                      <SelectItem value="THEFT">Theft</SelectItem>
+                      <SelectItem value="ASSAULT">Assault</SelectItem>
+                      <SelectItem value="ACCIDENT">Accident</SelectItem>
+                      <SelectItem value="FIRE">Fire</SelectItem>
+                      <SelectItem value="MEDICAL">Medical</SelectItem>
+                      <SelectItem value="OTHER">Other</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -75,19 +80,21 @@ export function IncidentReport() {
             />
             <FormField
               control={form.control}
-              name="course"
+              name="severity"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Course</FormLabel>
+                  <FormLabel>Incident Severity</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select course" />
+                        <SelectValue placeholder="Select a level of severity" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="BCS203">BCS 203 - Database Systems</SelectItem>
-                      <SelectItem value="BCS204">BCS 204 - Software Engineering</SelectItem>
+                      <SelectItem value="LOW">Low</SelectItem>
+                      <SelectItem value="MEDIUM">Medium</SelectItem>
+                      <SelectItem value="HIGH">High</SelectItem>
+                      <SelectItem value="CRITICAL">Critical</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -96,21 +103,14 @@ export function IncidentReport() {
             />
             <FormField
               control={form.control}
-              name="lecturer"
+              name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Lecturer</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select lecturer" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="js">Dr. Jane Smith</SelectItem>
-                      <SelectItem value="jd">Prof. John Doe</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <FormLabel>Description</FormLabel>
+                    <Textarea 
+                    placeholder="Describe the incident"
+                    {...field}                    
+                    />                  
                   <FormMessage />
                 </FormItem>
               )}
