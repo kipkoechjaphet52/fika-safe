@@ -109,6 +109,7 @@ export function IncidentReport() {
                   <FormLabel>Description</FormLabel>
                     <Textarea 
                     placeholder="Describe the incident"
+                    className="h-64"
                     {...field}                    
                     />                  
                   <FormMessage />
