@@ -147,12 +147,11 @@ export default function CrimeMap() {
         
         userFeature.setStyle(
           new Style({
-            image: new RegularShape({
-              points: 5, // Star shape
-              radius: 10,
-              radius2: 4,
-              fill: new Fill({ color: "yellow" }),
-              stroke: new Stroke({ color: "black", width: 2 }),
+            image: new Icon({
+              src: '/images/marker.png',
+              scale: 0.07,
+              anchor: [0.5, 1],
+              crossOrigin: 'anonymous',
             }),
           })
         );
