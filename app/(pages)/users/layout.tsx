@@ -33,7 +33,7 @@ export default async function StudentLayout({
           </header>
           <div className="flex">
             <DashboardNav />
-            <main className="">{children}</main>
+            <main className="overflow-x-hidden">{children}</main>
           </div>
       </div>
     </div>
