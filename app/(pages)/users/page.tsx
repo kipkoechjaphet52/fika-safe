@@ -14,7 +14,7 @@ export default function UserPage() {
   };
   return (
     <div className='w-[100vw] h-screen items-center flex overflow-hidden'>
-      <div className={clsx(`w-full `, openForm && 'w-3/5')}>
+      <div className={clsx(openForm ? 'w-3/5' : 'w-full', 'duration-300 transition-all')}>
         <CrimeMap />
         <div className='absolute top-20 right-4'>
           <Button onClick={toggleForm} >
@@ -23,7 +23,7 @@ export default function UserPage() {
           </Button>
         </div>
       </div>
-      <div className={clsx(`w-1/5 h-full ml-5 mt-5`, !openForm && 'hidden')}>
+      <div className={clsx(`w-1/5 h-full ml-5 mt-5`, !openForm && 'hidden w-0')}>
         <IncidentReport />
       </div>
     </div>
