@@ -15,13 +15,14 @@ import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import clsx from 'clsx'
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
 
 
 type Variant = 'REGISTER' | 'LOGIN';
 
 type UserType = 'LECTURER' | 'ADMIN' | 'SUPERADMIN' | 'STUDENT' | 'COD' | 'DEAN';
 
-export default function AuthForm() {
+export default function AuthForm({isOpen, onClose}: {isOpen: boolean, onClose: () => void}) {
   const [variant, setVariant] = useState<Variant>('LOGIN');
   const [loading, setisLoading] = useState(false);
   const [disabled, setDisabled] = useState(false);
@@ -127,6 +128,7 @@ export default function AuthForm() {
           // Check response status and act accordingly
           if (response.ok && response.status === 200 || response.status === 201) {
             toast.success('User Registered Successfully');
+            onClose();
           } else if (response.status === 400) {
             const errorData = await response.json();
             toast.error(errorData.error);
@@ -160,6 +162,7 @@ export default function AuthForm() {
         } else if (callback?.ok && !callback?.error) {
           toast.dismiss();
           toast.success('Logged In');
+          onClose();
         }
       }
     } catch (error) {
@@ -211,7 +214,16 @@ export default function AuthForm() {
   };
   return (
     <>
-      <div className=' mx-16 bg-card px-4 lg:px-10 py-6 mt-2 gap-2 rounded-md  shadow-lg border-2'>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className='sm:max-w-[375px]'>
+      <DialogHeader>
+          <DialogTitle>{variant == 'LOGIN' ? "Login" : "Sign Up"}</DialogTitle>
+          <DialogDescription>
+            {variant === 'LOGIN'
+              ? "Enter your credentials to login."
+              : "Create an account to get started."}
+          </DialogDescription>
+        </DialogHeader>
         <form>
           {variant === 'REGISTER' && (
              <>
@@ -304,7 +316,8 @@ export default function AuthForm() {
             {variant === 'LOGIN' ? 'Sign up' : 'Login'}
           </div>
         </div>
-      </div>
+      </DialogContent>
+    </Dialog>
     </>
   );
 }
