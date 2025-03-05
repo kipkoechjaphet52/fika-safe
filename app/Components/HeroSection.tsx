@@ -27,7 +27,7 @@ const Hero = () => {
         <Image
           key={src}
           src={src}
-          alt={`BabyGal hero image ${index + 1}`}
+          alt={`Fika Safe hero image ${index + 1}`}
           layout="fill"
           objectFit="cover"
           className={`transition-opacity duration-1000 ${
