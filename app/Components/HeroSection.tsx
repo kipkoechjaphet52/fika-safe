@@ -35,9 +35,10 @@ const Hero = () => {
           }`}
         />
       ))}
+      
       <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
         <div className="text-center text-white">
-          <h1 className="text-5xl font-bold mb-4">Witness Incidents As They Happen and Get Firsthand Reports From Those on The Scene</h1>
+          <h1 className="text-5xl font-bold mb-4">Witness Incidents As They Happen</h1>{/*  and Get Firsthand Reports From Those on The Scene */}
           <p className="text-xl mb-8">Stay informed with real-time updates and verified alerts</p>
           <Button size="lg">Report an Incident</Button>
         </div>
