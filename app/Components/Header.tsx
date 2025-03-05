@@ -84,9 +84,9 @@ const Header = () => {
           </Link>
           <nav className="items-center space-x-6 text-sm font-medium hidden md:block">
             <Link href="/">Home</Link>
+            <Link href="/explore">Explore</Link>
             <Link href="/about">About</Link>
             <Link href="/services">Services</Link>
-            <Link href="/organizations">Organizations</Link>
             <Link href="/contact">Contact</Link>
           </nav>
         </div>
