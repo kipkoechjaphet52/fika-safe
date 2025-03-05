@@ -3,12 +3,14 @@ import AuthForm from "./Components/AuthForm";
 import { ShieldPlusIcon } from "lucide-react";
 import { ThemeToggle } from "./Components/ThemeToggle";
 import Header from "./Components/Header";
+import Hero from "./Components/HeroSection";
 
 export default function Home() {
   return (
     <>
       <div className="w-full h-full">
         <Header/>
+        <Hero/>
       </div>
     </>
   );
