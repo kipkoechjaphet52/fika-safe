@@ -105,11 +105,11 @@ const Header = () => {
           <SheetContent>
             <div className="flex flex-col h-full">
               <nav className="flex flex-col h-full items-center justify-center w-full gap-3">
-              <Link href="/courses">Courses</Link>
+              <Link href="/">Home</Link>
+              <Link href="/explore">Explore</Link>
+              <Link href="/about">About</Link>
               <Link href="/services">Services</Link>
-            <Link href="/events">Events</Link>
-            <Link href="/organizations">Organizations</Link>
-            <Link href="/contact">Contact</Link>
+              <Link href="/contact">Contact</Link>
             {session ? (
               <>
                 <Link href={dashboardUrl}>
