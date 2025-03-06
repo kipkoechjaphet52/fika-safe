@@ -29,12 +29,13 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Textarea } from "./ui/textarea";
 import Input from "./Input";
+import { useState } from "react";
 
 const formSchema = z.object({
-  incidentType: z.string(),
-  severity: z.string(),
-  description: z.string(),
-  file: z.string(),
+  incidentType: z.string().min(1, "Incident type is required"),
+  severity: z.string().min(1, "Severity level is required"),
+  description: z.string().min(5, "Description must be at least 5 characters"),
+  file: z.string().optional(),
 });
 
 export function IncidentReport() {
@@ -42,7 +43,11 @@ export function IncidentReport() {
     resolver: zodResolver(formSchema),
   });
 
-  const file = form.watch('file');
+  const [file, setFile] = useState<File | null>(null);
+  const [street, setStreet] = useState("");
+  const [disabled, setDisabled] = useState(false);
+
+  // const file = form.watch('file');
   console.log(file);
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
@@ -57,6 +62,17 @@ export function IncidentReport() {
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <Input
+              id='Street'
+              name="street"
+              label={"Street Name"} 
+              placeholder={"Enter street name"} 
+              type="text"
+              required
+              disabled={disabled}
+              value = {street}
+              onChange={(e) => setStreet(e.target.value)}                  
+            />
             <FormField
               control={form.control}
               name="incidentType"
@@ -105,22 +121,16 @@ export function IncidentReport() {
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
+            <Input
+              id='File'
               name="file"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Upload File</FormLabel>
-                  <Input
-                    label={""} placeholder={""} id='File'
-                    type="file"
-                    required
-                    accept="image/*, video/*"
-                    {...field}                  
-                  />
-                  <FormMessage />
-                </FormItem>
-              )}
+              label={"Upload File"} 
+              placeholder={"Select an image or video"} 
+              type="file"
+              required
+              disabled={disabled}
+              accept="image/*, video/*"
+              onChange={(e) => setFile(e.target.files?.[0] || null)}                  
             />
             <FormField
               control={form.control}
@@ -130,14 +140,14 @@ export function IncidentReport() {
                   <FormLabel>Description</FormLabel>
                     <Textarea 
                     placeholder="Describe the incident"
-                    className="h-64"
+                    className="h-40"
                     {...field}                    
                     />                  
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full">Submit Report</Button>
+            <Button disabled={disabled} type="submit" className="w-full">Submit Report</Button>
           </form>
         </Form>
       </CardContent>
