@@ -28,11 +28,13 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Textarea } from "./ui/textarea";
+import Input from "./Input";
 
 const formSchema = z.object({
   incidentType: z.string(),
   severity: z.string(),
   description: z.string(),
+  file: z.string(),
 });
 
 export function IncidentReport() {
@@ -40,6 +42,8 @@ export function IncidentReport() {
     resolver: zodResolver(formSchema),
   });
 
+  const file = form.watch('file');
+  console.log(file);
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
   }
@@ -97,6 +101,23 @@ export function IncidentReport() {
                       <SelectItem value="CRITICAL">Critical</SelectItem>
                     </SelectContent>
                   </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="file"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Upload File</FormLabel>
+                  <Input
+                    label={""} placeholder={""} id='File'
+                    type="file"
+                    required
+                    accept="image/*, video/*"
+                    {...field}                  
+                  />
                   <FormMessage />
                 </FormItem>
               )}

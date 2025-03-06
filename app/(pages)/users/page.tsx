@@ -1,31 +1,49 @@
-'use client'
-import {Button} from '@/app/Components/ui/button';
-import CrimeMap from '@/app/Components/Crime';
-import { IncidentReport } from '@/app/Components/incident-report';
-import clsx from 'clsx';
-import React, { useState } from 'react'
-import { XIcon } from 'lucide-react';
+"use client";
 
-export default function UserPage() {
-  const [openForm, setOpenForm] = useState(false);
+import { Button } from "@/app/Components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/app/Components/ui/card";
+import { EnrolledCourses } from "@/app/Components/Enrolled";
+import { IncidentReport } from "@/app/Components/incident-report";
+import { ReportHistory } from "@/app/Components/ReportHistory";
+import { BookOpen, FileCheck, AlertTriangle } from "lucide-react";
 
-  const toggleForm = () => {
-    setOpenForm((prev) => !prev);
-  };
+export default function StudentDashboard() {
   return (
-    <div className='w-[100vw] h-screen items-center flex overflow-hidden'>
-      <div className={clsx(openForm ? 'w-3/5' : 'w-full', 'duration-300 transition-all')}>
-        <CrimeMap />
-        <div className='absolute top-20 right-4'>
-          <Button onClick={toggleForm} >
-            {openForm ? 
-            <XIcon className='w-[1.2rem] h-[1.2rem]'/> : 'Open Form'}
-          </Button>
-        </div>
+    <div className="space-y-8">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Enrolled Courses</CardTitle>
+            <BookOpen className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">6</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Pending Reports</CardTitle>
+            <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">2</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Resolved Reports</CardTitle>
+            <FileCheck className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">3</div>
+          </CardContent>
+        </Card>
       </div>
-      <div className={clsx(`w-1/5 h-full ml-5 mt-5`, !openForm && 'hidden w-0')}>
+      <div className="grid gap-8 md:grid-cols-2">
+        <EnrolledCourses />
         <IncidentReport />
       </div>
+      <ReportHistory />
     </div>
   );
 }
