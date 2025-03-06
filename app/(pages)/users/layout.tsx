@@ -26,19 +26,17 @@ export default async function StudentLayout({
     <>
     <div> 
       <div className="max-h-screen flex-col">
-          <header className="border-b">
-            <div className="h-16  px-4">
+          <header className="border-b sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <div className="h-16 px-4">
                 <UserNav />
             </div>
           </header>
-          <div className="flex">
-            <DashboardNav />
-            <main className="overflow-x-hidden">{children}</main>
+          <div className="flex-1 flex overflow-hidden">
+            {/* <DashboardNav /> */}
+            <main className="flex-1 overflow-x-clip overflow-y-auto">{children}</main>
           </div>
       </div>
     </div>
     </>
   );
 }
-
-{/* <main className="md:p-8 py-2 px-1">{children}</main> */}
