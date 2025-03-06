@@ -1,4 +1,5 @@
 'use client'
+import CrimeMap from '@/app/Components/Crime';
 import Footer from '@/app/Components/Footer';
 import Header from '@/app/Components/Header';
 import Search from '@/app/Components/Search'
@@ -115,7 +116,9 @@ export default function page() {
                 </div>
                 </Suspense>
             </div>
-            <div className='w-2/3'></div>
+            <div className='w-2/3'>
+                <CrimeMap/>
+            </div>
         </div>
         <Footer/>
     </div>

@@ -5,6 +5,7 @@ import { ThemeToggle } from "./Components/ThemeToggle";
 import Header from "./Components/Header";
 import Hero from "./Components/HeroSection";
 import Footer from "./Components/Footer";
+import About from "./Components/About";
 
 export default function Home() {
   return (
@@ -12,6 +13,7 @@ export default function Home() {
       <div className="w-full h-full">
         <Header/>
         <Hero/>
+        <About/>
         <Footer/>
       </div>
     </>
