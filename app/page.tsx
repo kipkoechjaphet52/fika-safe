@@ -6,6 +6,7 @@ import Header from "./Components/Header";
 import Hero from "./Components/HeroSection";
 import Footer from "./Components/Footer";
 import About from "./Components/About";
+import ChatButton from "./Components/ChatButton";
 
 export default function Home() {
   return (
@@ -15,6 +16,7 @@ export default function Home() {
         <Hero/>
         <About/>
         <Footer/>
+        <ChatButton/>
       </div>
     </>
   );
