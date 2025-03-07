@@ -12,15 +12,74 @@ import {
 } from "@/app/Components/ui/dropdown-menu";
 import { GraduationCap, LogOut, ShieldPlus, User } from "lucide-react";
 import { ThemeToggle } from "../ThemeToggle";
+import SectionTabs from "../SectionTabs";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import clsx from "clsx";
 
+const routes = {
+  USER: [
+    {
+      title: "Dashboard",
+      href: "/users",
+    },
+    {
+      title: "Live Maps",
+      href: "/users/maps",
+    },
+    {
+      title: "Incidents",
+      href: "/users/incidents",
+    },
+    {
+      title: "Help",
+      href: "/users/help",
+    },
+    {
+      title: "Settings",
+      href: "/users/settings",
+    },
+  ],
+}
 export function UserNav() {
+  const pathname = usePathname();
+
+  const userRole = pathname.includes("/Admin")
+    ? "ADMIN"
+    : pathname.includes("/dean")
+    ? "DEAN"
+    : pathname.includes("/cod")
+    ? "COD"
+    : pathname.includes("/Lecturer")
+    ? "LECTURER"
+    : "USER";
+
+  const currentRoutes = routes[userRole as keyof typeof routes];
   return (
     <div className="ml-auto flex items-center justify-between ">
       <div className="flex items-center gap-2 px-2 pt-4">
         <ShieldPlus className="h-6 w-6" />
         <span className="font-semibold">Fika Safe</span>
       </div>
-      <div className="ml-auto flex space-x-4 space-y-3 items-center">
+        <nav className="items-center space-x-6 text-sm font-medium hidden md:block">
+          <div className="flex flex-row">
+            {currentRoutes.map((route) => (
+              <Link
+                key={route.href}
+                href={route.href}
+                className={clsx(
+                  "relative flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-primary after:transition-all after:duration-500",
+                  pathname === route.href
+                    ? " text-primary after:w-full"
+                    : "hover:bg-muted"
+                )}
+              >
+                {route.title}
+              </Link>
+            ))}
+          </div>
+        </nav>
+      <div className="flex space-x-4 space-y-3 items-center">
         <div className="mt-3">
           <ThemeToggle />
         </div>
