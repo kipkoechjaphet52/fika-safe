@@ -1,10 +1,10 @@
 'use client'
 import React, { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
-import { Button } from './ui/button'
-import Input from './Input'
-import { useToast } from '../hooks/use-toast'
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
+import { Button } from '../ui/button'
+import Input from '../Input'
+import { useToast } from '../../hooks/use-toast'
 
 export default function Profile() {
     const [formData, setFormData] = useState({

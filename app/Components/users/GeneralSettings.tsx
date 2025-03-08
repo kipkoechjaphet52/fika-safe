@@ -1,7 +1,7 @@
 import React from 'react'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu'
-import {Button} from './ui/button'
-import { Switch } from './ui/switch'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu'
+import {Button} from '../ui/button'
+import { Switch } from '../ui/switch'
 import { useTheme } from 'next-themes'
 import { ChevronDownIcon } from 'lucide-react'
 

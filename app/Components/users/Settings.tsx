@@ -1,9 +1,10 @@
 import React from 'react'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../ui/dialog'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
 import { Cog, SettingsIcon, User } from 'lucide-react'
 import GeneralSettings from './GeneralSettings'
 import Profile from './Profile'
+import AccountSettings from './AccountSettings'
 
 
 export default function Settings({isOpen, onClose}: {isOpen: boolean, onClose: () => void}) {
@@ -31,7 +32,7 @@ export default function Settings({isOpen, onClose}: {isOpen: boolean, onClose: (
                         <Profile/>
                     </TabsContent>
                     <TabsContent value="account">   
-                        <div>Account settings</div>
+                        <AccountSettings/>
                     </TabsContent>
                 </div>
                 </Tabs>

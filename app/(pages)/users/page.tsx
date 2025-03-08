@@ -2,9 +2,9 @@
 
 import { Button } from "@/app/Components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/Components/ui/card";
-import { EnrolledCourses } from "@/app/Components/Enrolled";
-import { IncidentReport } from "@/app/Components/incident-report";
-import { ReportHistory } from "@/app/Components/ReportHistory";
+import { EnrolledCourses } from "@/app/Components/users/Enrolled";
+import { IncidentReport } from "@/app/Components/users/incident-report";
+import { ReportHistory } from "@/app/Components/users/ReportHistory";
 import { BookOpen, FileCheck, AlertTriangle } from "lucide-react";
 
 export default function Dashboard() {
