@@ -16,6 +16,8 @@ import SectionTabs from "../SectionTabs";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
+import { useState } from "react";
+import Settings from "../users/Settings";
 
 const routes = {
   USER: [
@@ -37,11 +39,14 @@ const routes = {
     },
     {
       title: "Settings",
-      href: "/users/settings",
+      href: "#settings",
     },
   ],
 }
 export function UserNav() {
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+
   const pathname = usePathname();
 
   const userRole = pathname.includes("/Admin")
@@ -66,7 +71,13 @@ export function UserNav() {
             {currentRoutes.map((route) => (
               <Link
                 key={route.href}
-                href={route.href}
+                href={route.href === "#settings" ? "#" : route.href}
+                onClick={(e) => {
+                  if (route.href === "#settings") {
+                    e.preventDefault(); // Prevent page reload
+                    setIsSettingsOpen(true); // Open settings dialog
+                  }
+                }}
                 className={clsx(
                   "relative flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-primary after:transition-all after:duration-500",
                   pathname === route.href
@@ -116,6 +127,7 @@ export function UserNav() {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+      <Settings isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
     </div>
   );
 }
