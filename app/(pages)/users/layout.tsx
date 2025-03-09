@@ -1,8 +1,5 @@
 import type { Metadata } from "next";
-import { DashboardNav } from "@/app/Components/DashboardNav";
 import { UserNav } from "@/app/Components/ui/user-nav";
-import { ThemeToggle } from "@/app/Components/ThemeToggle";
-import { ThemeProvider } from "@/app/Components/ThemeProvider";
 
 export const metadata: Metadata = {
   title: "Fika Safe",

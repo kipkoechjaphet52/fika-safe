@@ -7,18 +7,19 @@ import { ThemeToggle } from "./ThemeToggle"
 import { ShieldPlusIcon } from "lucide-react"
 import { usePathname } from 'next/navigation'
 import { Sheet, SheetContent, SheetTrigger } from '@/app/Components/ui/sheet'
-import { Compass, Menu, Moon, Sun, User, X } from "lucide-react";
+import { Menu } from "lucide-react";
 import AuthForm from "./AuthForm"
 
 
 
 const Header = () => {
-  const pathname = usePathname()
+  // const pathname = usePathname()
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
   const [session,setSession] =useState(false)
   const [dashboardUrl,setDashboardUrl] = useState('#')
   
   const [role,setRole] =useState('')
+  console.log(role)
 
   const fetchSession = async()=>{
     const access_token = localStorage.getItem("accessToken");

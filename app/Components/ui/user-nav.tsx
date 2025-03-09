@@ -10,9 +10,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/app/Components/ui/dropdown-menu";
-import { GraduationCap, LogOut, ShieldPlus, User } from "lucide-react";
+import { LogOut, ShieldPlus, User } from "lucide-react";
 import { ThemeToggle } from "../ThemeToggle";
-import SectionTabs from "../SectionTabs";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";

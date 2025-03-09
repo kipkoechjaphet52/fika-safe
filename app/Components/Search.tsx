@@ -1,7 +1,6 @@
 
 'use client'
 import { MagnifyingGlassCircleIcon } from '@heroicons/react/24/outline'
-import { on } from 'events'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import React from 'react'
 import { useState } from 'react'
@@ -17,6 +16,7 @@ export default function Search({placeholder, onSearch}: SearchProps) {
     const searchParams = useSearchParams()
     const {replace} = useRouter()
     
+    console.log(inputValue)
     const handleSearch = useDebouncedCallback( (term:string) =>{
       const parsedDate = new Date(term);
       if (!isNaN(parsedDate.getTime())) {

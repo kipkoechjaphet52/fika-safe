@@ -3,7 +3,6 @@ import React, { useCallback, useEffect, useState } from 'react';
 import Input from './Input';
 import Button from './Button';
 import { signIn, useSession } from 'next-auth/react';
-import { Session } from 'next-auth';
 
 // Extend the Session type to include userType
 declare module 'next-auth' {
@@ -13,7 +12,6 @@ declare module 'next-auth' {
 }
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import clsx from 'clsx'
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
 
@@ -139,6 +137,7 @@ export default function AuthForm({isOpen, onClose}: {isOpen: boolean, onClose: (
           }
         } catch (error) {
           // Handle network or unexpected errors
+          console.error("Unexpected Error:", error)
           toast.dismiss();
           toast.error('Failed to send request. Please try again.');
         }
@@ -166,6 +165,7 @@ export default function AuthForm({isOpen, onClose}: {isOpen: boolean, onClose: (
         }
       }
     } catch (error) {
+      console.error("Unexpected Error:", error)
       toast.dismiss();
       toast.error('Something went wrong');
     } finally {

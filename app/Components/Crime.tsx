@@ -10,7 +10,7 @@ import { Feature } from "ol";
 import { Point } from "ol/geom";
 import VectorLayer from "ol/layer/Vector";
 import VectorSource from "ol/source/Vector";
-import { Style, Icon, Fill, Stroke, Circle as CircleStyle, RegularShape } from "ol/style";
+import { Style, Icon, Fill, Stroke, Circle as CircleStyle } from "ol/style";
 import Overlay from "ol/Overlay";
 
 // **Crime Data**
@@ -194,7 +194,7 @@ export default function CrimeMap() {
     return () => {
       map.setTarget(undefined);
     };
-  }, [town, country, state, userLatitude, userLongitude]);
+  }, [town, country, state, userLatitude, userLongitude, fetchNearestTown]);
 
   // **Fetch Town Name**
   async function fetchNearestTown(lat: number, lon: number) {
@@ -205,7 +205,7 @@ export default function CrimeMap() {
       const data = await response.json();
 
       const town = data.address.town || data.address.city || "Unknown";
-      const county = data.address.county || "Unknown";
+      // const county = data.address.county || "Unknown";
       const state = data.address.state || "Unknown";
       const country = data.address.country || "Unknown";
 

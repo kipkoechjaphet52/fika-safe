@@ -49,6 +49,8 @@ model Report {
   type        IncidentType
   severity    SeverityLevel
   description String
+  mediaUrl    String   // Store image or video URL
+  mediaType   MediaType 
   status      ReportStatus @default(PENDING)
   verification ReportVerification @default(UNVERIFIED)
   verifierId  String?  // Admin or authority who verified the report
@@ -110,6 +112,11 @@ enum ReportStatus {
   PENDING
   RESOLVED
   REJECTED
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
 }
 
 enum ReportVerification {
