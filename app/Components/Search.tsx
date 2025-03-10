@@ -16,7 +16,6 @@ export default function Search({placeholder, onSearch}: SearchProps) {
     const searchParams = useSearchParams()
     const {replace} = useRouter()
     
-    console.log(inputValue)
     const handleSearch = useDebouncedCallback( (term:string) =>{
       const parsedDate = new Date(term);
       if (!isNaN(parsedDate.getTime())) {

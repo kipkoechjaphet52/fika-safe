@@ -13,13 +13,12 @@ import AuthForm from "./AuthForm"
 
 
 const Header = () => {
-  // const pathname = usePathname()
+  const pathname = usePathname()
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
   const [session,setSession] =useState(false)
   const [dashboardUrl,setDashboardUrl] = useState('#')
   
   const [role,setRole] =useState('')
-  console.log(role)
 
   const fetchSession = async()=>{
     const access_token = localStorage.getItem("accessToken");
