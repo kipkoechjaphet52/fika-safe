@@ -2,6 +2,7 @@
 import React, { useState } from 'react'
 import { Card, CardContent } from '../ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
+import profile from '@/public/images/face.webp';
 import { Button } from '../ui/button'
 import Input from '../Input'
 import { useToast } from '../../hooks/use-toast'
@@ -32,7 +33,7 @@ export default function Profile() {
                 <>
                 <div className="flex items-center gap-4 mt-6 mb-6">
                 <Avatar className="h-24 w-24">
-                    {/* <AvatarImage src={profile.image} alt={profile.name} /> */}
+                    <AvatarImage src={profile.src} alt={'profile.name'} />
                     <AvatarFallback>JD</AvatarFallback>
                 </Avatar>
                 <Button>Change Avatar</Button>
@@ -50,7 +51,7 @@ export default function Profile() {
                         placeholder='John'
                         disabled={false}
                         value={formData.FirstName}
-                        onChange={(e) => setFormData(e.target.value)}
+                        onChange={(e) => setFormData({ ...formData, FirstName: e.target.value })}
                     />
                     </div>
                     <div>
@@ -63,7 +64,7 @@ export default function Profile() {
                         placeholder='Doe'
                         disabled={false}
                         value={formData.SecondName}
-                        onChange={(e) => setFormData(e.target.value)}
+                        onChange={(e) => setFormData({...formData, SecondName: e.target.value})}
                     />
                     </div>
                     <div>
@@ -76,7 +77,7 @@ export default function Profile() {
                         placeholder='Doe'
                         disabled={false}
                         value={formData.PhoneNumber}
-                        onChange={(e) => setFormData(e.target.value)}
+                        onChange={(e) => setFormData({...formData, PhoneNumber: e.target.value})}
                     />
                     </div>
                     <div>
@@ -89,7 +90,7 @@ export default function Profile() {
                         placeholder='johndoe@gmail.com'
                         disabled={false}
                         value={formData.Email}
-                        onChange={(e) => setFormData(e.target.value)}
+                        onChange={(e) => setFormData({...formData, Email: e.target.value})}
                     />
                     </div>
                     <div>
@@ -102,7 +103,7 @@ export default function Profile() {
                         placeholder='**********'
                         disabled={false}
                         value={formData.PrevPassword}
-                        onChange={(e) => setFormData(e.target.value)}
+                        onChange={(e) => setFormData({...formData, PrevPassword: e.target.value})}
                     />
                     </div>
                     <div>
@@ -115,7 +116,7 @@ export default function Profile() {
                         placeholder='**********'
                         disabled={false}
                         value={formData.NewPassword}
-                        onChange={(e) => setFormData(e.target.value)}
+                        onChange={(e) => setFormData({...formData, NewPassword: e.target.value})}
                     />
                     </div>
                 </div>
