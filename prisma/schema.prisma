@@ -13,30 +13,32 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Admin {
-  id         String  @id @default(uuid())
-  name       String
-  email      String  @unique
-  password   String
-  phone      String  @unique
-  profilePic String?
-  role       UserRole @default(EMERGENCY_RESPONDER)
-  createdAt  DateTime @default(now())
+model Staff {
+  id          String  @id @default(uuid())
+  firstName   String
+  secondName  String
+  email       String  @unique
+  password    String
+  phoneNumber String  @unique
+  profilePic  String?
+  userRole        UserRole @default(EMERGENCY_RESPONDER)
+  createdAt   DateTime @default(now())
   reports     Report[]
 }
 
 model User {
-  id         String  @id @default(uuid())
-  name       String
-  email      String  @unique
-  password   String
-  phone      String  @unique
-  profilePic String?
-  role       UserRole @default(USER)
-  reports    Report[]
-  alerts     Alert[]
-  createdAt  DateTime @default(now())
-  routes     Route[]
+  id          String  @id @default(uuid())
+  firstName   String
+  secondName  String
+  email       String  @unique
+  password    String
+  phoneNumber String  @unique
+  profilePic  String?
+  userRole        UserRole @default(USER)
+  reports     Report[]
+  alerts      Alert[]
+  createdAt   DateTime @default(now())
+  routes      Route[]
 }
 
 model Report {
@@ -54,7 +56,7 @@ model Report {
   status      ReportStatus @default(PENDING)
   verification ReportVerification @default(UNVERIFIED)
   verifierId  String?  // Admin or authority who verified the report
-  verifier    Admin?    @relation(fields: [verifierId], references: [id])
+  verifier    Staff?    @relation(fields: [verifierId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
