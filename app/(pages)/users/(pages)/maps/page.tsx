@@ -1,7 +1,7 @@
 'use client'
-import {Button} from '@/app/Components/ui/button';
-import CrimeMap from '@/app/Components/Crime';
-import { IncidentReport } from '@/app/Components/incident-report';
+import {Button} from '@/app/components/ui/button';
+import CrimeMap from '@/app/components/Crime';
+import { IncidentReport } from '@/app/components/incident-report';
 import clsx from 'clsx';
 import React, { useState } from 'react'
 import { XIcon } from 'lucide-react';

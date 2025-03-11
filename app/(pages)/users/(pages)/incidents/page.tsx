@@ -1,9 +1,9 @@
 'use client'
-import CrimeMap from '@/app/Components/Crime';
-import Footer from '@/app/Components/Footer';
-import Header from '@/app/Components/Header';
-import Search from '@/app/Components/Search'
-import { Card, CardContent } from '@/app/Components/ui/card';
+import CrimeMap from '@/app/components/Crime';
+import Footer from '@/app/components/Footer';
+import Header from '@/app/components/Header';
+import Search from '@/app/components/Search'
+import { Card, CardContent } from '@/app/components/ui/card';
 import React, { Suspense, useState } from 'react'
 
 const Loading = () => <div>Loading...</div>;
