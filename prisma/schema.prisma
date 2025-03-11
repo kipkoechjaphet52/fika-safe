@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,77 +8,77 @@ datasource db {
 }
 
 model Staff {
-  id          String  @id @default(uuid())
+  id          String   @id @default(uuid())
   firstName   String
   secondName  String
-  email       String  @unique
+  phoneNumber String   @unique
+  email       String   @unique
   password    String
-  phoneNumber String  @unique
   profilePic  String?
-  userRole    UserRole @default(EMERGENCY_RESPONDER)
   createdAt   DateTime @default(now())
+  userRole    UserRole @default(EMERGENCY_RESPONDER)
   reports     Report[]
 }
 
 model User {
-  id          String  @id @default(uuid())
+  id          String   @id @default(uuid())
   firstName   String
   secondName  String
-  email       String  @unique
+  phoneNumber String   @unique
+  email       String   @unique
   password    String
-  phoneNumber String  @unique
   profilePic  String?
-  userRole    UserRole @default(USER)
-  reports     Report[]
-  alerts      Alert[]
   createdAt   DateTime @default(now())
+  userRole    UserRole @default(USER)
+  alerts      Alert[]
+  reports     Report[]
   routes      Route[]
 }
 
 model Report {
-  id          String  @id @default(uuid())
-  userId      String
-  user        User    @relation(fields: [userId], references: [id])
-  location    String  // Address or coordinates
-  latitude    Float
-  longitude   Float
-  type        IncidentType
-  severity    SeverityLevel
-  description String
-  mediaUrl    String   // Store image or video URL
-  mediaType   MediaType 
-  status      ReportStatus @default(PENDING)
+  id           String             @id @default(uuid())
+  userId       String
+  location     String
+  latitude     Float
+  longitude    Float
+  type         IncidentType
+  severity     SeverityLevel
+  description  String
+  mediaUrl     String
+  mediaType    MediaType
+  status       ReportStatus       @default(PENDING)
   verification ReportVerification @default(UNVERIFIED)
-  verifierId  String?  // Admin or authority who verified the report
-  verifier    Staff?    @relation(fields: [verifierId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  verifierId   String?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  user         User               @relation(fields: [userId], references: [id])
+  verifier     Staff?             @relation(fields: [verifierId], references: [id])
 }
 
 model Alert {
-  id          String  @id @default(uuid())
-  userId      String
-  user        User    @relation(fields: [userId], references: [id])
-  message     String
-  status      AlertStatus @default(UNREAD)
-  createdAt   DateTime @default(now())
+  id        String      @id @default(uuid())
+  userId    String
+  message   String
+  status    AlertStatus @default(UNREAD)
+  createdAt DateTime    @default(now())
+  user      User        @relation(fields: [userId], references: [id])
 }
 
 model Route {
-  id        String  @id @default(uuid())
-  userId    String
-  user      User    @relation(fields: [userId], references: [id])
-  origin    String
+  id          String   @id @default(uuid())
+  userId      String
+  origin      String
   destination String
-  routeData Json    // Store alternative routes
-  createdAt DateTime @default(now())
+  routeData   Json
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id])
 }
 
 model EmergencyContact {
-  id        String  @id @default(uuid())
-  name      String
-  phone     String  @unique
-  type      ContactType
+  id    String      @id @default(uuid())
+  name  String
+  phone String      @unique
+  type  ContactType
 }
 
 enum UserRole {
