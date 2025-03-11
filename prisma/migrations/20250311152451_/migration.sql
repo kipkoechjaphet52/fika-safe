@@ -23,29 +23,31 @@ CREATE TYPE "AlertStatus" AS ENUM ('UNREAD', 'READ');
 CREATE TYPE "ContactType" AS ENUM ('POLICE', 'AMBULANCE', 'CARRIER');
 
 -- CreateTable
-CREATE TABLE "Admin" (
+CREATE TABLE "Staff" (
     "id" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
+    "firstName" TEXT NOT NULL,
+    "secondName" TEXT NOT NULL,
+    "phoneNumber" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
-    "phone" TEXT NOT NULL,
     "profilePic" TEXT,
-    "role" "UserRole" NOT NULL DEFAULT 'EMERGENCY_RESPONDER',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "userRole" "UserRole" NOT NULL DEFAULT 'EMERGENCY_RESPONDER',
 
-    CONSTRAINT "Admin_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Staff_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
+    "firstName" TEXT NOT NULL,
+    "secondName" TEXT NOT NULL,
+    "phoneNumber" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
-    "phone" TEXT NOT NULL,
     "profilePic" TEXT,
-    "role" "UserRole" NOT NULL DEFAULT 'USER',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "userRole" "UserRole" NOT NULL DEFAULT 'USER',
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -105,16 +107,16 @@ CREATE TABLE "EmergencyContact" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Admin_email_key" ON "Admin"("email");
+CREATE UNIQUE INDEX "Staff_phoneNumber_key" ON "Staff"("phoneNumber");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Admin_phone_key" ON "Admin"("phone");
+CREATE UNIQUE INDEX "Staff_email_key" ON "Staff"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_phoneNumber_key" ON "User"("phoneNumber");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
-
--- CreateIndex
-CREATE UNIQUE INDEX "User_phone_key" ON "User"("phone");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "EmergencyContact_phone_key" ON "EmergencyContact"("phone");
@@ -123,7 +125,7 @@ CREATE UNIQUE INDEX "EmergencyContact_phone_key" ON "EmergencyContact"("phone");
 ALTER TABLE "Report" ADD CONSTRAINT "Report_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Report" ADD CONSTRAINT "Report_verifierId_fkey" FOREIGN KEY ("verifierId") REFERENCES "Admin"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Report" ADD CONSTRAINT "Report_verifierId_fkey" FOREIGN KEY ("verifierId") REFERENCES "Staff"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Alert" ADD CONSTRAINT "Alert_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
