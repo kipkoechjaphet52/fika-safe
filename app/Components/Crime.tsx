@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "ol/ol.css"; // OpenLayers CSS
 import Map from "ol/Map";
 import View from "ol/View";
@@ -40,31 +40,6 @@ export default function CrimeMap() {
   const [state, setState] = useState<string | null>(null);
 
   console.log("Your Location:", town, country, userLatitude, userLongitude);
-
-  // **Fetch Town Name**
-  const fetchNearestTown = useCallback(async(lat: number, lon: number) => {
-    try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
-      );
-      const data = await response.json();
-
-      const town = data.address.town || data.address.city || "Unknown";
-      // const county = data.address.county || "Unknown";
-      const state = data.address.state || "Unknown";
-      const country = data.address.country || "Unknown";
-
-      if (overlayRef.current && userFeature) {
-        const coordinates = (userFeature.getGeometry() as Point)?.getCoordinates();
-        overlayRef.current.setPosition(coordinates);
-    }
-    return {town, state, country};
-    
-    } catch (error) {
-      console.error("Error fetching location details:", error);
-    }
-  },[overlayRef, userFeature]);
-
   useEffect(() => {
     if (!mapRef.current) return;
 
@@ -220,6 +195,30 @@ export default function CrimeMap() {
       map.setTarget(undefined);
     };
   }, [town, country, state, userLatitude, userLongitude, fetchNearestTown]);
+
+  // **Fetch Town Name**
+  async function fetchNearestTown(lat: number, lon: number) {
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
+      );
+      const data = await response.json();
+
+      const town = data.address.town || data.address.city || "Unknown";
+      const county = data.address.county || "Unknown";
+      const state = data.address.state || "Unknown";
+      const country = data.address.country || "Unknown";
+
+      if (overlayRef.current && userFeature) {
+        const coordinates = (userFeature.getGeometry() as Point)?.getCoordinates();
+        overlayRef.current.setPosition(coordinates);
+    }
+    return {town, state, country};
+    
+    } catch (error) {
+      console.error("Error fetching location details:", error);
+    }
+  }
 
   return (
     <div style={{ width: "100%", height: "100vh", position: "relative" }}>
