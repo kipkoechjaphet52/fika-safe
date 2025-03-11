@@ -21,7 +21,7 @@ model Staff {
   password    String
   phoneNumber String  @unique
   profilePic  String?
-  userRole        UserRole @default(EMERGENCY_RESPONDER)
+  userRole    UserRole @default(EMERGENCY_RESPONDER)
   createdAt   DateTime @default(now())
   reports     Report[]
 }
@@ -34,7 +34,7 @@ model User {
   password    String
   phoneNumber String  @unique
   profilePic  String?
-  userRole        UserRole @default(USER)
+  userRole    UserRole @default(USER)
   reports     Report[]
   alerts      Alert[]
   createdAt   DateTime @default(now())
