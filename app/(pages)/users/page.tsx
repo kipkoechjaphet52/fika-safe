@@ -1,10 +1,10 @@
 "use client";
 
 import { Button } from "@/app/Components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/app/Components/ui/card";
-import { EnrolledCourses } from "@/app/Components/Enrolled";
-import { IncidentReport } from "@/app/Components/incident-report";
-import { ReportHistory } from "@/app/Components/ReportHistory";
+import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
+import { EnrolledCourses } from "@/app/components/Enrolled";
+import { IncidentReport } from "@/app/components/incident-report";
+import { ReportHistory } from "@/app/components/ReportHistory";
 import { BookOpen, FileCheck, AlertTriangle } from "lucide-react";
 
 export default function StudentDashboard() {
