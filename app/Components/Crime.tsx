@@ -194,7 +194,7 @@ export default function CrimeMap() {
     return () => {
       map.setTarget(undefined);
     };
-  }, [town, country, state, userLatitude, userLongitude, fetchNearestTown]);
+  }, [town, country, state, userLatitude, userLongitude]);
 
   // **Fetch Town Name**
   async function fetchNearestTown(lat: number, lon: number) {
