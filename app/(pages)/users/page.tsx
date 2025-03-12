@@ -1,6 +1,7 @@
 "use client";
 
-import { Button } from "@/app/Components/ui/button";
+import { Button } from "@/app/components/ui/button";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
 import { EnrolledCourses } from "@/app/components/Enrolled";
 import { IncidentReport } from "@/app/components/incident-report";

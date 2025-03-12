@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { Button } from "@/app/Components/ui/button";
+import { Button } from "@/app/components/ui/button";
 
 const images = [
   "/images/map_on_screen.jpg",

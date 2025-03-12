@@ -1,13 +1,13 @@
 "use client";
 
-import { Badge } from "@/app/Components/ui/badge";
+import { Badge } from "@/app/components/ui/badge";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/app/Components/ui/card";
+} from "@/app/components/ui/card";
 import {
   Table,
   TableBody,
@@ -15,7 +15,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/app/Components/ui/table";
+} from "@/app/components/ui/table";
 import { EyeIcon, Pencil, TrashIcon } from "lucide-react";
 
 const reports = [

@@ -1,6 +1,6 @@
 "use client";
-import { Avatar, AvatarFallback, AvatarImage } from "@/app/Components/ui/avatar";
-import { Button } from "@/app/Components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/app/components/ui/avatar";
+import { Button } from "@/app/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,7 +9,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/app/Components/ui/dropdown-menu";
+} from "@/app/components/ui/dropdown-menu";
 import { GraduationCap, LogOut, ShieldPlus, User } from "lucide-react";
 import { ThemeToggle } from "../ThemeToggle";
 
