@@ -17,6 +17,7 @@ import { usePathname } from "next/navigation";
 import clsx from "clsx";
 import { useState } from "react";
 import Settings from "../users/Settings";
+import { signOut } from "next-auth/react";
 
 const routes = {
   USER: [
@@ -41,6 +42,24 @@ const routes = {
       href: "#settings",
     },
   ],
+  ADMIN: [
+    {
+      title: "Dashboard",
+      href: "/admin",
+    },
+    {
+      title: "Users",
+      href: "/admin/users",
+    },
+    {
+      title: "Incidents",
+      href: "/admin/incidents",
+    },
+    {
+      title: "Settings",
+      href: "#settings",
+    },
+  ],
 }
 export function UserNav() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -48,17 +67,15 @@ export function UserNav() {
 
   const pathname = usePathname();
 
-  const userRole = pathname.includes("/Admin")
-    ? "ADMIN"
-    : pathname.includes("/dean")
-    ? "DEAN"
-    : pathname.includes("/cod")
-    ? "COD"
-    : pathname.includes("/Lecturer")
-    ? "LECTURER"
+  const userRole = pathname.includes("/admin")
+    ? ["ADMIN", "EMERGENCY_RESPONDER", "POLICE"].includes("ADMIN")
     : "USER";
 
   const currentRoutes = routes[userRole as keyof typeof routes];
+
+  const handleLogout = () => {
+    signOut({callbackUrl: '/'})
+  };
   return (
     <div className="ml-auto flex items-center justify-between ">
       <div className="flex items-center gap-2 px-2 pt-4">
@@ -119,7 +136,7 @@ export function UserNav() {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout}>
               <LogOut className="mr-2 h-4 w-4" />
               <span>Log out</span>
             </DropdownMenuItem>
