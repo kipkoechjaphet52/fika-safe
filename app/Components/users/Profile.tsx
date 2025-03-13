@@ -94,7 +94,7 @@ export default function Profile() {
                         label='First Name'
                         required
                         type='text'
-                        placeholder={profile?.firstName!}
+                        placeholder={profile?.firstName || 'First Name'}
                         disabled={true}
                         value={formData.FirstName}
                         onChange={(e) => setFormData({ ...formData, FirstName: e.target.value })}
@@ -107,7 +107,7 @@ export default function Profile() {
                         label='Second Name'
                         required
                         type='text'
-                        placeholder={profile?.secondName!}
+                        placeholder={profile?.secondName || 'Second Name'}
                         disabled={true}
                         value={formData.SecondName}
                         onChange={(e) => setFormData({...formData, SecondName: e.target.value})}
@@ -120,7 +120,7 @@ export default function Profile() {
                         label='Phone Number'
                         required
                         type='tel'
-                        placeholder={profile?.phoneNumber!}
+                        placeholder={profile?.phoneNumber || 'Phone Number'}
                         disabled={true}
                         value={formData.PhoneNumber}
                         onChange={(e) => setFormData({...formData, PhoneNumber: e.target.value})}
@@ -133,7 +133,7 @@ export default function Profile() {
                         label='Email'
                         required
                         type='email'
-                        placeholder={profile?.email!}
+                        placeholder={profile?.email || 'email'}
                         disabled={true}
                         value={formData.Email}
                         onChange={(e) => setFormData({...formData, Email: e.target.value})}

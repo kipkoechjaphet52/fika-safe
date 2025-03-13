@@ -11,7 +11,7 @@ export async function fetchProfile() {
     if(!session || !session.user?.email){
         throw new Error("User not authenticated");
     }
-    const email = session?.user?.email!;
+    const email = session?.user?.email;
 
     const user = await prisma.user.findUnique({
         where: {email: email,},
