@@ -69,7 +69,7 @@ export default function AccountSettings() {
         </div>
         <div className='border-b-2 py-2 flex justify-between items-center'>
             <h1 className=''>Delete account</h1>
-            <Button variant='destructive' className='rounded-full'>Delete all</Button>
+            <Button variant='destructive' className='rounded-full'>Delete account</Button>
         </div>
     </div>
   )

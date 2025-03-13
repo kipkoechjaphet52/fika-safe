@@ -50,12 +50,12 @@ export default function AuthForm({isOpen, onClose}: {isOpen: boolean, onClose: (
     if (status === 'authenticated') {
       const userRole = session.userRole as UserRole;
       if(userRole === 'USER'){
-        router.push('/user');
+        router.push('/users');
       }else if(userRole === 'ADMIN' || userRole === 'EMERGENCY_RESPONDER' || userRole === 'POLICE') {
         router.push('/admin');
       }
     }
-  });
+  },[status, session, router]);
 
   const isValidEmail = (email: string) => {
     const emailRegex = /^[a-z][a-z0-9._%+-]*@[a-z0-9.-]+\.[a-z]{2,}$/; //This rejects emails like 123@gmail.com and accepts emails like example123@gmail.com, all emails must be lowercase

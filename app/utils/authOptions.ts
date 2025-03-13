@@ -158,10 +158,10 @@ export const authOptions: AuthOptions = {
           firstName: (token as CustomJWT).firstName,
           secondName: (token as CustomJWT).secondName,
           email: (token as CustomJWT).email,
-          userRole: (token as CustomJWT).userRole,
           createdAt: (token as CustomJWT).createdAt,
           phoneNumber: (token as CustomJWT).phoneNumber,
         },
+        userRole: (token as CustomJWT).userRole,
       };
     },
   },

@@ -1,12 +1,25 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Card, CardContent } from '../ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
-import profile from '@/public/images/face.webp';
+import profilePic from '@/public/images/face.webp';
 import { Button } from '../ui/button'
 import Input from '../Input'
 import { useToast } from '../../hooks/use-toast'
+import { fetchProfile } from '@/app/lib/action';
+import { UserRole } from '@prisma/client';
 
+interface UserProfile{
+  id: string;
+  firstName: string;
+  secondName: string;
+  phoneNumber: string;
+  email: string;
+  password: string;
+  profilePic: string | null;
+  createdAt: Date;
+  userRole: UserRole;
+}
 export default function Profile() {
     const [formData, setFormData] = useState({
         FirstName: '',
@@ -16,16 +29,51 @@ export default function Profile() {
         PrevPassword: '',
         NewPassword: '',
     });
+    const [profile, setProfile] = useState<UserProfile | null>(null);
 
-    const {toast} = useToast();
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        // Here you would typically update the profile via API
-        toast({
-          title: "Profile Updated",
-          description: "Your profile has been successfully updated.",
-        });
-      };
+    const avatar = profile?.profilePic;
+    const avatarFallback = `${profile?.firstName.substring(0, 1).toUpperCase()} ${profile?.secondName.substring(0, 1).toUpperCase()}`;
+
+    useEffect(() => {
+        const handleProfile = async () => {
+          try{
+            const user = await fetchProfile();
+            setProfile(user);
+          }catch(error){
+            console.error("Error fetching profile: ", error);
+          }
+        }
+        handleProfile();
+    },[]);
+
+    const ChangeAvatarButton = () => {
+        const fileInputRef = useRef<HTMLInputElement | null>(null);
+        
+        const handleButtonClick = () => {
+            fileInputRef.current?.click();
+        };
+        
+        const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+            const file = event.target.files?.[0];
+            if (file) {
+            console.log("Selected file:", file);
+            // You can now upload or preview the image
+            }
+        };    
+    return (
+        <>
+        <Button onClick={handleButtonClick}>Change Avatar</Button>
+        <input 
+            type="file" 
+            accept="image/*" 
+            ref={fileInputRef} 
+            className="hidden" 
+            onChange={handleImageUpload} 
+        />
+        </>
+      );
+    };
+
   return (
     <div>
         <Card>
@@ -33,13 +81,11 @@ export default function Profile() {
                 <>
                 <div className="flex items-center gap-4 mt-6 mb-6">
                 <Avatar className="h-24 w-24">
-                    <AvatarImage src={profile.src} alt={'profile.name'} />
-                    <AvatarFallback>JD</AvatarFallback>
+                    <AvatarImage src={avatar!} alt={'profile.name'} />
+                    <AvatarFallback>{avatarFallback}</AvatarFallback>
                 </Avatar>
-                <Button>Change Avatar</Button>
+                <ChangeAvatarButton />
                 </div>
-
-                <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                     <Input
@@ -48,8 +94,8 @@ export default function Profile() {
                         label='First Name'
                         required
                         type='text'
-                        placeholder='John'
-                        disabled={false}
+                        placeholder={profile?.firstName || 'First Name'}
+                        disabled={true}
                         value={formData.FirstName}
                         onChange={(e) => setFormData({ ...formData, FirstName: e.target.value })}
                     />
@@ -61,8 +107,8 @@ export default function Profile() {
                         label='Second Name'
                         required
                         type='text'
-                        placeholder='Doe'
-                        disabled={false}
+                        placeholder={profile?.secondName || 'Second Name'}
+                        disabled={true}
                         value={formData.SecondName}
                         onChange={(e) => setFormData({...formData, SecondName: e.target.value})}
                     />
@@ -74,8 +120,8 @@ export default function Profile() {
                         label='Phone Number'
                         required
                         type='tel'
-                        placeholder='Doe'
-                        disabled={false}
+                        placeholder={profile?.phoneNumber || 'Phone Number'}
+                        disabled={true}
                         value={formData.PhoneNumber}
                         onChange={(e) => setFormData({...formData, PhoneNumber: e.target.value})}
                     />
@@ -87,41 +133,13 @@ export default function Profile() {
                         label='Email'
                         required
                         type='email'
-                        placeholder='johndoe@gmail.com'
-                        disabled={false}
+                        placeholder={profile?.email || 'email'}
+                        disabled={true}
                         value={formData.Email}
                         onChange={(e) => setFormData({...formData, Email: e.target.value})}
                     />
                     </div>
-                    <div>
-                    <Input
-                        id='PrevPassword'
-                        name='PrevPassword'
-                        label='Previous Password'
-                        required
-                        type='text'
-                        placeholder='**********'
-                        disabled={false}
-                        value={formData.PrevPassword}
-                        onChange={(e) => setFormData({...formData, PrevPassword: e.target.value})}
-                    />
-                    </div>
-                    <div>
-                    <Input
-                        id='NewPassword'
-                        name='NewPassword'
-                        label='New Password'
-                        required
-                        type='text'
-                        placeholder='**********'
-                        disabled={false}
-                        value={formData.NewPassword}
-                        onChange={(e) => setFormData({...formData, NewPassword: e.target.value})}
-                    />
-                    </div>
                 </div>
-                <Button type="submit">Save Changes</Button>
-                </form>
                 </>
             </CardContent>
         </Card>
