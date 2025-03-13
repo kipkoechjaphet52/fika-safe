@@ -9,26 +9,26 @@ datasource db {
 
 model Staff {
   id          String   @id @default(uuid())
+  createdAt   DateTime @default(now())
   firstName   String
   secondName  String
   phoneNumber String   @unique
   email       String   @unique
   password    String
   profilePic  String?
-  createdAt   DateTime @default(now())
   userRole    UserRole @default(EMERGENCY_RESPONDER)
   reports     Report[]
 }
 
 model User {
   id          String   @id @default(uuid())
+  createdAt   DateTime @default(now())
   firstName   String
   secondName  String
   phoneNumber String   @unique
   email       String   @unique
   password    String
   profilePic  String?
-  createdAt   DateTime @default(now())
   userRole    UserRole @default(USER)
   alerts      Alert[]
   reports     Report[]
@@ -37,6 +37,7 @@ model User {
 
 model Report {
   id           String             @id @default(uuid())
+  createdAt    DateTime           @default(now())
   userId       String
   location     String
   latitude     Float
@@ -44,12 +45,10 @@ model Report {
   type         IncidentType
   severity     SeverityLevel
   description  String
-  mediaUrl     String
+  mediaUrl     String?
   mediaType    MediaType
-  status       ReportStatus       @default(PENDING)
   verification ReportVerification @default(UNVERIFIED)
   verifierId   String?
-  createdAt    DateTime           @default(now())
   updatedAt    DateTime           @updatedAt
   user         User               @relation(fields: [userId], references: [id])
   verifier     Staff?             @relation(fields: [verifierId], references: [id])
@@ -57,20 +56,20 @@ model Report {
 
 model Alert {
   id        String      @id @default(uuid())
+  createdAt DateTime    @default(now())
   userId    String
   message   String
   status    AlertStatus @default(UNREAD)
-  createdAt DateTime    @default(now())
   user      User        @relation(fields: [userId], references: [id])
 }
 
 model Route {
   id          String   @id @default(uuid())
+  createdAt   DateTime @default(now())
   userId      String
   origin      String
   destination String
   routeData   Json
-  createdAt   DateTime @default(now())
   user        User     @relation(fields: [userId], references: [id])
 }
 
@@ -102,12 +101,6 @@ enum SeverityLevel {
   MEDIUM
   HIGH
   CRITICAL
-}
-
-enum ReportStatus {
-  PENDING
-  RESOLVED
-  REJECTED
 }
 
 enum MediaType {
