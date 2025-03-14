@@ -28,8 +28,9 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Textarea } from "../ui/textarea";
 import Input from "../Input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MediaType } from "@prisma/client";
+import toast from "react-hot-toast";
 
 const formSchema = z.object({
   incidentType: z.string().min(1, "Incident type is required"),
@@ -44,55 +45,90 @@ export function IncidentReport() {
     resolver: zodResolver(formSchema),
   });
 
+  const [disabled, setDisabled] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [street, setStreet] = useState("");
-  const [disabled, setDisabled] = useState(false);
+  const [mediaType, setMediaType] = useState<MediaType | string>('');
+  const [fileUrl, setFileUrl] = useState('');
 
   const incidentType = form.watch('incidentType');
   const severity = form.watch('severity');
   const description = form.watch('description');
+  
 
   // Check if the file is an image or video
-  const validateFile = (file: File): "IMAGE" | "VIDEO" | "invalid" => {
-    if (!file) return "invalid";
+  useEffect(() => {
+    const validateFile = (file: File): "IMAGE" | "VIDEO" | "invalid" => {
+      if (!file) return "invalid";
+    
+      const imageTypes = ["image/png", "image/jpeg", "image/jpg", "image/gif", "image/webp"];
+      const videoTypes = ["video/mp4", "video/webm", "video/ogg", "video/mov", "video/avi"];
+    
+      if (imageTypes.includes(file.type)) {
+        return "IMAGE";
+      }
+      if (videoTypes.includes(file.type)) {
+        return "VIDEO";
+      }
+      return "invalid"; // Not an image or video
+    };
   
-    const imageTypes = ["image/png", "image/jpeg", "image/jpg", "image/gif", "image/webp"];
-    const videoTypes = ["video/mp4", "video/webm", "video/ogg", "video/mov", "video/avi"];
+    const validateFileExtension = (fileName: string): "IMAGE" | "VIDEO" | "invalid" => {
+      const imageExtensions = [".png", ".jpg", ".jpeg", ".gif", ".webp"];
+      const videoExtensions = [".mp4", ".webm", ".ogg", ".mov", ".avi"];
+    
+      const ext = fileName.slice(fileName.lastIndexOf(".")).toLowerCase();
+    
+      if (imageExtensions.includes(ext)) return "IMAGE";
+      if (videoExtensions.includes(ext)) return "VIDEO";
+      return "invalid";
+    };
   
-    if (imageTypes.includes(file.type)) {
-      return "IMAGE";
-    }
-    if (videoTypes.includes(file.type)) {
-      return "VIDEO";
-    }
-    return "invalid"; // Not an image or video
-  };
+    // We use the two functions above to validate the file, this prevents spoofing
+    const validateFileUpload = (file: File): "IMAGE" | "VIDEO" | "invalid" => {
+      const validMimeType = validateFile(file);
+      const validExtension = validateFileExtension(file.name);
+    
+      if (validMimeType === validExtension) { // Compares the value from the two functions, if they match, it's valid
+        return validMimeType;
+      }
+      return "invalid"; // Mismatch in extension and MIME type
+    };
+    const mediaType = file ? validateFileUpload(file) : "invalid";
+    setMediaType(mediaType);
 
-  const validateFileExtension = (fileName: string): "IMAGE" | "VIDEO" | "invalid" => {
-    const imageExtensions = [".png", ".jpg", ".jpeg", ".gif", ".webp"];
-    const videoExtensions = [".mp4", ".webm", ".ogg", ".mov", ".avi"];
-  
-    const ext = fileName.slice(fileName.lastIndexOf(".")).toLowerCase();
-  
-    if (imageExtensions.includes(ext)) return "IMAGE";
-    if (videoExtensions.includes(ext)) return "VIDEO";
-    return "invalid";
-  };
+    // Upload file to Cloudinary
+    const handleUpload = async () => {
+      if (!file) return;
+      if (mediaType === "invalid") {
+        toast.error('Invalid file type');
+        return;
+      }
 
-  // We use the two functions above to validate the file, this prevents spoofing
-  const validateFileUpload = (file: File): "IMAGE" | "VIDEO" | "invalid" => {
-    const validMimeType = validateFile(file);
-    const validExtension = validateFileExtension(file.name);
-  
-    if (validMimeType === validExtension) { // Compares the value from the two functions, if they match, it's valid
-      return validMimeType;
-    }
-    return "invalid"; // Mismatch in extension and MIME type
-  };
-  const mediaType = file ? validateFileUpload(file) : "invalid";
-  console.log(mediaType);
+      const formData = new FormData();
+      formData.append("file", file);
 
-  console.log(file);
+      try {
+        toast.loading('Uploading file...');
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+        
+        const data = await res.json();
+        if (data.url) {
+          toast.dismiss();
+          toast.success('File uploaded successfully');
+          setFileUrl(data.url);
+        }
+      } catch (error) {
+        toast.error('Error uploading file');
+        console.error('Upload failed', error);
+      }
+    };
+    handleUpload();
+  }, [file]);
+
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
   }
