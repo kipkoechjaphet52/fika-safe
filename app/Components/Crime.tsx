@@ -38,6 +38,17 @@ export default function CrimeMap() {
   const [userLatitude, setUserLatitude] = useState<number | null>(null);
   const [userLongitude, setUserLongitude] = useState<number | null>(null);
   const [state, setState] = useState<string | null>(null);
+  const [isLocationEnabled, setIsLocationEnabled] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("locationEnabled") === "true";
+    }
+    return false; // Default value for SSR
+  });
+
+  useEffect(() => {
+    const storedValue = localStorage.getItem("locationEnabled") === "true";
+    setIsLocationEnabled(storedValue);
+  }, []);
 
   console.log("Your Location:", town, country, userLatitude, userLongitude);
   useEffect(() => {
@@ -134,62 +145,64 @@ export default function CrimeMap() {
     });
 
     // **Get User's Current Location**
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords;
-        const userCoords = fromLonLat([longitude, latitude]);
+    if (isLocationEnabled) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+          const userCoords = fromLonLat([longitude, latitude]);
 
-        const userFeature = new Feature({
-          geometry: new Point(userCoords),
-          name: "Your Location",
-        });
+          const userFeature = new Feature({
+            geometry: new Point(userCoords),
+            name: "Your Location",
+          });
 
-        
-        userFeature.setStyle(
-          new Style({
-            image: new Icon({
-              src: '/images/marker.png',
-              scale: 0.07,
-              anchor: [0.5, 1],
-              crossOrigin: 'anonymous',
+          
+          userFeature.setStyle(
+            new Style({
+              image: new Icon({
+                src: '/images/marker.png',
+                scale: 0.07,
+                anchor: [0.5, 1],
+                crossOrigin: 'anonymous',
+              }),
+            })
+          );
+
+          setUserFeature(userFeature);
+
+          // **Add User Marker to Map**
+          const userLayer = new VectorLayer({
+            source: new VectorSource({
+              features: [userFeature],
             }),
-          })
-        );
+          });
 
-        setUserFeature(userFeature);
+          map.addLayer(userLayer);
 
-        // **Add User Marker to Map**
-        const userLayer = new VectorLayer({
-          source: new VectorSource({
-            features: [userFeature],
-          }),
-        });
+          // **Fetch Nearest Town Name**
+          const results = await fetchNearestTown(latitude, longitude);
+          setUserLatitude(latitude);
+          setUserLongitude(longitude);
+          if (results) {
+            const town = results.town;
+            const country = results.country;
+            const state = results.state;
+            setCountry(country);
+            setTown(town);
+            setState(state);
+            console.log("Your Location:", town, country);
+          }
 
-        map.addLayer(userLayer);
-
-        // **Fetch Nearest Town Name**
-        const results = await fetchNearestTown(latitude, longitude);
-        setUserLatitude(latitude);
-        setUserLongitude(longitude);
-        if (results) {
-          const town = results.town;
-          const country = results.country;
-          const state = results.state;
-          setCountry(country);
-          setTown(town);
-          setState(state);
-          console.log("Your Location:", town, country);
-        }
-
-        // **Reposition Map to User's Location**
-        map.getView().setCenter(userCoords);
-        map.getView().setZoom(12);
-      },
-      (error) => {
-        console.error("Error getting location:", error);
-      },
-      { enableHighAccuracy: true }
-    );
+          // **Reposition Map to User's Location**
+          map.getView().setCenter(userCoords);
+          map.getView().setZoom(12);
+        },
+        (error) => {
+          console.error("Error getting location:", error);
+        },
+        { enableHighAccuracy: true }
+      );
+    } else {return;}
 
     return () => {
       map.setTarget(undefined);
