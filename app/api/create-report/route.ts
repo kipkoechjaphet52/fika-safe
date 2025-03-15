@@ -23,6 +23,10 @@ export async function POST(req:Request){
 
         const {location, latitude, longitude, description, type, severity, mediaUrl, mediaType} = await req.json();
 
+        if(!location || !latitude || !longitude || !description || !type || !severity || !mediaUrl || !mediaType){
+            return new Response(JSON.stringify({message: 'Please fill all fields'}), {status: 400});
+        }
+
         const newReport = await prisma.report.create({
             data: {
                 location,

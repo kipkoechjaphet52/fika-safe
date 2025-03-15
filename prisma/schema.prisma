@@ -47,7 +47,7 @@ model Report {
   description  String
   mediaUrl     String?
   mediaType    MediaType
-  verification ReportVerification @default(UNVERIFIED)
+  verificationStatus VerificationStatus @default(UNVERIFIED)
   verifierId   String?
   updatedAt    DateTime           @updatedAt
   user         User               @relation(fields: [userId], references: [id])
@@ -108,7 +108,7 @@ enum MediaType {
   VIDEO
 }
 
-enum ReportVerification {
+enum VerificationStatus {
   VERIFIED
   UNVERIFIED
 }
