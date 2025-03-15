@@ -170,7 +170,6 @@ export function IncidentReport() {
         },
         body: JSON.stringify(reportData),
       });
-      const data = await response.json();
       
       toast.dismiss();
       if (response.ok || response.status === 200 || response.status === 201) {
