@@ -22,3 +22,40 @@ export async function fetchProfile() {
     throw new Error("Could not fetch user profile");
   }
 }
+
+export async function userReportStats () {
+  try{
+    const session = await getServerSession(authOptions);
+    if(!session || !session.user?.email){
+        throw new Error("User not authenticated");
+    }
+    const email = session?.user?.email;
+
+    const user = await prisma.user.findUnique({
+        where: {email},
+        select: {id: true},
+    });
+    const userId = user?.id;
+
+    const totalReports = await prisma.report.count({
+        where: {userId},
+    });
+    const unverifiedReports = await prisma.report.count({
+        where: {
+          userId,
+          verification: 'UNVERIFIED',
+        },
+    });
+    const verifiedReports = await prisma.report.count({
+        where: {
+          userId,
+          verification: 'VERIFIED',
+        },
+    });
+
+    return {totalReports, unverifiedReports, verifiedReports};
+  }catch(error){
+    console.error("Error fetching user report stats: ", error);
+    throw new Error("Could not fetch user report stats");
+  }
+}
