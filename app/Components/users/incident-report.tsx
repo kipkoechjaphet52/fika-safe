@@ -31,6 +31,7 @@ import Input from "../Input";
 import { useEffect, useState } from "react";
 import { MediaType } from "@prisma/client";
 import toast from "react-hot-toast";
+import { fromLonLat } from "ol/proj";
 
 const formSchema = z.object({
   incidentType: z.string().min(1, "Incident type is required"),
@@ -50,14 +51,28 @@ export function IncidentReport() {
   const [street, setStreet] = useState("");
   const [mediaType, setMediaType] = useState<MediaType | string>('');
   const [fileUrl, setFileUrl] = useState('');
+  const [longitude, setLongitude] = useState(0);
+  const [latitude, setLatitude] = useState(0);
 
   const incidentType = form.watch('incidentType');
   const severity = form.watch('severity');
   const description = form.watch('description');
   
 
-  // Check if the file is an image or video
+  // Check if the file is an image or video and get user coordinates
   useEffect(() => {
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        setLatitude(latitude);
+        setLongitude(longitude);
+      },
+      (error) => {
+        console.error("Error getting location:", error);
+      },
+      { enableHighAccuracy: true }
+    );
+    
     const validateFile = (file: File): "IMAGE" | "VIDEO" | "invalid" => {
       if (!file) return "invalid";
     
@@ -131,6 +146,49 @@ export function IncidentReport() {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
+  }
+
+  const handleSubmit = async () => {
+    const reportData = {
+      location: street,
+      latitude,
+      longitude,
+      description: description,
+      type: incidentType,
+      severity: severity,
+      mediaUrl: fileUrl,
+      mediaType: mediaType,
+    };
+
+    try{
+      setDisabled(true);
+      toast.loading('Submitting report...');
+      const response = await fetch('/api/create-report', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(reportData),
+      });
+      const data = await response.json();
+      
+      toast.dismiss();
+      if (response.ok || response.status === 200 || response.status === 201) {
+        toast.success('Report submitted successfully');
+        setDisabled(false);
+      } else if (response.status === 400) {
+        toast.error('Please fill all the fields');
+        setDisabled(false);
+      } else{
+        toast.error('Error submitting report');
+        setDisabled(false);
+      }
+    }catch(error){
+      toast.dismiss();
+      toast.error('Error submitting report');
+      console.error("Error submitting report: ", error);
+      setDisabled(false);
+    }
   }
 
   return (
@@ -227,7 +285,7 @@ export function IncidentReport() {
                 </FormItem>
               )}
             />
-            <Button disabled={disabled} type="submit" className="w-full">Submit Report</Button>
+            <Button disabled={disabled} type="submit" onClick={() => handleSubmit()} className="w-full">Submit Report</Button>
           </form>
         </Form>
       </CardContent>
