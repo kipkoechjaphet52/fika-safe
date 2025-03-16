@@ -15,20 +15,6 @@ import Overlay from "ol/Overlay";
 import { IncidentType, MediaType, SeverityLevel, VerificationStatus } from "@prisma/client";
 import Loader from "./Loader";
 
-// **Crime Data**
-const cities = [
-  { name: "Detroit, MI", lat: 42.3314, lon: -83.0458, rank: 1, crimes: 5000 },
-  { name: "Memphis, TN", lat: 35.1495, lon: -90.0490, rank: 2, crimes: 4800 },
-  { name: "Birmingham, AL", lat: 33.5186, lon: -86.8104, rank: 3, crimes: 4600 },
-  { name: "St. Louis, MO", lat: 38.6270, lon: -90.1994, rank: 4, crimes: 4500 },
-  { name: "Little Rock, AR", lat: 34.7465, lon: -92.2896, rank: 5, crimes: 4400 },
-  { name: "Tijuana, Mexico", lat: 32.5149, lon: -117.0382, rank: 6, crimes: 4000 },
-  { name: "Acapulco, Mexico", lat: 16.8531, lon: -99.8237, rank: 7, crimes: 3900 },
-  { name: "Ciudad Juárez, Mexico", lat: 31.6904, lon: -106.4245, rank: 8, crimes: 3300 },
-  { name: "Zacatecas, Mexico", lat: 22.7709, lon: -102.5833, rank: 9, crimes: 3000 },
-  { name: "Cancún, Mexico", lat: 21.1619, lon: -86.8515, rank: 10, crimes: 2900 },
-];
-
 interface Report {
   id: string;
   createdAt: Date;
@@ -96,7 +82,7 @@ export default function CrimeMap({incidents}: {incidents: Report[]}) {
         id: incident.id,
         type: incident.type,
         severity: incident.severity,
-        description: incident.description,
+        location: incident.location,
       });
 
        // **Set Marker Style Based on Severity**
@@ -135,7 +121,7 @@ export default function CrimeMap({incidents}: {incidents: Report[]}) {
       positioning: "bottom-center",
       offset: [0, -10],
     });
-
+    
     map.on("click", (event) => {
       const feature = map.forEachFeatureAtPixel(event.pixel, (feat) => feat);
       if (feature) {
@@ -144,13 +130,13 @@ export default function CrimeMap({incidents}: {incidents: Report[]}) {
 
         const type = feature.get("type");
         const severity = feature.get("severity");
-        const description = feature.get("description");
+        const location = feature.get("location");
 
         if (popupRef.current) {
           popupRef.current.innerHTML = `
+            <strong>Location:</strong> ${location}<br>
             <strong>Type:</strong> ${type}<br>
             <strong>Severity:</strong> ${severity}<br>
-            <strong>Description:</strong> ${description}
           `;
           popupRef.current.style.display = "block";
         }
@@ -158,6 +144,8 @@ export default function CrimeMap({incidents}: {incidents: Report[]}) {
         overlay.setPosition(undefined);
         if (popupRef.current) popupRef.current.style.display = "none";
       }
+
+    map.addOverlay(overlay);
     });
 
     // **Get User's Current Location**
