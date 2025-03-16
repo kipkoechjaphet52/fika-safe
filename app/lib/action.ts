@@ -96,10 +96,22 @@ export async function fetchLiveIncidents(){
       orderBy: {createdAt: 'desc'},
     })
 
-
     return incidents;
   }catch(error){
     console.error("Error fetching live incidents: ", error);
     throw new Error("Could not fetch live incidents");
+  }
+}
+
+export async function fetchAllIncidents(){
+  try{
+    const incidents = await prisma.report.findMany({
+      orderBy: {createdAt: 'desc'},
+    })
+
+    return incidents;
+  }catch(error){
+    console.error("Error fetching all incidents: ", error);
+    throw new Error("Could not fetch all incidents");
   }
 }

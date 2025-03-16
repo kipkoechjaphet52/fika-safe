@@ -1,13 +1,46 @@
 'use client'
 import CrimeMap from '@/app/Components/Crime';
 import Search from '@/app/Components/Search'
-import React, { Suspense, useState } from 'react'
+import { fetchAllIncidents } from '@/app/lib/action';
+import { IncidentType, MediaType, SeverityLevel, VerificationStatus } from '@prisma/client';
+import React, { Suspense, useEffect, useState } from 'react'
+import toast from 'react-hot-toast';
 
+interface Report {
+  id: string;
+  createdAt: Date;
+  userId: string;
+  location: string;
+  latitude: number;
+  longitude: number;
+  type: IncidentType;
+  severity: SeverityLevel;
+  description: string;
+  mediaUrl: string | null;
+  mediaType: MediaType;
+  verificationStatus: VerificationStatus;
+  verifierId: string | null;
+  updatedAt: Date;
+}
 const Loading = () => <div>Loading...</div>;
 export default function Page() {
+    const [incidents, setIncidents] = useState<Report[]>([]);
     const [searchTerm, setSearchTerm] = useState<string | null>(null);
     const [searchDate, setSearchDate] = useState<Date | null>(null);
-    console.log(searchDate, searchTerm)
+
+    useEffect(() => {
+        const handleReports = async () => {
+            try{
+                const results = await fetchAllIncidents();
+                
+                setIncidents(results);
+            }catch(error){
+                toast.error("Error fetching reports");
+                console.error("Error fetching reports: ", error);
+            }
+        };
+        handleReports();
+    }, []);
   return (
     <div className='w-full h-full mx-5'>
         <div className='flex'>
@@ -113,7 +146,7 @@ export default function Page() {
                 </Suspense>
             </div>
             <div className='w-2/3'>
-                {/* <CrimeMap/> */}
+                <CrimeMap incidents={incidents}/>
             </div>
         </div>
     </div>
