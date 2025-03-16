@@ -5,11 +5,9 @@ import {
   BookOpen,
   GraduationCap,
   LayoutDashboard,
-  School,
   Users,
   HelpCircleIcon,
   SettingsIcon,
-  FileSpreadsheet,
   GraduationCapIcon,
   XIcon,
   MenuIcon,
@@ -46,77 +44,6 @@ const routes = {
       title: "Courses",
       icon: BookOpen,
       href: "/admin/courses",
-    },
-  ],
-  DEAN: [
-    {
-      title: "Dashboard",
-      icon: LayoutDashboard,
-      href: "/dean",
-    },
-    {
-      title: "Lecturers",
-      icon: Users,
-      href: "/dean/lecturers",
-    },
-    {
-      title: "Students",
-      icon: GraduationCapIcon,
-      href: "/dean/students",
-    },
-    {
-      title: "Courses",
-      icon: BookOpen,
-      href: "/dean/courses",
-    },
-    {
-      title: "Missing Marks",
-      icon: FileSpreadsheet,
-      href: "/dean/missing-marks",
-    },
-  ],
-  COD: [
-    {
-      title: "Dashboard",
-      icon: LayoutDashboard,
-      href: "/cod",
-    },
-    {
-      title: "Lecturers",
-      icon: Users,
-      href: "/cod/lecturers",
-    },
-    {
-      title: "Students",
-      icon: GraduationCapIcon,
-      href: "/cod/students",
-    },
-    {
-      title: "Courses",
-      icon: BookOpen,
-      href: "/cod/courses",
-    },
-    {
-      title: "Missing Marks",
-      icon: FileSpreadsheet,
-      href: "/cod/missing-marks",
-    },
-  ],
-  LECTURER: [
-    {
-      title: "Dashboard",
-      icon: LayoutDashboard,
-      href: "/Lecturer",
-    },
-    {
-      title: "My Courses",
-      icon: BookOpen,
-      href: "/Lecturer/courses",
-    },
-    {
-      title: "Missing Marks",
-      icon: FileSpreadsheet,
-      href: "/Lecturer/missing-marks",
     },
   ],
   USER: [

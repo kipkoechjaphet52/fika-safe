@@ -1,14 +1,12 @@
 "use client";
 
-import { Button } from "@/app/components/ui/button";
-
-import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
-import { EnrolledCourses } from "@/app/components/Enrolled";
-import { IncidentReport } from "@/app/components/incident-report";
-import { ReportHistory } from "@/app/components/ReportHistory";
+import { Card, CardContent, CardHeader, CardTitle } from "@/app/Components/ui/card";
+import { EnrolledCourses } from "@/app/Components/users/Enrolled";
+import { IncidentReport } from "@/app/Components/users/incident-report";
+import { ReportHistory } from "@/app/Components/users/ReportHistory";
 import { BookOpen, FileCheck, AlertTriangle } from "lucide-react";
 
-export default function StudentDashboard() {
+export default function Dashboard() {
   return (
     <div className="space-y-8">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

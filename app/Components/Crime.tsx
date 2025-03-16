@@ -10,7 +10,7 @@ import { Feature } from "ol";
 import { Point } from "ol/geom";
 import VectorLayer from "ol/layer/Vector";
 import VectorSource from "ol/source/Vector";
-import { Style, Icon, Fill, Stroke, Circle as CircleStyle, RegularShape } from "ol/style";
+import { Style, Icon, Fill, Stroke, Circle as CircleStyle } from "ol/style";
 import Overlay from "ol/Overlay";
 
 // **Crime Data**

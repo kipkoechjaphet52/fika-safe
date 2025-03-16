@@ -1,11 +1,8 @@
-import Image from "next/image";
-import AuthForm from "./Components/AuthForm";
-import { ShieldPlusIcon } from "lucide-react";
-import { ThemeToggle } from "./Components/ThemeToggle";
 import Header from "./Components/Header";
 import Hero from "./Components/HeroSection";
 import Footer from "./Components/Footer";
 import About from "./Components/About";
+import ChatButton from "./Components/ChatButton";
 
 export default function Home() {
   return (
@@ -15,6 +12,7 @@ export default function Home() {
         <Hero/>
         <About/>
         <Footer/>
+        <ChatButton/>
       </div>
     </>
   );

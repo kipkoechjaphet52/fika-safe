@@ -1,14 +1,13 @@
 "use client";
 
-import { Button } from "@/app/components/ui/button";
+import { Button } from "@/app/Components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
-} from "@/app/components/ui/card";
+} from "@/app/Components/ui/card";
 import {
   Form,
   FormControl,
@@ -16,19 +15,19 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/app/components/ui/form";
+} from "@/app/Components/ui/form";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/app/components/ui/select";
+} from "@/app/Components/ui/select";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Textarea } from "./ui/textarea";
-import Input from "./Input";
+import { Textarea } from "../ui/textarea";
+import Input from "../Input";
 import { useState } from "react";
 
 const formSchema = z.object({

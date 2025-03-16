@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { DashboardNav } from "@/app/components/DashboardNav";
-import { UserNav } from "@/app/components/ui/user-nav";
-import { ThemeToggle } from "@/app/components/ThemeToggle";
-import { ThemeProvider } from "@/app/components/ThemeProvider";
+import { UserNav } from "@/app/Components/ui/user-nav";
+import { redirect } from "next/navigation";
+import { getServerSession } from "next-auth";
+import {authOptions} from "@/app/utils/authOptions";
 
 export const metadata: Metadata = {
   title: "Fika Safe",
@@ -17,11 +17,19 @@ export const metadata: Metadata = {
 //   },
 };
 
-export default async function StudentLayout({
+export default async function UsersLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await getServerSession(authOptions);
+  if(!session){
+    redirect('/')
+  }
+  const userRole = session?.userRole;
+  if(userRole === 'ADMIN' || userRole === 'EMERGENCY_RESPONDER' || userRole === 'POLICE'){
+    redirect('/admin')
+  }
   return (
     <>
     <div> 

@@ -1,7 +1,6 @@
 
 'use client'
 import { MagnifyingGlassCircleIcon } from '@heroicons/react/24/outline'
-import { on } from 'events'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import React from 'react'
 import { useState } from 'react'

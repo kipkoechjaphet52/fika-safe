@@ -1,7 +1,7 @@
 'use client'
-import {Button} from '@/app/components/ui/button';
-import CrimeMap from '@/app/components/Crime';
-import { IncidentReport } from '@/app/components/incident-report';
+import {Button} from '@/app/Components/ui/button';
+import CrimeMap from '@/app/Components/Crime';
+import { IncidentReport } from '@/app/Components/users/incident-report';
 import clsx from 'clsx';
 import React, { useState } from 'react'
 import { XIcon } from 'lucide-react';
@@ -14,7 +14,7 @@ export default function MapsPage() {
   };
   return (
     <div className='w-[100vw] h-screen items-center flex overflow-hidden'>
-      <div className={clsx(openForm ? 'w-3/5' : 'w-full', 'duration-300 transition-all')}>
+      <div className={clsx(openForm ? 'w-4/5' : 'w-full', 'duration-300 transition-all')}>
         <CrimeMap />
         <div className='absolute top-20 right-4'>
           <Button onClick={toggleForm} >
@@ -23,7 +23,7 @@ export default function MapsPage() {
           </Button>
         </div>
       </div>
-      <div className={clsx(`w-1/5 h-full ml-5 mt-5`, !openForm && 'hidden w-0')}>
+      <div className={clsx(`w-1/5 h-full mx-5 mt-5`, !openForm && 'hidden w-0')}>
         <IncidentReport />
       </div>
     </div>

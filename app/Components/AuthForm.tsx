@@ -3,24 +3,22 @@ import React, { useCallback, useEffect, useState } from 'react';
 import Input from './Input';
 import Button from './Button';
 import { signIn, useSession } from 'next-auth/react';
-import { Session } from 'next-auth';
 
 // Extend the Session type to include userType
 declare module 'next-auth' {
   interface Session {
-    userType?: UserType;
+    userRole?: UserRole;
   }
 }
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import clsx from 'clsx'
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
 
 
 type Variant = 'REGISTER' | 'LOGIN';
 
-type UserType = 'LECTURER' | 'ADMIN' | 'SUPERADMIN' | 'STUDENT' | 'COD' | 'DEAN';
+type UserRole = 'USER' | 'ADMIN' | 'POLICE' | 'EMERGENCY_RESPONDER';
 
 export default function AuthForm({isOpen, onClose}: {isOpen: boolean, onClose: () => void}) {
   const [variant, setVariant] = useState<Variant>('LOGIN');
@@ -50,22 +48,16 @@ export default function AuthForm({isOpen, onClose}: {isOpen: boolean, onClose: (
 
   useEffect(() => {
     if (status === 'authenticated') {
-      const userType = session.userType as UserType
-      if(userType === 'STUDENT'){
-        router.push('/Student');
-      }else if (userType === 'LECTURER') {
-        router.push('/Lecturer');
-      }
-       else if(userType === 'ADMIN' || userType === 'COD' || userType === 'DEAN') {
-        router.push('/Admin');
-      }else if(userType === 'SUPERADMIN'){
-        router.push('/SuperAdmin/Dashboard')
+      const userRole = session.userRole as UserRole;
+      if(userRole === 'USER'){
+        router.push('/users');
+      }else if(userRole === 'ADMIN' || userRole === 'EMERGENCY_RESPONDER' || userRole === 'POLICE') {
+        router.push('/admin');
       }
     }
-  });
+  },[status, session, router]);
 
   const isValidEmail = (email: string) => {
-    // const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; //This accepts any email eg 123@gmail.com as long as the format is correct
     const emailRegex = /^[a-z][a-z0-9._%+-]*@[a-z0-9.-]+\.[a-z]{2,}$/; //This rejects emails like 123@gmail.com and accepts emails like example123@gmail.com, all emails must be lowercase
     return emailRegex.test(email);
   };
@@ -115,7 +107,7 @@ export default function AuthForm({isOpen, onClose}: {isOpen: boolean, onClose: (
           toast.loading("Sending request...");
       
           // Send POST request to the server
-          const response = await fetch('/api/registerUser', {
+          const response = await fetch('/api/register-user', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -139,6 +131,7 @@ export default function AuthForm({isOpen, onClose}: {isOpen: boolean, onClose: (
           }
         } catch (error) {
           // Handle network or unexpected errors
+          console.error("Unexpected Error:", error)
           toast.dismiss();
           toast.error('Failed to send request. Please try again.');
         }
@@ -166,6 +159,7 @@ export default function AuthForm({isOpen, onClose}: {isOpen: boolean, onClose: (
         }
       }
     } catch (error) {
+      console.error("Unexpected Error:", error)
       toast.dismiss();
       toast.error('Something went wrong');
     } finally {

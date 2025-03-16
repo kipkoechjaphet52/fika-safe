@@ -1,7 +1,7 @@
 import React from 'react'
 import clsx from 'clsx'
 
-export default function Input({label,id,placeholder,type,disabled,required,value, maxlength, accept, onChange,name}:{label:string,id:string,placeholder:string,type:string,disabled?:boolean, required?:boolean,name:string, value?:string, maxlength?:number, accept?: string, onChange?:((event:any)=>void)}) {
+export default function Input({label,id,placeholder,type,disabled,required,value, maxlength, accept, onChange,name}:{label:string,id:string,placeholder:string,type:string,disabled?:boolean, required?:boolean,name:string, value?:string, maxlength?:number, accept?: string, onChange?:(event: React.ChangeEvent<HTMLInputElement>)=>void;}) { //(event:any)
   return (
    <>
    <label className='
