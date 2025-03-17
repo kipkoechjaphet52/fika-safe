@@ -21,14 +21,15 @@ export async function POST(req:Request){
         });
         const userId = user?.id;
 
-        const {location, latitude, longitude, description, type, severity, mediaUrl, mediaType} = await req.json();
+        const {title, location, latitude, longitude, description, type, severity, mediaUrl, mediaType} = await req.json();
 
-        if(!location || !latitude || !longitude || !description || !type || !severity || !mediaUrl || !mediaType){
+        if(!title || !location || !latitude || !longitude || !description || !type || !severity || !mediaUrl || !mediaType){
             return new Response(JSON.stringify({message: 'Please fill all fields'}), {status: 400});
         }
 
         const newReport = await prisma.report.create({
             data: {
+                title,
                 location,
                 latitude,
                 longitude,
@@ -46,6 +47,7 @@ export async function POST(req:Request){
                 message: 'Report created successfully',
                 report: {
                     id: newReport.id,
+                    title: newReport.title,
                     location: newReport.location,
                     latitude: newReport.latitude,
                     longitude: newReport.longitude,

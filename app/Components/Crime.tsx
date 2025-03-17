@@ -211,7 +211,7 @@ export default function CrimeMap({incidents}: {incidents: Report[]}) {
     return () => {
       map.setTarget(undefined);
     };
-  }, [incidents, town, country, state, userLatitude, userLongitude]);
+  }, [incidents, isLocationEnabled, town, country, state, userLatitude, userLongitude]);
 
   // **Fetch Town Name**
   async function fetchNearestTown(lat: number, lon: number) {
