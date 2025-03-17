@@ -117,7 +117,7 @@ export default function Page() {
                 </Suspense>
             </div>
             <div className='w-2/3'>
-                <CrimeMap/>
+                {/* <CrimeMap/> */}
             </div>
         </div>
         <Footer/>

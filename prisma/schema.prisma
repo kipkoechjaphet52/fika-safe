@@ -39,6 +39,7 @@ model Report {
   id           String             @id @default(uuid())
   createdAt    DateTime           @default(now())
   userId       String
+  title        String
   location     String
   latitude     Float
   longitude    Float

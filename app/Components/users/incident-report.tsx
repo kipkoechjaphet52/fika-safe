@@ -49,6 +49,7 @@ export function IncidentReport() {
   const [disabled, setDisabled] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [street, setStreet] = useState("");
+  const [title, setTitle] = useState("");
   const [mediaType, setMediaType] = useState<MediaType | string>('');
   const [fileUrl, setFileUrl] = useState('');
   const [longitude, setLongitude] = useState(0);
@@ -150,6 +151,7 @@ export function IncidentReport() {
 
   const handleSubmit = async () => {
     const reportData = {
+      title, 
       location: street,
       latitude,
       longitude,
@@ -199,6 +201,17 @@ export function IncidentReport() {
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <Input
+              id='Title'
+              name="title"
+              label={"Incident Title"} 
+              placeholder={"Enter title name"} 
+              type="text"
+              required
+              disabled={disabled}
+              value = {title}
+              onChange={(e) => setTitle(e.target.value)}                  
+            />
             <Input
               id='Street'
               name="street"

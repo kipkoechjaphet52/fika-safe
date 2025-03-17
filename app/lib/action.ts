@@ -84,3 +84,34 @@ export async function fetchUserReports(){
     throw new Error("Could not fetch user reports");
   }
 }
+
+export async function fetchLiveIncidents(){
+  try{
+    const incidents = await prisma.report.findMany({
+      where: {
+        createdAt: {
+          gte: new Date(new Date().setHours(new Date().getHours() - 24)), // get reports from the last 24 hours
+        }
+      },
+      orderBy: {createdAt: 'desc'},
+    })
+
+    return incidents;
+  }catch(error){
+    console.error("Error fetching live incidents: ", error);
+    throw new Error("Could not fetch live incidents");
+  }
+}
+
+export async function fetchAllIncidents(){
+  try{
+    const incidents = await prisma.report.findMany({
+      orderBy: {createdAt: 'desc'},
+    })
+
+    return incidents;
+  }catch(error){
+    console.error("Error fetching all incidents: ", error);
+    throw new Error("Could not fetch all incidents");
+  }
+}
