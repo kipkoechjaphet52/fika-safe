@@ -3,6 +3,7 @@ import CrimeMap from '@/app/Components/Crime';
 import Search from '@/app/Components/Search'
 import { fetchAllIncidents } from '@/app/lib/action';
 import { IncidentType, MediaType, SeverityLevel, VerificationStatus } from '@prisma/client';
+import Image from 'next/image';
 import React, { Suspense, useEffect, useState } from 'react'
 import toast from 'react-hot-toast';
 
@@ -94,6 +95,7 @@ export default function Page() {
                     <div className='border-b-2'>
                         {incidents.slice(0, 1).map((incident) => (
                             <div className='p-4' key={incident.id}>
+                                {incident.mediaType === 'VIDEO' ? (
                                 <video
                                     className="w-full "
                                     autoPlay
@@ -103,6 +105,9 @@ export default function Page() {
                                     <source src={incident.mediaUrl || ''} type="video/mp4" />
                                     Your browser does not support the video tag.
                                 </video>
+                                ) : (
+                                    <Image src={incident.mediaUrl || ''} alt={incident.description} className='w-full' height={500} width={500}></Image>
+                                )}
                                 <div className='flex justify-between items-center space-x-4'>
                                     <h1 className='font-bold text-2xl truncate w-2/3'>{incident.title}</h1>
                                     <h1 className='font-thin text-xs text-gray-400 w-1/3'>{formatDate(incident.createdAt)}</h1>
