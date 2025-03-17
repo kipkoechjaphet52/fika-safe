@@ -27,6 +27,7 @@ interface Report {
 const Loading = () => <div>Loading...</div>;
 export default function Page() {
     const [incidents, setIncidents] = useState<Report[]>([]);
+    const [locations, setLocations] = useState<{[key: string]: { town: string, state: string, country: string } }>({});
     const [searchTerm, setSearchTerm] = useState<string | null>(null);
     const [searchDate, setSearchDate] = useState<Date | null>(null);
 
@@ -36,6 +37,25 @@ export default function Page() {
                 const results = await fetchAllIncidents();
                 
                 setIncidents(results);
+                
+                const locationPromises = results.map(async (incident) => {
+                    const locationData = await fetchNearestTown(incident.latitude, incident.longitude);
+                    return { id: incident.id, ...locationData };
+                });
+
+                const resolvedLocations = await Promise.all(locationPromises);
+
+                // Convert array to an object for easy lookup
+                const locationMap = resolvedLocations.reduce((acc, loc) => { //acc is an accumulator that stores the value of the previous iteration/ helps build the final object
+                    acc[loc.id] = {
+                        town: loc.town || "Unknown",
+                        state: loc.state || "Unknown",
+                        country: loc.country || "Unknown",
+                    };
+                    return acc;
+                }, {} as { [key: string]: { town: string, state: string, country: string } });
+
+                setLocations(locationMap);
             }catch(error){
                 toast.error("Error fetching reports");
                 console.error("Error fetching reports: ", error);
@@ -74,6 +94,25 @@ export default function Page() {
         const formattedDate = date.toLocaleDateString('en-GB');
         return `${formattedDate} ${formattedTime}`;
     }
+
+    async function fetchNearestTown(lat: number, lon: number) {
+        try {
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
+          );
+          const data = await response.json();
+    
+          const town = data.address.town || data.address.city || "Unknown";
+          const county = data.address.county || "Unknown";
+          const state = data.address.state || "Unknown";
+          const country = data.address.country || "Unknown";
+
+          return {town, state, country};
+        
+        } catch (error) {
+          console.error("Error fetching location details:", error);
+        }
+      }
   return (
     <div className='w-full h-full mx-5'>
         <div className='flex'>
@@ -112,7 +151,7 @@ export default function Page() {
                                     <h1 className='font-bold text-2xl truncate w-2/3'>{incident.title}</h1>
                                     <h1 className='font-thin text-xs text-gray-400 w-1/3'>{formatDate(incident.createdAt)}</h1>
                                 </div>
-                                <h1 className='font-thin text-base'>CBD, Nairobi</h1>
+                                <h1 className='font-thin text-base'>{locations[incident.id]?.state}, {locations[incident.id]?.country}</h1>
                                 <h1 className='font-thin text-sm text-gray-400'>{incident.location}</h1>
                             </div>
                         ))}
