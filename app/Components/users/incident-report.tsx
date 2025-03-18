@@ -28,7 +28,10 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Textarea } from "../ui/textarea";
 import Input from "../Input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { MediaType } from "@prisma/client";
+import toast from "react-hot-toast";
+import { fromLonLat } from "ol/proj";
 
 const formSchema = z.object({
   incidentType: z.string().min(1, "Incident type is required"),
@@ -37,19 +40,156 @@ const formSchema = z.object({
   file: z.string().optional(),
 });
 
+
 export function IncidentReport() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   });
 
+  const [disabled, setDisabled] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [street, setStreet] = useState("");
-  const [disabled, setDisabled] = useState(false);
+  const [title, setTitle] = useState("");
+  const [mediaType, setMediaType] = useState<MediaType | string>('');
+  const [fileUrl, setFileUrl] = useState('');
+  const [longitude, setLongitude] = useState(0);
+  const [latitude, setLatitude] = useState(0);
 
-  // const file = form.watch('file');
-  console.log(file);
+  const incidentType = form.watch('incidentType');
+  const severity = form.watch('severity');
+  const description = form.watch('description');
+  
+
+  // Check if the file is an image or video and get user coordinates
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        setLatitude(latitude);
+        setLongitude(longitude);
+      },
+      (error) => {
+        console.error("Error getting location:", error);
+      },
+      { enableHighAccuracy: true }
+    );
+    
+    const validateFile = (file: File): "IMAGE" | "VIDEO" | "invalid" => {
+      if (!file) return "invalid";
+    
+      const imageTypes = ["image/png", "image/jpeg", "image/jpg", "image/gif", "image/webp"];
+      const videoTypes = ["video/mp4", "video/webm", "video/ogg", "video/mov", "video/avi"];
+    
+      if (imageTypes.includes(file.type)) {
+        return "IMAGE";
+      }
+      if (videoTypes.includes(file.type)) {
+        return "VIDEO";
+      }
+      return "invalid"; // Not an image or video
+    };
+  
+    const validateFileExtension = (fileName: string): "IMAGE" | "VIDEO" | "invalid" => {
+      const imageExtensions = [".png", ".jpg", ".jpeg", ".gif", ".webp"];
+      const videoExtensions = [".mp4", ".webm", ".ogg", ".mov", ".avi"];
+    
+      const ext = fileName.slice(fileName.lastIndexOf(".")).toLowerCase();
+    
+      if (imageExtensions.includes(ext)) return "IMAGE";
+      if (videoExtensions.includes(ext)) return "VIDEO";
+      return "invalid";
+    };
+  
+    // We use the two functions above to validate the file, this prevents spoofing
+    const validateFileUpload = (file: File): "IMAGE" | "VIDEO" | "invalid" => {
+      const validMimeType = validateFile(file);
+      const validExtension = validateFileExtension(file.name);
+    
+      if (validMimeType === validExtension) { // Compares the value from the two functions, if they match, it's valid
+        return validMimeType;
+      }
+      return "invalid"; // Mismatch in extension and MIME type
+    };
+    const mediaType = file ? validateFileUpload(file) : "invalid";
+    setMediaType(mediaType);
+
+    // Upload file to Cloudinary
+    const handleUpload = async () => {
+      if (!file) return;
+      if (mediaType === "invalid") {
+        toast.error('Invalid file type');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        toast.loading('Uploading file...');
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+        
+        const data = await res.json();
+        if (data.url) {
+          toast.dismiss();
+          toast.success('File uploaded successfully');
+          setFileUrl(data.url);
+        }
+      } catch (error) {
+        toast.error('Error uploading file');
+        console.error('Upload failed', error);
+      }
+    };
+    handleUpload();
+  }, [file]);
+
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
+  }
+
+  const handleSubmit = async () => {
+    const reportData = {
+      title, 
+      location: street,
+      latitude,
+      longitude,
+      description: description,
+      type: incidentType,
+      severity: severity,
+      mediaUrl: fileUrl,
+      mediaType: mediaType,
+    };
+
+    try{
+      setDisabled(true);
+      toast.loading('Submitting report...');
+      const response = await fetch('/api/create-report', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(reportData),
+      });
+      
+      toast.dismiss();
+      if (response.ok || response.status === 200 || response.status === 201) {
+        toast.success('Report submitted successfully');
+        setDisabled(false);
+      } else if (response.status === 400) {
+        toast.error('Please fill all the fields');
+        setDisabled(false);
+      } else{
+        toast.error('Error submitting report');
+        setDisabled(false);
+      }
+    }catch(error){
+      toast.dismiss();
+      toast.error('Error submitting report');
+      console.error("Error submitting report: ", error);
+      setDisabled(false);
+    }
   }
 
   return (
@@ -61,6 +201,17 @@ export function IncidentReport() {
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <Input
+              id='Title'
+              name="title"
+              label={"Incident Title"} 
+              placeholder={"Enter title name"} 
+              type="text"
+              required
+              disabled={disabled}
+              value = {title}
+              onChange={(e) => setTitle(e.target.value)}                  
+            />
             <Input
               id='Street'
               name="street"
@@ -146,7 +297,7 @@ export function IncidentReport() {
                 </FormItem>
               )}
             />
-            <Button disabled={disabled} type="submit" className="w-full">Submit Report</Button>
+            <Button disabled={disabled} type="submit" onClick={() => handleSubmit()} className="w-full">Submit Report</Button>
           </form>
         </Form>
       </CardContent>

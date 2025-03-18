@@ -58,6 +58,10 @@ const routes = {
       href: "/admin/incidents",
     },
     {
+      title: "Logs",
+      href: "/admin/logs",
+    },
+    {
       title: "Settings",
       href: "#settings",
     },
