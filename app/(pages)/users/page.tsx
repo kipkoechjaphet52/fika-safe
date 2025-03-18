@@ -1,7 +1,6 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/Components/ui/card";
-import { EnrolledCourses } from "@/app/Components/users/Enrolled";
 import { IncidentReport } from "@/app/Components/users/incident-report";
 import { ReportHistory } from "@/app/Components/users/ReportHistory";
 import { userReportStats } from "@/app/lib/action";
@@ -60,10 +59,10 @@ export default function Dashboard() {
         </Card>
       </div>
       <div className="grid gap-8 md:grid-cols-2">
-        <EnrolledCourses />
+        {/* <EnrolledCourses /> */}
         <IncidentReport />
+        <ReportHistory />
       </div>
-      <ReportHistory />
     </div>
   );
 }

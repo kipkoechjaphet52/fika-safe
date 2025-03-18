@@ -114,10 +114,10 @@ export default function Page() {
         }
       }
   return (
-    <div className='w-full h-full mx-5'>
+    <div className='w-full h-full'>
         <div className='flex'>
-            <div className='w-1/3 h-[calc(100vh-3.5rem)] flex flex-col'>
-                <div className='py-4 sticky top-0 bg-card z-10'>
+            <div className='w-1/3 h-[calc(100vh-3.5rem)] flex flex-col pr-2'>
+                <div className='p-4 sticky top-0 bg-card z-10'>
                     <Suspense fallback={<Loading/>}>
                         <Search 
                         placeholder='Search Incidents...'
@@ -131,7 +131,7 @@ export default function Page() {
                 <Suspense fallback={<Loading/>}>
                 <div className='flex-1 overflow-y-scroll '>
                     {/* Latest Incident */}
-                    <div className='border-b-2'>
+                    <div className='border-b-2 hover:bg-muted'>
                         {incidents.slice(0, 1).map((incident) => (
                             <div className='p-4' key={incident.id}>
                                 {incident.mediaType === 'VIDEO' ? (
@@ -157,68 +157,32 @@ export default function Page() {
                         ))}
                     </div>
                     {/* Other Incidents */}
-                    <div className='border-b-2'>
-                        <div className='flex space-x-4 p-4 rounded-lg w-full max-w-2xl'>
-                            <div className='relative w-32 flex-shrink-0'>
+                    <div className='border-b-2 hover:bg-muted'>
+                        {incidents.slice(1).map((incident) => (
+                            <div className='flex space-x-4 p-4 rounded-lg w-full max-w-2xl' key={incident.id}>
+                                {incident.mediaType === 'VIDEO' ? (
                                 <video
-                                    className="w-full object-cover"
+                                    className="w-32 flex-shrink-0"
+                                    autoPlay
+                                    loop
                                     muted
                                 >
-                                    <source src="/videos/Accident.mp4" type="video/mp4" />
+                                    <source src={incident.mediaUrl || ''} type="video/mp4" />
                                     Your browser does not support the video tag.
                                 </video>
-                            </div>
-                            <div>
-                                <div className='flex justify-between items-center space-x-4'>
-                                    <h1 className='font-bold text-xl truncate w-2/3'>Collision With Truck On Top</h1>
-                                    <h1 className='font-thin text-xs text-gray-400 w-1/3'>Yesterday 10.47.16 PM EAT</h1>
+                                ) : (
+                                    <Image src={incident.mediaUrl || ''} alt={incident.description} className='w-32 flex-shrink-0' height={100} width={100}></Image>
+                                )}
+                                <div>
+                                    <div className='flex justify-between items-center space-x-4'>
+                                        <h1 className='font-bold text-xl truncate w-2/3'>{incident.title}</h1>
+                                        <h1 className='font-thin text-xs text-gray-400 w-1/3'>{formatDate(incident.createdAt)}</h1>
+                                    </div>
+                                    <h1 className='font-thin text-sm'>{locations[incident.id]?.state}, {locations[incident.id]?.country}</h1>
+                                    <h1 className='font-thin text-xs text-gray-400'>{incident.location}</h1>
                                 </div>
-                                <h1 className='font-thin text-sm'>CBD, Nairobi</h1>
-                                <h1 className='font-thin text-xs text-gray-400'>Lithuli Avenue</h1>
                             </div>
-                        </div>
-                    </div>
-                    <div className='border-b-2'>
-                        <div className='flex space-x-4 p-4 rounded-lg w-full max-w-2xl'>
-                            <div className='relative w-32 flex-shrink-0'>
-                                <video
-                                    className="w-full object-cover"
-                                    muted
-                                >
-                                    <source src="/videos/Accident.mp4" type="video/mp4" />
-                                    Your browser does not support the video tag.
-                                </video>
-                            </div>
-                            <div>
-                                <div className='flex justify-between items-center space-x-4'>
-                                    <h1 className='font-bold text-xl truncate w-2/3'>Collision With Truck On Top</h1>
-                                    <h1 className='font-thin text-xs text-gray-400 w-1/3'>Yesterday 10.47.16 PM EAT</h1>
-                                </div>
-                                <h1 className='font-thin text-sm'>CBD, Nairobi</h1>
-                                <h1 className='font-thin text-xs text-gray-400'>Lithuli Avenue</h1>
-                            </div>
-                        </div>
-                    </div>
-                    <div className='border-b-2'>
-                        <div className='flex space-x-4 p-4 rounded-lg w-full max-w-2xl'>
-                            <div className='relative w-32 flex-shrink-0'>
-                                <video
-                                    className="w-full object-cover"
-                                    muted
-                                >
-                                    <source src="/videos/Accident.mp4" type="video/mp4" />
-                                    Your browser does not support the video tag.
-                                </video>
-                            </div>
-                            <div>
-                                <div className='flex justify-between items-center space-x-4'>
-                                    <h1 className='font-bold text-xl truncate w-2/3'>Collision With Truck On Top</h1>
-                                    <h1 className='font-thin text-xs text-gray-400 w-1/3'>Yesterday 10.47.16 PM EAT</h1>
-                                </div>
-                                <h1 className='font-thin text-sm'>CBD, Nairobi</h1>
-                                <h1 className='font-thin text-xs text-gray-400'>Lithuli Avenue</h1>
-                            </div>
-                        </div>
+                        ))}
                     </div>
                 </div>
                 </Suspense>
