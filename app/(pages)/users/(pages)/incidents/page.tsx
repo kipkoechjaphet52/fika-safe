@@ -114,7 +114,7 @@ export default function Page() {
         }
       }
   return (
-    <div className='w-full h-full'>
+    <div className='w-full h-full relative'>
         <div className='flex'>
             <div className='w-1/3 h-[calc(100vh-3.5rem)] flex flex-col pr-2'>
                 <div className='p-4 sticky top-0 bg-card z-10'>
@@ -190,6 +190,27 @@ export default function Page() {
             <div className='w-2/3'>
                 <CrimeMap incidents={incidents}/>
             </div>
+        </div>
+        {/* Legend */}
+        <div className='absolute bottom-4 right-4 bg-card p-4 rounded-lg'>
+            <h1 className='font-bold text-2xl'>Incidents</h1>
+            <h1 className='font-thin text-sm text-gray-400'>Showing {incidents.length} incidents</h1>
+            <div className='flex items-center space-x-2'>
+                <span className="border-2 rounded-full" style={{ display: "inline-block", width: "20px", height: "20px", backgroundColor: "purple", marginRight: "5px" }}></span>
+                <span >Critical Danger</span>
+            </div>
+            <div className='flex items-center space-x-2'>
+                <span className="border-2 rounded-full" style={{ display: "inline-block", width: "20px", height: "20px", backgroundColor: "red", marginRight: "5px" }}></span>
+                <span >High Danger</span>
+            </div>
+            <div className='flex items-center space-x-2'>
+                <span className="border-2 rounded-full" style={{ display: "inline-block", width: "20px", height: "20px", backgroundColor: "yellow", marginRight: "5px" }}></span>
+                <span >Moderate Danger</span>
+            </div>
+            <div className='flex items-center space-x-2'>
+                <span className="border-2 rounded-full" style={{ display: "inline-block", width: "20px", height: "20px", backgroundColor: "yellowgreen", marginRight: "5px" }}></span>
+                <span >Low Danger</span>
+            </div>                  
         </div>
     </div>
   )
