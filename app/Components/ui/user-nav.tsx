@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/app/Components/ui/dropdown-menu";
 import { LogOut, ShieldPlus, User } from "lucide-react";
-import { ThemeToggle } from "../ThemeToggle";
+import { ThemeToggle } from '@/app/Components/ThemeToggle'
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
