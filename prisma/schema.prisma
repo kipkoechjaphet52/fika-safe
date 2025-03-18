@@ -112,15 +112,18 @@ enum MediaType {
 enum VerificationStatus {
   VERIFIED
   UNVERIFIED
-}
-
-enum AlertStatus {
-  UNREAD
-  READ
+  PENDING
+  APPROVED
+  REJECTED
 }
 
 enum ContactType {
   POLICE
   AMBULANCE
   CARRIER
+}
+
+enum AlertStatus {
+  UNREAD
+  READ
 }
