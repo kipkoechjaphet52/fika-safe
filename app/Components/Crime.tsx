@@ -49,6 +49,8 @@ export default function CrimeMap({incidents, hoveredIncidentId, setHoveredIncide
     }
     return false; // Default value for SSR
   });
+  const popupRefIncident = useRef<HTMLDivElement>(null);
+  const popupRefUser = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
     const storedValue = localStorage.getItem("locationEnabled") === "true";
@@ -115,11 +117,20 @@ export default function CrimeMap({incidents, hoveredIncidentId, setHoveredIncide
     map.addLayer(incidentLayer);
 
     // **Create Overlay for Popups**
-    const overlay = new Overlay({
-      element: popupRef.current!,
+    const incidentOverlay = new Overlay({
+      element: popupRefIncident.current!,
       positioning: "bottom-center",
       offset: [0, -10],
     });
+
+    const userOverlay = new Overlay({
+      element: popupRefUser.current!,
+      positioning: "bottom-center",
+      offset: [0, -10],
+    });
+
+    map.addOverlay(incidentOverlay);
+    map.addOverlay(userOverlay);
 
     map.on("pointermove", (event) => {
       const feature = map.forEachFeatureAtPixel(event.pixel, (feat) => feat);
@@ -135,30 +146,49 @@ export default function CrimeMap({incidents, hoveredIncidentId, setHoveredIncide
       const feature = map.forEachFeatureAtPixel(event.pixel, (feat) => feat);
       if (feature) {
         const coordinates = (feature.getGeometry() as Point)?.getCoordinates();
-        overlay.setPosition(coordinates);
 
         const id = feature.get("id");
-        const type = feature.get("type");
-        const severity = feature.get("severity");
-        const location = feature.get("location");
 
         setHoveredIncidentId(id);
         
-        if (popupRef.current) {
-          popupRef.current.innerHTML = `
-            <strong>Location:</strong> ${location}<br>
-            <strong>Type:</strong> ${type}<br>
-            <strong>Severity:</strong> ${severity}<br>
-          `;
-          popupRef.current.style.display = "block";
+        if (id === "user-location") {
+          // **Show User Location Popup**
+          userOverlay.setPosition(coordinates);
+          incidentOverlay.setPosition(undefined); // Hide incident popup
+          if (popupRefUser.current) {
+            popupRefUser.current.innerHTML = `
+            <strong>Your Location</strong> <br>
+            ${town}, ${state}, ${country}<br>
+            `;
+            popupRefUser.current.style.display = "block";
+          }
+        } else {
+          // **Show Incident Popup**
+          incidentOverlay.setPosition(coordinates);
+          userOverlay.setPosition(undefined); // Hide user location popup
+
+          const type = feature.get("type");
+          const severity = feature.get("severity");
+          const location = feature.get("location");
+
+          setHoveredIncidentId(id);
+          if (popupRefIncident.current) {
+            popupRefIncident.current.innerHTML = `
+              <strong>Location:</strong> ${location}<br>
+              <strong>Type:</strong> ${type}<br>
+              <strong>Severity:</strong> ${severity}<br>
+            `;
+            popupRefIncident.current.style.display = "block";
+          }
         }
       } else {
+        // **Hide Both Popups**
         setHoveredIncidentId(null);
-        overlay.setPosition(undefined);
-        if (popupRef.current) popupRef.current.style.display = "none";
+        incidentOverlay.setPosition(undefined);
+        userOverlay.setPosition(undefined);
+        if (popupRefIncident.current) popupRefIncident.current.style.display = "none";
+        if (popupRefUser.current) popupRefUser.current.style.display = "none";
       }
-
-    map.addOverlay(overlay);
     });
 
     // **Get User's Current Location**
@@ -170,6 +200,7 @@ export default function CrimeMap({incidents, hoveredIncidentId, setHoveredIncide
 
           const userFeature = new Feature({
             geometry: new Point(userCoords),
+            id: "user-location",
             name: "Your Location",
           });
 
@@ -255,7 +286,20 @@ export default function CrimeMap({incidents, hoveredIncidentId, setHoveredIncide
     <div style={{ width: "100%", height: "100vh", position: "relative" }}>
       <div ref={mapRef} style={{ width: "100%", height: "100%" }}></div>
       <div
-        ref={popupRef}
+        ref={popupRefUser}
+        style={{
+          position: "absolute",
+          backgroundColor: "white",
+          padding: "5px",
+          borderRadius: "5px",
+          display: "none",
+          boxShadow: "0 2px 5px rgba(0,0,0,0.3)",
+          zIndex: 100,
+        }}
+        className="text-black text-opacity-55 w-36"
+      ></div>
+      <div
+        ref={popupRefIncident}
         style={{
           position: "absolute",
           backgroundColor: "white",
