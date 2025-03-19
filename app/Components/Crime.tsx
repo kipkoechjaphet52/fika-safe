@@ -35,7 +35,6 @@ interface Report {
 export default function CrimeMap({incidents, hoveredIncidentId, setHoveredIncidentId}: {incidents: Report[], hoveredIncidentId: string | null, setHoveredIncidentId: (id: string | null) => void;}) {
   const [loading, setLoading] = useState(true);
   const mapRef = useRef<HTMLDivElement>(null);
-  const popupRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<Overlay | null>(null);
   const [userFeature, setUserFeature] = useState<Feature | null>(null);
   const [town, setTown] = useState<string | null>(null);
@@ -51,13 +50,13 @@ export default function CrimeMap({incidents, hoveredIncidentId, setHoveredIncide
   });
   const popupRefIncident = useRef<HTMLDivElement>(null);
   const popupRefUser = useRef<HTMLDivElement>(null);
-  
+  const incidentOverlayRef = useRef<Overlay | null>(null);
+
   useEffect(() => {
     const storedValue = localStorage.getItem("locationEnabled") === "true";
     setIsLocationEnabled(storedValue);
   }, []);
 
-  console.log("Your Location:", town, country, userLatitude, userLongitude);
   useEffect(() => {
     if (!mapRef.current) return;
 
@@ -123,6 +122,8 @@ export default function CrimeMap({incidents, hoveredIncidentId, setHoveredIncide
       offset: [0, -10],
     });
 
+    incidentOverlayRef.current = incidentOverlay;
+
     const userOverlay = new Overlay({
       element: popupRefUser.current!,
       positioning: "bottom-center",
@@ -131,16 +132,6 @@ export default function CrimeMap({incidents, hoveredIncidentId, setHoveredIncide
 
     map.addOverlay(incidentOverlay);
     map.addOverlay(userOverlay);
-
-    map.on("pointermove", (event) => {
-      const feature = map.forEachFeatureAtPixel(event.pixel, (feat) => feat);
-      if (feature) {
-        const id = feature.get("id");
-        setHoveredIncidentId(id); // Update hovered state
-      } else {
-        setHoveredIncidentId(null);
-      }
-    });
     
     map.on("pointermove", (event) => {
       const feature = map.forEachFeatureAtPixel(event.pixel, (feat) => feat);
@@ -238,7 +229,6 @@ export default function CrimeMap({incidents, hoveredIncidentId, setHoveredIncide
             setCountry(country);
             setTown(town);
             setState(state);
-            console.log("Your Location:", town, country);
           }
 
           // **Reposition Map to User's Location**
@@ -280,6 +270,28 @@ export default function CrimeMap({incidents, hoveredIncidentId, setHoveredIncide
       console.error("Error fetching location details:", error);
     }
   }
+
+  useEffect(() => {  
+    if (!hoveredIncidentId || !popupRefIncident.current || !incidentOverlayRef.current) return;
+  
+    // Find the hovered feature in the incidents list
+    const hoveredFeature = incidents.find((incident) => incident.id === hoveredIncidentId);
+  
+    if (hoveredFeature) {
+      const coordinates = fromLonLat([hoveredFeature.longitude, hoveredFeature.latitude]);
+      incidentOverlayRef.current.setPosition(coordinates); // ✅ Use useRef reference
+  
+      popupRefIncident.current.innerHTML = `
+        <strong>Location:</strong> ${hoveredFeature.location}<br>
+        <strong>Type:</strong> ${hoveredFeature.type}<br>
+        <strong>Severity:</strong> ${hoveredFeature.severity}<br>
+      `;
+      popupRefIncident.current.style.display = "block";
+    } else {
+      popupRefIncident.current.style.display = "none";
+      incidentOverlayRef.current.setPosition(undefined);
+    }
+  }, [hoveredIncidentId, incidents]);  
 
   // if(loading) return <Loader/>;
   return (
