@@ -3,6 +3,7 @@ import CrimeMap from '@/app/Components/Crime';
 import Search from '@/app/Components/Search'
 import { fetchAllIncidents } from '@/app/lib/action';
 import { IncidentType, MediaType, SeverityLevel, VerificationStatus } from '@prisma/client';
+import clsx from 'clsx';
 import Image from 'next/image';
 import React, { Suspense, useEffect, useState } from 'react'
 import toast from 'react-hot-toast';
@@ -30,6 +31,7 @@ export default function Page() {
     const [locations, setLocations] = useState<{[key: string]: { town: string, state: string, country: string } }>({});
     const [searchTerm, setSearchTerm] = useState<string | null>(null);
     const [searchDate, setSearchDate] = useState<Date | null>(null);
+    const [hoveredIncidentId, setHoveredIncidentId] = useState<string | null>(null);
 
     useEffect(() => {
         const handleReports = async () => {
@@ -131,9 +133,12 @@ export default function Page() {
                 <Suspense fallback={<Loading/>}>
                 <div className='flex-1 overflow-y-scroll '>
                     {/* Latest Incident */}
-                    <div className='border-b-2 hover:bg-muted'>
-                        {incidents.slice(0, 1).map((incident) => (
-                            <div className='p-4' key={incident.id}>
+                    {incidents.slice(0, 1).map((incident) => (
+                        <div className={clsx(`border-b-2`, hoveredIncidentId === incident.id ? "bg-muted" : "bg-card")} key={incident.id}
+                            onMouseEnter={() => setHoveredIncidentId(incident.id)} 
+                            onMouseLeave={() => setHoveredIncidentId(null)}
+                        >
+                            <div className='p-4'>
                                 {incident.mediaType === 'VIDEO' ? (
                                 <video
                                     className="w-full "
@@ -154,16 +159,19 @@ export default function Page() {
                                 <h1 className='font-thin text-base'>{locations[incident.id]?.state}, {locations[incident.id]?.country}</h1>
                                 <h1 className='font-thin text-sm text-gray-400'>{incident.location}</h1>
                             </div>
-                        ))}
-                    </div>
+                        </div>
+                    ))}
                     {/* Other Incidents */}
-                    <div className='border-b-2 hover:bg-muted'>
-                        {incidents.slice(1).map((incident) => (
-                            <div className='flex space-x-4 p-4 rounded-lg w-full max-w-2xl' key={incident.id}>
+                    {incidents.slice(1).map((incident) => (
+                        <div className={clsx(`border-b-2`, hoveredIncidentId === incident.id ? "bg-muted" : "bg-card")} key={incident.id} 
+                            onMouseEnter={() => setHoveredIncidentId(incident.id)} 
+                            onMouseLeave={() => setHoveredIncidentId(null)}
+                        >
+                            <div className='flex space-x-4 p-4 rounded-lg w-full max-w-2xl' >
                                 {incident.mediaType === 'VIDEO' ? (
                                 <video
                                     className="w-32 flex-shrink-0"
-                                    autoPlay
+                                    // autoPlay
                                     loop
                                     muted
                                 >
@@ -182,13 +190,13 @@ export default function Page() {
                                     <h1 className='font-thin text-xs text-gray-400'>{incident.location}</h1>
                                 </div>
                             </div>
-                        ))}
-                    </div>
+                        </div>
+                    ))}
                 </div>
                 </Suspense>
             </div>
             <div className='w-2/3'>
-                <CrimeMap incidents={incidents}/>
+                <CrimeMap incidents={incidents} hoveredIncidentId={hoveredIncidentId} setHoveredIncidentId={setHoveredIncidentId}/>
             </div>
         </div>
         {/* Legend */}
