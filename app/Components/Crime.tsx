@@ -32,7 +32,7 @@ interface Report {
   updatedAt: Date;
 }
 // **CrimeMap Component**
-export default function CrimeMap({incidents}: {incidents: Report[]}) {
+export default function CrimeMap({incidents, hoveredIncidentId, setHoveredIncidentId}: {incidents: Report[], hoveredIncidentId: string | null, setHoveredIncidentId: (id: string | null) => void;}) {
   const [loading, setLoading] = useState(true);
   const mapRef = useRef<HTMLDivElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
@@ -50,7 +50,6 @@ export default function CrimeMap({incidents}: {incidents: Report[]}) {
     return false; // Default value for SSR
   });
   
-  console.log(incidents)
   useEffect(() => {
     const storedValue = localStorage.getItem("locationEnabled") === "true";
     setIsLocationEnabled(storedValue);
@@ -121,17 +120,30 @@ export default function CrimeMap({incidents}: {incidents: Report[]}) {
       positioning: "bottom-center",
       offset: [0, -10],
     });
+
+    map.on("pointermove", (event) => {
+      const feature = map.forEachFeatureAtPixel(event.pixel, (feat) => feat);
+      if (feature) {
+        const id = feature.get("id");
+        setHoveredIncidentId(id); // Update hovered state
+      } else {
+        setHoveredIncidentId(null);
+      }
+    });
     
-    map.on("click", (event) => {
+    map.on("pointermove", (event) => {
       const feature = map.forEachFeatureAtPixel(event.pixel, (feat) => feat);
       if (feature) {
         const coordinates = (feature.getGeometry() as Point)?.getCoordinates();
         overlay.setPosition(coordinates);
 
+        const id = feature.get("id");
         const type = feature.get("type");
         const severity = feature.get("severity");
         const location = feature.get("location");
 
+        setHoveredIncidentId(id);
+        
         if (popupRef.current) {
           popupRef.current.innerHTML = `
             <strong>Location:</strong> ${location}<br>
@@ -141,6 +153,7 @@ export default function CrimeMap({incidents}: {incidents: Report[]}) {
           popupRef.current.style.display = "block";
         }
       } else {
+        setHoveredIncidentId(null);
         overlay.setPosition(undefined);
         if (popupRef.current) popupRef.current.style.display = "none";
       }

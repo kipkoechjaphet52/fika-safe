@@ -28,6 +28,7 @@ interface Report {
 export default function MapsPage() {
   const [openForm, setOpenForm] = useState(false);
   const [liveReports, setLiveReports] = useState<Report[]>([]);
+  const [hoveredIncidentId, setHoveredIncidentId] = useState<string | null>(null);
 
   const toggleForm = () => {
     setOpenForm((prev) => !prev);
@@ -49,7 +50,7 @@ export default function MapsPage() {
   return (
     <div className='w-[100vw] h-screen items-center flex overflow-hidden'>
       <div className={clsx(openForm ? 'w-4/5' : 'w-full', 'duration-300 transition-all')}>
-        <CrimeMap incidents={liveReports}/>
+        <CrimeMap incidents={liveReports} hoveredIncidentId={hoveredIncidentId} setHoveredIncidentId={setHoveredIncidentId}/>
         <div className='absolute top-20 right-4'>
           <Button onClick={toggleForm} >
             {openForm ? 
