@@ -30,8 +30,21 @@ interface UpdateEmailDialogProps {
 }
 
 export function UpdateEmailDialog({ open, newEmail, onClose}: UpdateEmailDialogProps) {
+  const [loading, setLoading] = useState(false);
+  const [disabled, setDisabled] = useState(false);
+
+  const toggleLoading = () => {
+    setLoading((prev) => !prev);
+  }
+
+  useEffect(() => {
+    setDisabled(loading);
+  }, [loading]);
+
   const handleEmailUpdate = async () => {
+    toggleLoading();
     try{
+      toast.loading("Updating email...");
       const response = await fetch("/api/update-email", {
         method: "PUT",
         headers: {
@@ -42,13 +55,19 @@ export function UpdateEmailDialog({ open, newEmail, onClose}: UpdateEmailDialogP
         }),
       });
       const data = await response.json(); 
+
+      toast.dismiss();
       if(response.ok || response.status === 200){
         toast.success(data.message);
       } else {
         toast.error(data.message);
       }
     }catch(error){
+        setLoading(false);
         console.error("Error updating email: ", error);
+    } finally {
+        toggleLoading();
+        onClose();
     }
   };
 
@@ -62,8 +81,8 @@ export function UpdateEmailDialog({ open, newEmail, onClose}: UpdateEmailDialogP
           </DialogDescription>
         </DialogHeader>
             <DialogFooter>
-              <Button type="submit" className="bg-destructive items-center" onClick={handleEmailUpdate}>Update Email</Button>
-              <Button type="submit" className=" items-center" onClick={onClose}>Cancel</Button>
+              <Button type="submit" className="bg-destructive items-center" disabled={disabled} onClick={handleEmailUpdate}>Update Email</Button>
+              <Button type="submit" className=" items-center" disabled={disabled} onClick={onClose}>Cancel</Button>
             </DialogFooter>
       </DialogContent>
     </Dialog>
