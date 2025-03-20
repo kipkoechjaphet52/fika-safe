@@ -18,6 +18,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { on } from "events";
+import { signOut } from "next-auth/react";
 
 const formSchema = z.object({
   delete: z.string().min(1, "Delete Statment is required"),
@@ -41,6 +42,10 @@ export function UpdateEmailDialog({ open, newEmail, onClose}: UpdateEmailDialogP
     setDisabled(loading);
   }, [loading]);
 
+  const handleLogout = () => {
+    signOut({callbackUrl: '/'})
+  };
+
   const handleEmailUpdate = async () => {
     toggleLoading();
     try{
@@ -59,6 +64,7 @@ export function UpdateEmailDialog({ open, newEmail, onClose}: UpdateEmailDialogP
       toast.dismiss();
       if(response.ok || response.status === 200){
         toast.success(data.message);
+        handleLogout();
       } else {
         toast.error(data.message);
       }
