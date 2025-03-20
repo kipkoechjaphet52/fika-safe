@@ -115,7 +115,3 @@ export async function fetchAllIncidents(){
     throw new Error("Could not fetch all incidents");
   }
 }
-
-export async function changeEmail(newEmail: string){
-  
-}
