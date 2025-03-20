@@ -1,12 +1,30 @@
 import React, { useState } from 'react'
 import { Button } from '../ui/button'
 import Input from '../Input'
+import { useSession } from 'next-auth/react';
+import { UpdateEmailDialog } from './UpdateEmailDialog';
+import toast from 'react-hot-toast';
 
 export default function AccountSettings() {
-    const [email, setEmail] = useState('');
+    const [newEmail, setNewEmail] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [prevPassword, setPrevPassword] = useState('');
+    const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
 
+    const isValidEmail = (email: string) => {
+        const emailRegex = /^[a-z][a-z0-9._%+-]*@[a-z0-9.-]+\.[a-z]{2,}$/; //This rejects emails like 123@gmail.com and accepts emails like example123@gmail.com, all emails must be lowercase
+        return emailRegex.test(email);
+      };
+      
+    const handleOpenUpdateDialog = () => {
+        if (!isValidEmail(newEmail)) {
+            toast.error("Invalid email format. Please enter a valid email.");
+            return;
+        }
+        setOpenUpdateDialog(true);
+    }
+    const session = useSession();
+    const currentEmail = session.data?.user?.email;
   return (
     <div>
         <div className='border-b-2 py-2 '>
@@ -16,16 +34,16 @@ export default function AccountSettings() {
                     <Input
                         id='Email'
                         name='Email'
-                        label=''
+                        label='Enter new email'
                         required
                         type='email'
-                        placeholder='johndoe@gmail.com'
+                        placeholder={currentEmail!}
                         disabled={false}
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        value={newEmail}
+                        onChange={(e) => setNewEmail(e.target.value)}
                     />
                 </div>
-                <Button variant='outline' className='rounded-full ml-4 mb-2'>Change Email</Button>
+                <Button variant='outline' className='rounded-full ml-4 mb-2' onClick={handleOpenUpdateDialog}>Change Email</Button>
             </div>
         </div>
         <div className='border-b-2 py-2 '>
@@ -71,6 +89,7 @@ export default function AccountSettings() {
             <h1 className=''>Delete account</h1>
             <Button variant='destructive' className='rounded-full'>Delete account</Button>
         </div>
+        <UpdateEmailDialog open={openUpdateDialog} newEmail={newEmail} onClose={() => setOpenUpdateDialog(false)}/>
     </div>
   )
 }
