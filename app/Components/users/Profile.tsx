@@ -48,34 +48,6 @@ export default function Profile() {
         handleProfile();
     },[]);
 
-    const ChangeAvatarButton = () => {
-        const fileInputRef = useRef<HTMLInputElement | null>(null);
-        
-        const handleButtonClick = () => {
-            fileInputRef.current?.click();
-        };
-        
-        const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-            const file = event.target.files?.[0];
-            if (file) {
-            console.log("Selected file:", file);
-            // You can now upload or preview the image
-            }
-        };    
-    return (
-        <>
-        <Button onClick={handleButtonClick}>Change Avatar</Button>
-        <input 
-            type="file" 
-            accept="image/*" 
-            ref={fileInputRef} 
-            className="hidden" 
-            onChange={handleImageUpload} 
-        />
-        </>
-      );
-    };
-
   return (
     <div>
         <Card>
