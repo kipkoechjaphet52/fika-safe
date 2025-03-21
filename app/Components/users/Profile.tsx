@@ -8,6 +8,7 @@ import Input from '../Input'
 import { useToast } from '../../hooks/use-toast'
 import { fetchProfile } from '@/app/lib/action';
 import { UserRole } from '@prisma/client';
+import { ProfilePicDialog } from './ProfilePicDialog';
 
 interface UserProfile{
   id: string;
@@ -30,6 +31,7 @@ export default function Profile() {
         NewPassword: '',
     });
     const [profile, setProfile] = useState<UserProfile | null>(null);
+    const [openProfileDialog, setOpenProfileDialog] = useState(false);
 
     const avatar = profile?.profilePic;
     const avatarFallback = `${profile?.firstName.substring(0, 1).toUpperCase()} ${profile?.secondName.substring(0, 1).toUpperCase()}`;
@@ -46,34 +48,6 @@ export default function Profile() {
         handleProfile();
     },[]);
 
-    const ChangeAvatarButton = () => {
-        const fileInputRef = useRef<HTMLInputElement | null>(null);
-        
-        const handleButtonClick = () => {
-            fileInputRef.current?.click();
-        };
-        
-        const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-            const file = event.target.files?.[0];
-            if (file) {
-            console.log("Selected file:", file);
-            // You can now upload or preview the image
-            }
-        };    
-    return (
-        <>
-        <Button onClick={handleButtonClick}>Change Avatar</Button>
-        <input 
-            type="file" 
-            accept="image/*" 
-            ref={fileInputRef} 
-            className="hidden" 
-            onChange={handleImageUpload} 
-        />
-        </>
-      );
-    };
-
   return (
     <div>
         <Card>
@@ -84,7 +58,7 @@ export default function Profile() {
                     <AvatarImage src={avatar!} alt={'profile.name'} />
                     <AvatarFallback>{avatarFallback}</AvatarFallback>
                 </Avatar>
-                <ChangeAvatarButton />
+                <Button onClick={() => {setOpenProfileDialog(true)}}>Change Avatar</Button>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -143,6 +117,7 @@ export default function Profile() {
                 </>
             </CardContent>
         </Card>
+        <ProfilePicDialog open={openProfileDialog} onClose={() => {setOpenProfileDialog(false)}} />
     </div>
   )
 }
