@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/app/Components/ui/dropdown-menu";
-import { LogOut, ShieldPlus, User } from "lucide-react";
+import { Bell, LogOut, ShieldPlus, User } from "lucide-react";
 import { ThemeToggle } from '@/app/Components/ThemeToggle'
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -20,6 +20,8 @@ import Settings from "../users/Settings";
 import { signOut } from "next-auth/react";
 import { fetchProfile } from "@/app/lib/action";
 import { UserRole } from "@prisma/client";
+import { BellAlertIcon } from "@heroicons/react/24/outline";
+import useLocationTracker from "@/app/hooks/useLocationTracker";
 
 const routes = {
   USER: [
@@ -83,9 +85,12 @@ export function UserNav() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   
-  const avatar = `${profile?.firstName.substring(0, 1).toUpperCase()} ${profile?.secondName.substring(0, 1).toUpperCase()}`;
+  const avatar = profile?.profilePic || "";
+  const avatarFallback = `${profile?.firstName.substring(0, 1).toUpperCase()} ${profile?.secondName.substring(0, 1).toUpperCase()}`;
   const name = `${profile?.firstName} ${profile?.secondName}`;
   const userEmail = profile?.email;
+
+  useLocationTracker();
 
   useEffect(() => {
     const handleProfile = async () => {
@@ -142,14 +147,33 @@ export function UserNav() {
         </nav>
       <div className="flex space-x-4 space-y-3 items-center">
         <div className="mt-3">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant='outline' className="border-2 border-gray-300">
+                <Bell className="h-[1.2rem] w-[1.2rem]" />
+                {/* <BellAlertIcon className="h-[1.2rem] w-[1.2rem] animate-bounce animate-shake" /> */}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56" align="end" forceMount>
+              <DropdownMenuLabel className="font-normal">Notifications</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuItem>
+                  <span>No new notifications</span>
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+        <div className="mt-3">
           <ThemeToggle />
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
               <Avatar className="h-8 w-8">
-                <AvatarImage src="/avatars/01.png" alt="User avatar" />
-                <AvatarFallback>{avatar}</AvatarFallback>
+                <AvatarImage src={avatar} alt={name} />
+                <AvatarFallback>{avatarFallback}</AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
