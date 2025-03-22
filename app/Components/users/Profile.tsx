@@ -35,6 +35,7 @@ export default function Profile() {
 
     const avatar = profile?.profilePic;
     const avatarFallback = `${profile?.firstName.substring(0, 1).toUpperCase()} ${profile?.secondName.substring(0, 1).toUpperCase()}`;
+    const name = `${profile?.firstName} ${profile?.secondName}`;
 
     useEffect(() => {
         const handleProfile = async () => {
@@ -55,7 +56,7 @@ export default function Profile() {
                 <>
                 <div className="flex items-center gap-4 mt-6 mb-6">
                 <Avatar className="h-24 w-24">
-                    <AvatarImage src={avatar!} alt={'profile.name'} />
+                    <AvatarImage src={avatar!} alt={name} />
                     <AvatarFallback>{avatarFallback}</AvatarFallback>
                 </Avatar>
                 <Button onClick={() => {setOpenProfileDialog(true)}}>Change Avatar</Button>

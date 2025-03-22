@@ -33,6 +33,16 @@ model User {
   alerts      Alert[]
   reports     Report[]
   routes      Route[]
+  locations   UserLocation[]
+}
+
+model UserLocation {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  latitude  Float
+  longitude Float
+  timestamp DateTime @default(now()) // Tracks when the location was recorded
 }
 
 model Report {
