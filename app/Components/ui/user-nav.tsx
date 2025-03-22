@@ -21,6 +21,7 @@ import { signOut } from "next-auth/react";
 import { fetchProfile } from "@/app/lib/action";
 import { UserRole } from "@prisma/client";
 import { BellAlertIcon } from "@heroicons/react/24/outline";
+import useLocationTracker from "@/app/hooks/useLocationTracker";
 
 const routes = {
   USER: [
@@ -89,6 +90,8 @@ export function UserNav() {
   const name = `${profile?.firstName} ${profile?.secondName}`;
   const userEmail = profile?.email;
 
+  useLocationTracker();
+
   useEffect(() => {
     const handleProfile = async () => {
       try{
@@ -148,7 +151,7 @@ export function UserNav() {
             <DropdownMenuTrigger asChild>
               <Button variant='outline' className="border-2 border-gray-300">
                 <Bell className="h-[1.2rem] w-[1.2rem]" />
-                {/* <BellAlertIcon className="h-[1.2rem] w-[1.2rem] animate-bounce" /> */}
+                {/* <BellAlertIcon className="h-[1.2rem] w-[1.2rem] animate-bounce animate-shake" /> */}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end" forceMount>
