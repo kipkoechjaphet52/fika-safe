@@ -18,8 +18,8 @@ import clsx from "clsx";
 import { useEffect, useState } from "react";
 import Settings from "../users/Settings";
 import { signOut } from "next-auth/react";
-import { fetchProfile } from "@/app/lib/action";
-import { UserRole } from "@prisma/client";
+import { checkNewAlerts, fetchAlerts, fetchProfile } from "@/app/lib/action";
+import { AlertStatus, UserRole } from "@prisma/client";
 import { BellAlertIcon } from "@heroicons/react/24/outline";
 import useLocationTracker from "@/app/hooks/useLocationTracker";
 
@@ -81,10 +81,19 @@ interface UserProfile{
   createdAt: Date;
   userRole: UserRole;
 }
+
+interface Alert {
+  id: string;
+  createdAt: Date;
+  userId: string;
+  message: string;
+  status: AlertStatus;
+}
 export function UserNav() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [profile, setProfile] = useState<UserProfile | null>(null);
-  
+  const [alerts, setAlerts] = useState<Alert[]>([]);
+
   const avatar = profile?.profilePic || "";
   const avatarFallback = `${profile?.firstName.substring(0, 1).toUpperCase()} ${profile?.secondName.substring(0, 1).toUpperCase()}`;
   const name = `${profile?.firstName} ${profile?.secondName}`;
@@ -102,6 +111,19 @@ export function UserNav() {
       }
     }
     handleProfile();
+  },[]);
+
+  useEffect(() => {
+    const handleAlerts = async () => {
+      try{
+        const alerts = await fetchAlerts();
+        setAlerts(alerts);
+      }catch(error){
+        console.error("Error fetching alerts: ", error);
+      }
+    }
+
+    handleAlerts();
   },[]);
 
   const pathname = usePathname();
@@ -158,9 +180,18 @@ export function UserNav() {
               <DropdownMenuLabel className="font-normal">Notifications</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
-                <DropdownMenuItem>
-                  <span>No new notifications</span>
-                </DropdownMenuItem>
+                {alerts.length > 0 ? (
+                  alerts.map((alert) => (
+                    <DropdownMenuItem key={alert.id}>
+                      <span>{alert.message}</span>
+                    </DropdownMenuItem>
+                  ))
+                ) : (
+                  <DropdownMenuItem>
+                    <span>No new notifications</span>
+                  </DropdownMenuItem>
+                  )
+                }
               </DropdownMenuGroup>
             </DropdownMenuContent>
           </DropdownMenu>

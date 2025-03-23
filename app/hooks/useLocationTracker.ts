@@ -67,7 +67,7 @@ export default function useLocationTracker() {
       (error) => {
         console.error("Error getting location:", error);
       },
-      { enableHighAccuracy: true,}
+      { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 }
     );
 
     return () => navigator.geolocation.clearWatch(watchId);
