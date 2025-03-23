@@ -18,7 +18,7 @@ import clsx from "clsx";
 import { useEffect, useState } from "react";
 import Settings from "../users/Settings";
 import { signOut } from "next-auth/react";
-import { fetchProfile } from "@/app/lib/action";
+import { checkNewAlerts, fetchProfile } from "@/app/lib/action";
 import { UserRole } from "@prisma/client";
 import { BellAlertIcon } from "@heroicons/react/24/outline";
 import useLocationTracker from "@/app/hooks/useLocationTracker";
@@ -103,6 +103,19 @@ export function UserNav() {
     }
     handleProfile();
   },[]);
+
+  // useEffect(() => {
+  //   const handleAlerts = async () => {
+  //     try{
+  //       const alerts = checkNewAlerts();
+  //       console.log("Alerts: ", alerts);
+  //     }catch(error){
+  //       console.error("Error fetching alerts: ", error);
+  //     }
+  //   }
+
+  //   handleAlerts();
+  // },[]);
 
   const pathname = usePathname();
 
