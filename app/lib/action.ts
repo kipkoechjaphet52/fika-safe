@@ -220,3 +220,29 @@ export async function checkNewAlerts() {
 //       }
 //   }
 // }
+
+export async function fetchAlerts(){
+  try{
+    const session = await getServerSession(authOptions);
+    if(!session || !session.user?.email){
+        throw new Error("User not authenticated");
+    }
+    const email = session?.user?.email;
+
+    const user = await prisma.user.findUnique({
+        where: {email},
+        select: {id: true},
+    });
+    const userId = user?.id;
+
+    const alerts = await prisma.alert.findMany({
+        where: {userId},
+        orderBy: {createdAt: 'desc'},
+    });
+    
+    return alerts;
+  }catch(error){
+    console.error("Error fetching alerts: ", error);
+    throw new Error("Could not fetch alerts");
+  }
+}
