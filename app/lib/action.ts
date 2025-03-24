@@ -147,9 +147,9 @@ export async function checkNewAlerts() {
           locations: true,
         }
     });  
-    if (!user) {
-      console.error("User not found");
-      throw new Error("User not found");
+    if (!user || user.locations.length === 0) {
+      console.error("User not found or no location available");
+      throw new Error("User not found or no location available");
     };
 
     const userId = user.id;
@@ -161,23 +161,38 @@ export async function checkNewAlerts() {
         where: {
             createdAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }, // Last 24 hours
         },
-        select: { id: true, latitude: true, longitude: true, severity: true, type: true },
+        select: { id: true, title: true, location: true, latitude: true, longitude: true, severity: true, type: true },
     });
   
-    const alertsToSend = recentIncidents.filter(incident =>
-        getDistance(
-          {latitude: userLatitude, longitude: userLongitude,}, 
-          {latitude: incident.latitude, longitude: incident.longitude},) <= 5000 // 5 km
-    );
-  
-    // Create alerts for new incidents within the user's range
-    await prisma.alert.createMany({
-        data: alertsToSend.map(incident => ({
-            message: `Alert: An incident occurred near your new location. Location: ${incident.latitude}, ${incident.longitude}, Severity: ${incident.severity}, IncidentType: ${incident.type}`,
-            status: "UNREAD",
-            userId: userId
-        })),
-    });
+    for (const incident of recentIncidents) {
+      const distance = getDistance(
+        { latitude: userLatitude, longitude: userLongitude },
+        { latitude: incident.latitude, longitude: incident.longitude }
+      );
+
+      if (distance <= 5000) {
+        // **Check if an alert for this incident already exists**
+        const existingAlert = await prisma.alert.findFirst({
+          where: {
+            userId: userId,
+            message: {
+              contains: `${incident.title}, ${incident.location}, ${incident.latitude}, ${incident.longitude}` // Match location in message
+            }
+          }
+        });
+
+        // **Only create an alert if it doesn't already exist**
+        if (!existingAlert) {
+          await prisma.alert.create({
+            data: {
+              message: `Alert: An incident occurred near your new location. Title: ${incident.title}, Location: ${incident.location}, Longitude: ${incident.latitude}, Latitude: ${incident.longitude}, Severity: ${incident.severity}, IncidentType: ${incident.type}`,
+              status: "UNREAD",
+              userId: userId
+            }
+          });
+        }
+      }
+    }
   } catch(error){
     console.error("Error checking new alerts: ", error);
     throw new Error("Could not check new alerts");
@@ -239,7 +254,7 @@ export async function fetchAlerts(){
         where: {userId},
         orderBy: {createdAt: 'desc'},
     });
-    
+
     return alerts;
   }catch(error){
     console.error("Error fetching alerts: ", error);

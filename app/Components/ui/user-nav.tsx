@@ -172,8 +172,11 @@ export function UserNav() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant='outline' className="border-2 border-gray-300">
+              {alerts.some(alert => alert.status === "UNREAD") ? (
+                <BellAlertIcon className="h-[1.2rem] w-[1.2rem] animate-shake" />
+              ) : (
                 <Bell className="h-[1.2rem] w-[1.2rem]" />
-                {/* <BellAlertIcon className="h-[1.2rem] w-[1.2rem] animate-bounce animate-shake" /> */}
+              )}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end" forceMount>
