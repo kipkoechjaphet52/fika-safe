@@ -22,6 +22,9 @@ import { fetchAlerts, fetchProfile } from "@/app/lib/action";
 import { AlertStatus, UserRole } from "@prisma/client";
 import { BellAlertIcon } from "@heroicons/react/24/outline";
 import useLocationTracker from "@/app/hooks/useLocationTracker";
+import { io } from "socket.io-client";
+
+const socket = io("http://localhost:49160", { transports: ["websocket"] });
 
 const routes = {
   USER: [
@@ -98,8 +101,9 @@ export function UserNav() {
   const avatarFallback = `${profile?.firstName.substring(0, 1).toUpperCase()} ${profile?.secondName.substring(0, 1).toUpperCase()}`;
   const name = `${profile?.firstName} ${profile?.secondName}`;
   const userEmail = profile?.email;
+  const userId = profile?.id;
 
-  useLocationTracker();
+  // useLocationTracker();
 
   useEffect(() => {
     const handleProfile = async () => {
@@ -113,18 +117,30 @@ export function UserNav() {
     handleProfile();
   },[]);
 
-  useEffect(() => {
-    const handleAlerts = async () => {
-      try{
-        const alerts = await fetchAlerts();
-        setAlerts(alerts);
-      }catch(error){
-        console.error("Error fetching alerts: ", error);
-      }
-    }
+  // useEffect(() => {
+  //   const handleAlerts = async () => {
+  //     try{
+  //       const alerts = await fetchAlerts();
+  //       setAlerts(alerts);
+  //     }catch(error){
+  //       console.error("Error fetching alerts: ", error);
+  //     }
+  //   }
 
-    handleAlerts();
-  },[]);
+  //   handleAlerts();
+  // },[]);
+
+  useEffect(() => {
+    // Listen for new alerts
+    socket.on("newAlert", (alert) => {
+      console.log("🔴 New Alert Received:", alert);
+      setAlerts((prevAlerts) => [...prevAlerts, alert]); // Add to alerts list
+    });
+
+    return () => {
+      socket.off("newAlert"); // Cleanup listener
+    };
+  }, []);
 
   const pathname = usePathname();
 

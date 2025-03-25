@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import {authOptions} from "../utils/authOptions";
 import { getDistance } from "geolib";
 import { Server } from "socket.io";
+import { io } from "../utils/socket";
 
 const prisma = new PrismaClient();
 
@@ -134,9 +135,31 @@ export async function fetchAllIncidents(){
 // }
 
 
-const io = new Server(4000, {
-  cors: { origin: "*" }
-});
+// const globalAny: any = global;
+// if (!globalAny.io) {
+//   console.log("Initializing Socket.IO server...");
+
+//   globalAny.io = new Server(49160, {
+//     cors: { 
+//       origin: "http://localhost:3000", 
+//       methods: ["GET", "POST"] 
+//     }
+//   });
+
+//   globalAny.io.on("connection", (socket) => {
+//     console.log("User connected:", socket.id);
+
+//     socket.on("joinRoom", (userId: string) => {
+//       socket.join(userId);
+//       console.log(`User ${userId} joined their alert room`);
+//     });
+
+//     socket.on("disconnect", () => {
+//       console.log("User disconnected:", socket.id);
+//     });
+//   });
+// }
+const newIo = io;
 export async function createAlertForIncident(reportId: string) {
   try {
       // Fetch the report details
@@ -190,7 +213,7 @@ export async function createAlertForIncident(reportId: string) {
 
       // Notify users in real-time
       nearbyUsers.forEach((user) => {
-          io.to(user.id).emit("newAlert", {
+          newIo.to(user.id).emit("newAlert", {
               message: `New Alert: Title: ${report.title}, ${report.type} near ${report.location}`,
               alertId: report.id,
           });
