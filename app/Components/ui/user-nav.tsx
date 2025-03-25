@@ -18,7 +18,7 @@ import clsx from "clsx";
 import { useEffect, useState } from "react";
 import Settings from "../users/Settings";
 import { signOut } from "next-auth/react";
-import { checkNewAlerts, fetchAlerts, fetchProfile } from "@/app/lib/action";
+import { fetchAlerts, fetchProfile } from "@/app/lib/action";
 import { AlertStatus, UserRole } from "@prisma/client";
 import { BellAlertIcon } from "@heroicons/react/24/outline";
 import useLocationTracker from "@/app/hooks/useLocationTracker";

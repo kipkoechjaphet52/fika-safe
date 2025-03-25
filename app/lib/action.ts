@@ -1,8 +1,9 @@
 'use server';
-import { PrismaClient } from "@prisma/client";
+import { AlertStatus, PrismaClient } from "@prisma/client";
 import { getServerSession } from "next-auth";
 import {authOptions} from "../utils/authOptions";
 import { getDistance } from "geolib";
+import { Server } from "socket.io";
 
 const prisma = new PrismaClient();
 
@@ -133,108 +134,73 @@ export async function fetchAllIncidents(){
 // }
 
 
-export async function checkNewAlerts() {
-  try{
-    const session = await getServerSession(authOptions);
-    if(!session || !session.user?.email){
-        throw new Error("User not authenticated");
-    }
-    const email = session?.user?.email;
+const io = new Server(4000, {
+  cors: { origin: "*" }
+});
+export async function createAlertForIncident(reportId: string) {
+  try {
+      // Fetch the report details
+      const report = await prisma.report.findUnique({
+          where: { id: reportId },
+      });
 
-    const user = await prisma.user.findUnique({
-        where: {email},
-        include: {
-          locations: true,
-        }
-    });  
-    if (!user || user.locations.length === 0) {
-      console.error("User not found or no location available");
-      throw new Error("User not found or no location available");
-    };
-
-    const userId = user.id;
-    const userLatitude = user.locations[0].latitude;
-    const userLongitude = user.locations[0].longitude;
-  
-    // Fetch recent incidents (e.g., last 24 hours)
-    const recentIncidents = await prisma.report.findMany({
-        where: {
-            createdAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }, // Last 24 hours
-        },
-        select: { id: true, title: true, location: true, latitude: true, longitude: true, severity: true, type: true },
-    });
-  
-    for (const incident of recentIncidents) {
-      const distance = getDistance(
-        { latitude: userLatitude, longitude: userLongitude },
-        { latitude: incident.latitude, longitude: incident.longitude }
-      );
-
-      if (distance <= 5000) {
-        // **Check if an alert for this incident already exists**
-        const existingAlert = await prisma.alert.findFirst({
-          where: {
-            userId: userId,
-            message: {
-              contains: `${incident.title}, ${incident.location}, ${incident.latitude}, ${incident.longitude}` // Match location in message
-            }
-          }
-        });
-
-        // **Only create an alert if it doesn't already exist**
-        if (!existingAlert) {
-          await prisma.alert.create({
-            data: {
-              message: `Alert: An incident occurred near your new location. Title: ${incident.title}, Location: ${incident.location}, Longitude: ${incident.latitude}, Latitude: ${incident.longitude}, Severity: ${incident.severity}, IncidentType: ${incident.type}`,
-              status: "UNREAD",
-              userId: userId
-            }
-          });
-        }
+      if (!report) {
+          throw new Error("Report not found");
       }
-    }
-  } catch(error){
-    console.error("Error checking new alerts: ", error);
-    throw new Error("Could not check new alerts");
+
+      // Find nearby users within 5km radius
+      const nearbyUsers = await prisma.user.findMany({
+          where: {
+              AND: [
+                  {
+                      locations: {
+                          some: {
+                              latitude: {
+                                  gte: report.latitude - 0.045, // ~5km range
+                                  lte: report.latitude + 0.045,
+                              },
+                          },
+                      },
+                  },
+                  {
+                      locations: {
+                          some: {
+                              longitude: {
+                                  gte: report.longitude - 0.045,
+                                  lte: report.longitude + 0.045,
+                              },
+                          },
+                      },
+                  },
+              ],
+          },
+          select: { id: true },
+      });
+
+      // Create alerts for each user
+      const alertData = nearbyUsers.map((user) => ({
+          reportId: report.id,
+          userId: user.id,
+          message: `An incident occurred near your new location. Title: ${report.title}, Location: ${report.location}, Longitude: ${report.latitude}, Latitude: ${report.longitude}, Severity: ${report.severity}, IncidentType: ${report.type}`,
+          status: "UNREAD" as AlertStatus,
+      }));
+
+      // Store alerts in the database
+      await prisma.alert.createMany({ data: alertData });
+
+      // Notify users in real-time
+      nearbyUsers.forEach((user) => {
+          io.to(user.id).emit("newAlert", {
+              message: `New Alert: Title: ${report.title}, ${report.type} near ${report.location}`,
+              alertId: report.id,
+          });
+      });
+
+      console.log(`Alert sent to ${nearbyUsers.length} users.`);
+  } catch (error) {
+      console.error("Error creating alert: ", error);
   }
 }
-
-// export async function removeOldAlerts() {
-//   const session = await getServerSession(authOptions);
-//   if(!session || !session.user?.email){
-//       throw new Error("User not authenticated");
-//   }
-//   const email = session?.user?.email;
-
-//   const user = await prisma.user.findUnique({
-//       where: {email},
-//       include: {
-//         locations: true,
-//       }
-//   });  
-//   if (!user) {
-//     console.error("User not found");
-//     throw new Error("User not found");
-//   };
-
-//   const alerts = await prisma.alert.findMany({
-//       where: { id: user.id },
-//       select: { id: true, message: true },
-//   });
-
-//   for (const alert of alerts) {
-//       // Extract location from message (assuming it contains incident info)
-//       const incident = extractIncidentFromMessage(alert.message);
-      
-//       if (incident) {
-//           const distance = getDistance(user.locations[0].latitude, user.locations[0].longitude, incident.latitude, incident.longitude);
-
-//           if (distance > 5) {
-//               await prisma.alert.delete({ where: { id: alert.id } });
-//           }
-//       }
-//   }
-// }
 
 export async function fetchAlerts(){
   try{
