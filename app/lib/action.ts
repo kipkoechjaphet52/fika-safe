@@ -134,31 +134,6 @@ export async function fetchAllIncidents(){
 //   return R * c; // Distance in km
 // }
 
-
-// const globalAny: any = global;
-// if (!globalAny.io) {
-//   console.log("Initializing Socket.IO server...");
-
-//   globalAny.io = new Server(49160, {
-//     cors: { 
-//       origin: "http://localhost:3000", 
-//       methods: ["GET", "POST"] 
-//     }
-//   });
-
-//   globalAny.io.on("connection", (socket) => {
-//     console.log("User connected:", socket.id);
-
-//     socket.on("joinRoom", (userId: string) => {
-//       socket.join(userId);
-//       console.log(`User ${userId} joined their alert room`);
-//     });
-
-//     socket.on("disconnect", () => {
-//       console.log("User disconnected:", socket.id);
-//     });
-//   });
-// }
 const newIo = io;
 export async function createAlertForIncident(reportId: string) {
   try {
@@ -209,14 +184,16 @@ export async function createAlertForIncident(reportId: string) {
       }));
 
       // Store alerts in the database
-      await prisma.alert.createMany({ data: alertData });
+      const alert = await prisma.alert.createMany({ data: alertData });
 
       // Notify users in real-time
       nearbyUsers.forEach((user) => {
-          newIo.to(user.id).emit("newAlert", {
-              message: `New Alert: Title: ${report.title}, ${report.type} near ${report.location}`,
-              alertId: report.id,
-          });
+        console.log(`📡 Sending alert to user: ${user.id}`);
+        newIo.to(user.id).emit("newAlert", {
+            alert: alert,
+            message: `New Alert: Title: ${report.title}, ${report.type} near ${report.location}`,
+            alertId: report.id,
+        });
       });
 
       console.log(`Alert sent to ${nearbyUsers.length} users.`);

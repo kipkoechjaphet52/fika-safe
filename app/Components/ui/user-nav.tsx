@@ -96,7 +96,7 @@ export function UserNav() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [alerts, setAlerts] = useState<Alert[]>([]);
-
+console.log(alerts);
   const avatar = profile?.profilePic || "";
   const avatarFallback = `${profile?.firstName.substring(0, 1).toUpperCase()} ${profile?.secondName.substring(0, 1).toUpperCase()}`;
   const name = `${profile?.firstName} ${profile?.secondName}`;
@@ -131,16 +131,22 @@ export function UserNav() {
   // },[]);
 
   useEffect(() => {
+    if (!userId) return;
+  
+    // Join the user to their room
+    socket.emit("joinRoom", userId);
+    console.log("🟢 Joined room:", userId);
+  
     // Listen for new alerts
     socket.on("newAlert", (alert) => {
       console.log("🔴 New Alert Received:", alert);
       setAlerts((prevAlerts) => [...prevAlerts, alert]); // Add to alerts list
     });
-
+  
     return () => {
       socket.off("newAlert"); // Cleanup listener
     };
-  }, []);
+  }, [userId]); 
 
   const pathname = usePathname();
 

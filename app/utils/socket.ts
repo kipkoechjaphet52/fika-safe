@@ -23,8 +23,10 @@ if (!globalAny.io) {
     console.log("User connected:", socket.id);
 
     socket.on("joinRoom", (userId: string) => {
-      socket.join(userId);
-      console.log(`User ${userId} joined their alert room`);
+      if (userId) {
+        socket.join(userId); // Ensure the user joins their designated room
+        console.log(`✅ User ${userId} joined room ${userId}`);
+      }
     });
 
     socket.on("disconnect", () => {
