@@ -1,3 +1,4 @@
+import { createAlertForIncident } from '@/app/lib/action';
 import {authOptions} from '@/app/utils/authOptions';
 import {PrismaClient} from '@prisma/client';
 import { getServerSession } from 'next-auth';
@@ -41,6 +42,10 @@ export async function POST(req:Request){
                 user: {connect: {id: userId}},
             },
         },);
+
+        if(newReport){
+            await createAlertForIncident(newReport.id);
+        }
 
         return new Response(JSON.stringify(
             JSON.stringify({

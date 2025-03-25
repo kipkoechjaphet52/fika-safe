@@ -4,7 +4,6 @@ import { fetchProfile } from "../lib/action";
 import { UserRole } from "@prisma/client";
 
 const NEXTAUTHURL = process.env.NEXT_PUBLIC_API_URL!;
-console.log("NEXTAUTHURL: ", NEXTAUTHURL);
 const socket = io(NEXTAUTHURL, { path: "/api/location-socket" });
 // const socket = io("http://localhost:3000", { path: "/api/socket" });
 

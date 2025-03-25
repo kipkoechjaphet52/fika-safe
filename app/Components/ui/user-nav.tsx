@@ -18,10 +18,13 @@ import clsx from "clsx";
 import { useEffect, useState } from "react";
 import Settings from "../users/Settings";
 import { signOut } from "next-auth/react";
-import { checkNewAlerts, fetchAlerts, fetchProfile } from "@/app/lib/action";
+import { fetchAlerts, fetchProfile } from "@/app/lib/action";
 import { AlertStatus, UserRole } from "@prisma/client";
 import { BellAlertIcon } from "@heroicons/react/24/outline";
 import useLocationTracker from "@/app/hooks/useLocationTracker";
+import { io } from "socket.io-client";
+
+const socket = io("http://localhost:49160", { transports: ["websocket"] });
 
 const routes = {
   USER: [
@@ -93,13 +96,14 @@ export function UserNav() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [alerts, setAlerts] = useState<Alert[]>([]);
-
+console.log(alerts);
   const avatar = profile?.profilePic || "";
   const avatarFallback = `${profile?.firstName.substring(0, 1).toUpperCase()} ${profile?.secondName.substring(0, 1).toUpperCase()}`;
   const name = `${profile?.firstName} ${profile?.secondName}`;
   const userEmail = profile?.email;
+  const userId = profile?.id;
 
-  useLocationTracker();
+  // useLocationTracker();
 
   useEffect(() => {
     const handleProfile = async () => {
@@ -113,18 +117,36 @@ export function UserNav() {
     handleProfile();
   },[]);
 
-  useEffect(() => {
-    const handleAlerts = async () => {
-      try{
-        const alerts = await fetchAlerts();
-        setAlerts(alerts);
-      }catch(error){
-        console.error("Error fetching alerts: ", error);
-      }
-    }
+  // useEffect(() => {
+  //   const handleAlerts = async () => {
+  //     try{
+  //       const alerts = await fetchAlerts();
+  //       setAlerts(alerts);
+  //     }catch(error){
+  //       console.error("Error fetching alerts: ", error);
+  //     }
+  //   }
 
-    handleAlerts();
-  },[]);
+  //   handleAlerts();
+  // },[]);
+
+  useEffect(() => {
+    if (!userId) return;
+  
+    // Join the user to their room
+    socket.emit("joinRoom", userId);
+    console.log("🟢 Joined room:", userId);
+  
+    // Listen for new alerts
+    socket.on("newAlert", (alert) => {
+      console.log("🔴 New Alert Received:", alert);
+      setAlerts((prevAlerts) => [...prevAlerts, alert]); // Add to alerts list
+    });
+  
+    return () => {
+      socket.off("newAlert"); // Cleanup listener
+    };
+  }, [userId]); 
 
   const pathname = usePathname();
 
@@ -172,8 +194,11 @@ export function UserNav() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant='outline' className="border-2 border-gray-300">
+              {alerts.some(alert => alert.status === "UNREAD") ? (
+                <BellAlertIcon className="h-[1.2rem] w-[1.2rem] animate-shake" />
+              ) : (
                 <Bell className="h-[1.2rem] w-[1.2rem]" />
-                {/* <BellAlertIcon className="h-[1.2rem] w-[1.2rem] animate-bounce animate-shake" /> */}
+              )}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end" forceMount>

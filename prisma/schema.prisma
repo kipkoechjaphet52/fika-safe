@@ -30,8 +30,8 @@ model User {
   password    String
   profilePic  String?
   userRole    UserRole @default(USER)
-  alerts      Alert[]
   reports     Report[]
+  alerts      Alert[]
   routes      Route[]
   locations   UserLocation[]
 }
@@ -63,14 +63,17 @@ model Report {
   updatedAt    DateTime           @updatedAt
   user         User               @relation(fields: [userId], references: [id])
   verifier     Staff?             @relation(fields: [verifierId], references: [id])
+  alerts       Alert[]
 }
 
 model Alert {
   id        String      @id @default(uuid())
   createdAt DateTime    @default(now())
   userId    String
+  reportId  String      
   message   String
   status    AlertStatus @default(UNREAD)
+  report    Report      @relation(fields: [reportId], references: [id])
   user      User        @relation(fields: [userId], references: [id])
 }
 
