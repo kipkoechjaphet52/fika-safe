@@ -184,13 +184,17 @@ export async function createAlertForIncident(reportId: string) {
       }));
 
       // Store alerts in the database
-      const alert = await prisma.alert.createMany({ data: alertData });
+      await prisma.alert.createMany({ data: alertData });
+
+      const createdAlerts = await prisma.alert.findMany({
+        where: { reportId: report.id },
+      });
 
       // Notify users in real-time
       nearbyUsers.forEach((user) => {
         console.log(`📡 Sending alert to user: ${user.id}`);
         newIo.to(user.id).emit("newAlert", {
-            alert: alert,
+          alerts: createdAlerts.filter(alert => alert.userId === user.id), // Send only the alerts for this user
             message: `New Alert: Title: ${report.title}, ${report.type} near ${report.location}`,
             alertId: report.id,
         });

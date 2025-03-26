@@ -92,6 +92,11 @@ interface Alert {
   message: string;
   status: AlertStatus;
 }
+interface NearbyUsersAlert {
+  alerts: Alert[]; // Filtered alerts for the specific user
+  message: string; // Alert message for the user
+  alertId: string; // ID of the specific alert
+}
 export function UserNav() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -138,9 +143,11 @@ console.log(alerts);
     console.log("🟢 Joined room:", userId);
   
     // Listen for new alerts
-    socket.on("newAlert", (alert) => {
-      console.log("🔴 New Alert Received:", alert);
-      setAlerts((prevAlerts) => [...prevAlerts, alert]); // Add to alerts list
+    socket.on("newAlert", (data) => {
+      console.log("🔴 New Alert Received:", data);
+      const newAlert = data.alerts;
+      console.log(newAlert)
+      setAlerts((prevAlerts) => [...prevAlerts, data.alerts]); // Add to alerts list
     });
   
     return () => {
@@ -206,8 +213,8 @@ console.log(alerts);
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
                 {alerts.length > 0 ? (
-                  alerts.map((alert) => (
-                    <DropdownMenuItem key={alert.id}>
+                  alerts.map((alert, index) => (
+                    <DropdownMenuItem key={index}>
                       <span>{alert.message}</span>
                     </DropdownMenuItem>
                   ))
