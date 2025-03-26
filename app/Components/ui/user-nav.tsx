@@ -122,18 +122,18 @@ console.log(alerts);
     handleProfile();
   },[]);
 
-  // useEffect(() => {
-  //   const handleAlerts = async () => {
-  //     try{
-  //       const alerts = await fetchAlerts();
-  //       setAlerts(alerts);
-  //     }catch(error){
-  //       console.error("Error fetching alerts: ", error);
-  //     }
-  //   }
+  useEffect(() => {
+    const handleAlerts = async () => {
+      try{
+        const alerts = await fetchAlerts();
+        setAlerts(alerts);
+      }catch(error){
+        console.error("Error fetching alerts: ", error);
+      }
+    }
 
-  //   handleAlerts();
-  // },[]);
+    handleAlerts();
+  },[]);
 
   useEffect(() => {
     if (!userId) return;
@@ -208,7 +208,7 @@ console.log(alerts);
               )}
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end" forceMount>
+            <DropdownMenuContent className="w-56 overflow-y-scroll h-[40vh]" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">Notifications</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>

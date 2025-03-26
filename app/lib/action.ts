@@ -221,7 +221,10 @@ export async function fetchAlerts(){
     const userId = user?.id;
 
     const alerts = await prisma.alert.findMany({
-        where: {userId},
+        where: {
+          userId: userId,
+          status: 'UNREAD',
+        },
         orderBy: {createdAt: 'desc'},
     });
 
