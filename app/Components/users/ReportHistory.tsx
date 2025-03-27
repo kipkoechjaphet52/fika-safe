@@ -23,28 +23,12 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import DeleteIncidentDialog from "./DeleteIncidentDialog";
 
-const reports = [
-  {
-    id: 1,
-    incidentType: "THEFT",
-    location: "Sichirai",
-    status: "pending",
-    reportedAt: "2024-03-20",
-  },
-  {
-    id: 2,
-    incidentType: "MEDICAL",
-    location: "Kooromatangi",
-    status: "resolved",
-    reportedAt: "2024-03-15",
-  },
-];
-
 interface Report {
   id: string;
   createdAt: Date;
   userId: string;
   location: string;
+  title: string;
   latitude: number;
   longitude: number;
   type: IncidentType;
@@ -56,7 +40,7 @@ interface Report {
   verifierId: string | null;
   updatedAt: Date;
 }
-export function ReportHistory() {
+export function ReportHistory({onEdit}: {onEdit: (report: Report) => void}) {
   const [reports, setReports] = useState<Report[]>([]);
   const [reportId, setReportId] = useState("");
   const [openDelete, setOpenDelete] = useState(false);
@@ -112,7 +96,7 @@ export function ReportHistory() {
                   <TableCell>{report.createdAt.toLocaleDateString()}</TableCell>
                   <TableCell className="flex justify-between">
                     <EyeIcon className="w-5 h-5 " />
-                    <Pencil className="w-5 h-5 text-sky-500" />
+                    <Pencil onClick={() => onEdit(report)} className="w-5 h-5 text-sky-500 cursor-pointer" />
                     <TrashIcon onClick={() => {setReportId(report.id); handleOpenDelete();}} className="w-5 h-5 text-destructive cursor-pointer" />
                   </TableCell>
                 </TableRow>

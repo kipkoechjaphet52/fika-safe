@@ -29,7 +29,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Textarea } from "../ui/textarea";
 import Input from "../Input";
 import { useEffect, useState } from "react";
-import { MediaType } from "@prisma/client";
+import { IncidentType, MediaType, SeverityLevel, VerificationStatus } from "@prisma/client";
 import toast from "react-hot-toast";
 import { fromLonLat } from "ol/proj";
 
@@ -40,8 +40,24 @@ const formSchema = z.object({
   file: z.string().optional(),
 });
 
-
-export function IncidentReport() {
+interface Report {
+  id: string;
+  createdAt: Date;
+  userId: string;
+  title: string;
+  location: string;
+  latitude: number;
+  longitude: number;
+  type: IncidentType;
+  severity: SeverityLevel;
+  description: string;
+  mediaUrl: string | null;
+  mediaType: MediaType;
+  verificationStatus: VerificationStatus;
+  verifierId: string | null;
+  updatedAt: Date;
+}
+export function IncidentReport({selectedReport}: {selectedReport: Report | null}) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   });
@@ -59,6 +75,17 @@ export function IncidentReport() {
   const severity = form.watch('severity');
   const description = form.watch('description');
   
+  useEffect(() => {
+    if(selectedReport){
+      setTitle(selectedReport.title);
+      setStreet(selectedReport.location);
+      setFileUrl(selectedReport.mediaUrl || '');
+      setMediaType(selectedReport.mediaType);
+      form.setValue('incidentType', selectedReport.type);
+      form.setValue('severity', selectedReport.severity);
+      form.setValue('description', selectedReport.description);
+    }
+  },[selectedReport, form]);
 
   // Check if the file is an image or video and get user coordinates
   useEffect(() => {
@@ -195,8 +222,8 @@ export function IncidentReport() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Report an Incident</CardTitle>
-        <CardDescription>Submit a new incident report</CardDescription>
+        <CardTitle>{selectedReport ? "Edit Incident Report" : "Report an Incident"}</CardTitle>
+        <CardDescription>{selectedReport ? "Modify the report details" : "Submit a new incident report"}</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -229,7 +256,7 @@ export function IncidentReport() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Incident Type</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select type of incident" />
@@ -254,7 +281,7 @@ export function IncidentReport() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Incident Severity</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a level of severity" />
@@ -297,7 +324,9 @@ export function IncidentReport() {
                 </FormItem>
               )}
             />
-            <Button disabled={disabled} type="submit" onClick={() => handleSubmit()} className="w-full">Submit Report</Button>
+            <Button disabled={disabled} type="submit" onClick={() => handleSubmit()} className="w-full">
+            {selectedReport ? "Update Report" : "Submit Report"}
+            </Button>
           </form>
         </Form>
       </CardContent>

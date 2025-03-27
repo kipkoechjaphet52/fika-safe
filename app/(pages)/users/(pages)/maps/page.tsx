@@ -59,7 +59,7 @@ export default function MapsPage() {
         </div>
       </div>
       <div className={clsx(`w-1/5 h-full mx-5 mt-5`, !openForm && 'hidden w-0')}>
-        <IncidentReport />
+        {/* <IncidentReport /> */}
       </div>
     </div>
   );
