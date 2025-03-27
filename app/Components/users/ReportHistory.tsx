@@ -16,11 +16,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/app/Components/ui/table";
-import { fetchUserReports } from "@/app/lib/action";
+import { deleteIncident, fetchUserReports } from "@/app/lib/action";
 import { IncidentType, MediaType, SeverityLevel, VerificationStatus } from "@prisma/client";
 import { EyeIcon, Pencil, TrashIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import DeleteIncidentDialog from "./DeleteIncidentDialog";
 
 const reports = [
   {
@@ -57,6 +58,12 @@ interface Report {
 }
 export function ReportHistory() {
   const [reports, setReports] = useState<Report[]>([]);
+  const [reportId, setReportId] = useState("");
+  const [openDelete, setOpenDelete] = useState(false);
+
+  const handleOpenDelete = () => {
+    setOpenDelete((prev) => !prev);
+  }
 
   useEffect(() => {
     const handleReports = async () => {
@@ -72,6 +79,7 @@ export function ReportHistory() {
     handleReports();
   }, []);
   return (
+    <div>
     <Card>
       <CardHeader>
         <CardTitle>Incidents History</CardTitle>
@@ -105,7 +113,7 @@ export function ReportHistory() {
                   <TableCell className="flex justify-between">
                     <EyeIcon className="w-5 h-5 " />
                     <Pencil className="w-5 h-5 text-sky-500" />
-                    <TrashIcon className="w-5 h-5 text-destructive" />
+                    <TrashIcon onClick={() => {setReportId(report.id); handleOpenDelete();}} className="w-5 h-5 text-destructive cursor-pointer" />
                   </TableCell>
                 </TableRow>
               ))
@@ -118,5 +126,7 @@ export function ReportHistory() {
         </Table>
       </CardContent>
     </Card>
+    <DeleteIncidentDialog open={openDelete} id={reportId} />
+    </div>
   );
 }

@@ -234,3 +234,27 @@ export async function fetchAlerts(){
     throw new Error("Could not fetch alerts");
   }
 }
+
+export async function deleteIncident(reportId: string){
+  try{
+    const session = await getServerSession(authOptions);
+    const email = session?.user?.email;
+    
+    const user = await prisma.user.findUnique({
+      where: {email: email!},
+      select: {id: true},
+    });
+    const userId = user?.id;
+
+    await prisma.report.delete({
+      where:{
+        id: reportId,
+        userId: userId,
+      }
+    })
+
+    
+  }catch(error){
+    console.error("Error deleting incident: ", error)
+  }
+}
