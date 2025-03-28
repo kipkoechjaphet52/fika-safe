@@ -79,7 +79,7 @@ console.log(selectedReport);
       </div>
       <div className="grid gap-8 md:grid-cols-2">
         {/* <EnrolledCourses /> */}
-        <IncidentReport selectedReport={selectedReport} />
+        <IncidentReport selectedReport={selectedReport} onUpdate={() => setSelectedReport(null)}/>
         <ReportHistory onEdit={setSelectedReport} />
       </div>
     </div>

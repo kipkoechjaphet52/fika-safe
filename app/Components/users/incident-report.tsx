@@ -32,6 +32,7 @@ import { useEffect, useState } from "react";
 import { IncidentType, MediaType, SeverityLevel, VerificationStatus } from "@prisma/client";
 import toast from "react-hot-toast";
 import { fromLonLat } from "ol/proj";
+import { set } from "ol/transform";
 
 const formSchema = z.object({
   incidentType: z.string().min(1, "Incident type is required"),
@@ -57,7 +58,7 @@ interface Report {
   verifierId: string | null;
   updatedAt: Date;
 }
-export function IncidentReport({selectedReport}: {selectedReport: Report | null}) {
+export function IncidentReport({selectedReport, onUpdate}: {selectedReport: Report | null, onUpdate: () => void}) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   });
@@ -70,6 +71,8 @@ export function IncidentReport({selectedReport}: {selectedReport: Report | null}
   const [fileUrl, setFileUrl] = useState('');
   const [longitude, setLongitude] = useState(0);
   const [latitude, setLatitude] = useState(0);
+  const [reportId, setReportId] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const incidentType = form.watch('incidentType');
   const severity = form.watch('severity');
@@ -77,6 +80,7 @@ export function IncidentReport({selectedReport}: {selectedReport: Report | null}
   
   useEffect(() => {
     if(selectedReport){
+      setReportId(selectedReport.id);
       setTitle(selectedReport.title);
       setStreet(selectedReport.location);
       setFileUrl(selectedReport.mediaUrl || '');
@@ -177,45 +181,91 @@ export function IncidentReport({selectedReport}: {selectedReport: Report | null}
   }
 
   const handleSubmit = async () => {
-    const reportData = {
-      title, 
-      location: street,
-      latitude,
-      longitude,
-      description: description,
-      type: incidentType,
-      severity: severity,
-      mediaUrl: fileUrl,
-      mediaType: mediaType,
-    };
+    if (selectedReport) {
+      // Edit existing task
+      try {
+        toast.loading("Updating task...");
+        const response = await fetch('/api/update-incident', {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id: reportId,
+            title,
+            location: street,
+            description,
+            type: incidentType,
+            severity,
+            mediaUrl: fileUrl,
+            mediaType,
+          }),
+        });
+        
+        toast.dismiss()
+        if (response.ok) {
+          toast.success("Task updated successfully");
+          onUpdate();
+          setLoading(false);
+          setFile(null);
+          setTitle("");
+          setStreet("");
+          setFileUrl("");
+          setMediaType("");
+          setReportId("");
+          form.reset({
+            incidentType: "",
+            severity: "",
+            description: "",
+            file: "",
+          });
+        } else {
+          toast.error("Failed to update task");
+          setDisabled(false)
+        }
+      } catch (error) {
+        console.error("Error updating task:", error);
+        toast.error("Error updating task");
+      }
+    } else {
+      const reportData = {
+        title, 
+        location: street,
+        latitude,
+        longitude,
+        description: description,
+        type: incidentType,
+        severity: severity,
+        mediaUrl: fileUrl,
+        mediaType: mediaType,
+      };
 
-    try{
-      setDisabled(true);
-      toast.loading('Submitting report...');
-      const response = await fetch('/api/create-report', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(reportData),
-      });
-      
-      toast.dismiss();
-      if (response.ok || response.status === 200 || response.status === 201) {
-        toast.success('Report submitted successfully');
-        setDisabled(false);
-      } else if (response.status === 400) {
-        toast.error('Please fill all the fields');
-        setDisabled(false);
-      } else{
+      try{
+        setDisabled(true);
+        toast.loading('Submitting report...');
+        const response = await fetch('/api/create-report', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(reportData),
+        });
+        
+        toast.dismiss();
+        if (response.ok || response.status === 200 || response.status === 201) {
+          toast.success('Report submitted successfully');
+          setDisabled(false);
+        } else if (response.status === 400) {
+          toast.error('Please fill all the fields');
+          setDisabled(false);
+        } else{
+          toast.error('Error submitting report');
+          setDisabled(false);
+        }
+      }catch(error){
+        toast.dismiss();
         toast.error('Error submitting report');
+        console.error("Error submitting report: ", error);
         setDisabled(false);
       }
-    }catch(error){
-      toast.dismiss();
-      toast.error('Error submitting report');
-      console.error("Error submitting report: ", error);
-      setDisabled(false);
     }
   }
 
