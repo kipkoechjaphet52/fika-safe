@@ -46,6 +46,33 @@ const routes = {
       href: "/admin/courses",
     },
   ],
+  RESPONDER: [
+    {
+      title: "Dashboard",
+      icon: LayoutDashboard,
+      href: "/responder",
+    },
+    {
+      title: "Live Maps",
+      icon: MapIcon,
+      href: "/responder/maps",
+    },
+    {
+      title: "Incidents",
+      icon: MapPin,
+      href: "/responder/incidents",
+    },
+    {
+      title: "Help",
+      icon: HelpCircleIcon,
+      href: "/responder/help",
+    },
+    {
+      title: "Settings",
+      icon: SettingsIcon,
+      href: "/responder/settings",
+    },
+  ],
   USER: [
     {
       title: "Dashboard",
@@ -78,14 +105,10 @@ const routes = {
 export function DashboardNav() {
   const pathname = usePathname();
   // This should be dynamic based on user role from auth context
-  const userRole = pathname.includes("/Admin")
+  const userRole = pathname.includes("/admin")
     ? "ADMIN"
-    : pathname.includes("/dean")
-    ? "DEAN"
-    : pathname.includes("/cod")
-    ? "COD"
-    : pathname.includes("/Lecturer")
-    ? "LECTURER"
+    : pathname.includes("/responder")
+    ? "RESPONDER"
     : "USER";
 
   const currentRoutes = routes[userRole as keyof typeof routes];
@@ -128,7 +151,7 @@ export function DashboardNav() {
           </div>
           <div className="flex items-center gap-2 px-2 mx-auto pt-1">
             <GraduationCap className="h-6 w-6" />
-            <span className="font-semibold">Missing Mark System</span>
+            <span className="font-semibold">Fika Safe</span>
           </div>
         </div>
         <div className={cn('w-full h-full bg-card z-50', !isOpen && 'hidden')}>

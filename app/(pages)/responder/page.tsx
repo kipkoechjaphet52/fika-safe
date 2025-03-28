@@ -1,5 +1,7 @@
 "use client";
 
+import { ActiveIncidents } from "@/app/Components/responder/ActiveIncidents";
+import { ResponseHistory } from "@/app/Components/responder/ResponseHistory";
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/Components/ui/card";
 import { IncidentReport } from "@/app/Components/users/incident-report";
 import { ReportHistory } from "@/app/Components/users/ReportHistory";
@@ -61,7 +63,8 @@ console.log(selectedReport);
         </Card>
       </div>
       <div className="grid gap-8 md:grid-cols-2">
-        
+        <ActiveIncidents/>
+        <ResponseHistory onEdit={() => {}}/>
       </div>
     </div>
   );

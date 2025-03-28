@@ -21,7 +21,7 @@ import { IncidentType, MediaType, SeverityLevel, VerificationStatus } from "@pri
 import { EyeIcon, Pencil, TrashIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import DeleteIncidentDialog from "./DeleteIncidentDialog";
+import DeleteIncidentDialog from "../users/DeleteIncidentDialog";
 
 interface Report {
   id: string;
@@ -40,7 +40,7 @@ interface Report {
   verifierId: string | null;
   updatedAt: Date;
 }
-export function ReportHistory({onEdit}: {onEdit: (report: Report) => void}) {
+export function ResponseHistory({onEdit}: {onEdit: (report: Report) => void}) {
   const [reports, setReports] = useState<Report[]>([]);
   const [reportId, setReportId] = useState("");
   const [openDelete, setOpenDelete] = useState(false);
@@ -66,8 +66,8 @@ export function ReportHistory({onEdit}: {onEdit: (report: Report) => void}) {
     <div>
     <Card>
       <CardHeader>
-        <CardTitle>Incidents History</CardTitle>
-        <CardDescription>Your reported incidents and their status</CardDescription>
+        <CardTitle>Response History</CardTitle>
+        <CardDescription>Incidents you have responded to</CardDescription>
       </CardHeader>
       <CardContent>
         <Table>
@@ -98,7 +98,6 @@ export function ReportHistory({onEdit}: {onEdit: (report: Report) => void}) {
                   <TableCell>{report.createdAt.toLocaleDateString()}</TableCell>
                   <TableCell className="flex justify-between">
                     <EyeIcon className="w-5 h-5 " />
-                    <Pencil onClick={() => onEdit(report)} className="w-5 h-5 text-sky-500 cursor-pointer" />
                     <TrashIcon onClick={() => {setReportId(report.id); handleOpenDelete();}} className="w-5 h-5 text-destructive cursor-pointer" />
                   </TableCell>
                 </TableRow>

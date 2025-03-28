@@ -16,12 +16,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/app/Components/ui/table";
-import { deleteIncident, fetchUserReports } from "@/app/lib/action";
+import { fetchUserReports } from "@/app/lib/action";
 import { IncidentType, MediaType, SeverityLevel, VerificationStatus } from "@prisma/client";
-import { EyeIcon, Pencil, TrashIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import DeleteIncidentDialog from "./DeleteIncidentDialog";
+import { Button } from "../ui/button";
 
 interface Report {
   id: string;
@@ -40,14 +39,8 @@ interface Report {
   verifierId: string | null;
   updatedAt: Date;
 }
-export function ReportHistory({onEdit}: {onEdit: (report: Report) => void}) {
+export function ActiveIncidents() {
   const [reports, setReports] = useState<Report[]>([]);
-  const [reportId, setReportId] = useState("");
-  const [openDelete, setOpenDelete] = useState(false);
-
-  const handleOpenDelete = () => {
-    setOpenDelete((prev) => !prev);
-  }
 
   useEffect(() => {
     const handleReports = async () => {
@@ -66,8 +59,8 @@ export function ReportHistory({onEdit}: {onEdit: (report: Report) => void}) {
     <div>
     <Card>
       <CardHeader>
-        <CardTitle>Incidents History</CardTitle>
-        <CardDescription>Your reported incidents and their status</CardDescription>
+        <CardTitle>Active Incidents</CardTitle>
+        <CardDescription>Respond to an incident</CardDescription>
       </CardHeader>
       <CardContent>
         <Table>
@@ -97,9 +90,7 @@ export function ReportHistory({onEdit}: {onEdit: (report: Report) => void}) {
                   </TableCell>
                   <TableCell>{report.createdAt.toLocaleDateString()}</TableCell>
                   <TableCell className="flex justify-between">
-                    <EyeIcon className="w-5 h-5 " />
-                    <Pencil onClick={() => onEdit(report)} className="w-5 h-5 text-sky-500 cursor-pointer" />
-                    <TrashIcon onClick={() => {setReportId(report.id); handleOpenDelete();}} className="w-5 h-5 text-destructive cursor-pointer" />
+                    <Button className='rounded-full'>Respond</Button>
                   </TableCell>
                 </TableRow>
               ))
@@ -112,7 +103,6 @@ export function ReportHistory({onEdit}: {onEdit: (report: Report) => void}) {
         </Table>
       </CardContent>
     </Card>
-    <DeleteIncidentDialog open={openDelete} id={reportId} />
     </div>
   );
 }
