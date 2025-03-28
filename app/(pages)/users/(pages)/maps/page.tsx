@@ -8,6 +8,7 @@ import { XIcon } from 'lucide-react';
 import { IncidentType, MediaType, SeverityLevel, VerificationStatus } from '@prisma/client';
 import { fetchLiveIncidents } from '@/app/lib/action';
 import toast from 'react-hot-toast';
+import IncidentsHeatMap from '@/app/Components/users/HeatMap';
 
 interface Report {
   id: string;
@@ -49,17 +50,21 @@ export default function MapsPage() {
   },[])
   return (
     <div className='w-[100vw] h-screen items-center flex overflow-hidden'>
-      <div className={clsx(openForm ? 'w-4/5' : 'w-full', 'duration-300 transition-all')}>
-        <CrimeMap incidents={liveReports} hoveredIncidentId={hoveredIncidentId} setHoveredIncidentId={setHoveredIncidentId}/>
-        <div className='absolute top-20 right-4'>
-          <Button onClick={toggleForm} >
-            {openForm ? 
-            <XIcon className='w-[1.2rem] h-[1.2rem]'/> : 'Open Form'}
-          </Button>
+      {/* Toggle between CrimeMap and IncidentsHeatMap */}
+      {openForm ? (
+        <div className="w-full h-full">
+          <IncidentsHeatMap />
         </div>
-      </div>
-      <div className={clsx(`w-1/5 h-full mx-5 mt-5`, !openForm && 'hidden w-0')}>
-        {/* <IncidentReport /> */}
+      ) : (
+        <div className="w-full h-full transition-all duration-300">
+          <CrimeMap incidents={liveReports} hoveredIncidentId={hoveredIncidentId} setHoveredIncidentId={setHoveredIncidentId}/>
+        </div>
+      )}
+      {/* Toggle Button */}
+      <div className="absolute top-20 right-4">
+        <Button onClick={toggleForm}>
+          {openForm ? "Toggle Live maps" : "Toggle Heat Map"}
+        </Button>
       </div>
     </div>
   );
