@@ -17,6 +17,7 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from 'react';
+import Settings from './users/Settings';
 
 const routes = {
   ADMIN: [
@@ -53,7 +54,7 @@ const routes = {
       href: "/responder",
     },
     {
-      title: "Live Maps",
+      title: "Maps",
       icon: MapIcon,
       href: "/responder/maps",
     },
@@ -70,7 +71,7 @@ const routes = {
     {
       title: "Settings",
       icon: SettingsIcon,
-      href: "/responder/settings",
+      href: "#settings",
     },
   ],
   USER: [
@@ -97,7 +98,7 @@ const routes = {
     {
       title: "Settings",
       icon: SettingsIcon,
-      href: "/users/settings",
+      href: "#settings",
     },
   ],
 };
@@ -114,6 +115,7 @@ export function DashboardNav() {
   const currentRoutes = routes[userRole as keyof typeof routes];
 
   const [isOpen, setIsOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const toggleNav = () => {
     setIsOpen((prev) => !prev);
   };
@@ -128,7 +130,13 @@ export function DashboardNav() {
           {currentRoutes.map((route) => (
             <Link
               key={route.href}
-              href={route.href}
+              href={route.href === "#settings" ? "#" : route.href}
+              onClick={(e) => {
+                if (route.href === "#settings") {
+                  e.preventDefault(); // Prevent page reload
+                  setIsSettingsOpen(true); // Open settings dialog
+                }
+              }}
               className={cn(
                 "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors",
                 pathname === route.href
@@ -175,6 +183,7 @@ export function DashboardNav() {
           </div>
         </div>
       </nav>
+        <Settings isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
     </div>
   );
 }
