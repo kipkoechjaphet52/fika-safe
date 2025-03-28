@@ -30,9 +30,19 @@ model User {
   password    String
   profilePic  String?
   userRole    UserRole @default(USER)
-  alerts      Alert[]
   reports     Report[]
+  alerts      Alert[]
   routes      Route[]
+  locations   UserLocation[]
+}
+
+model UserLocation {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  latitude  Float
+  longitude Float
+  timestamp DateTime @default(now()) // Tracks when the location was recorded
 }
 
 model Report {
@@ -53,14 +63,17 @@ model Report {
   updatedAt    DateTime           @updatedAt
   user         User               @relation(fields: [userId], references: [id])
   verifier     Staff?             @relation(fields: [verifierId], references: [id])
+  alerts       Alert[]
 }
 
 model Alert {
   id        String      @id @default(uuid())
   createdAt DateTime    @default(now())
   userId    String
+  reportId  String      
   message   String
   status    AlertStatus @default(UNREAD)
+  report    Report      @relation(fields: [reportId], references: [id])
   user      User        @relation(fields: [userId], references: [id])
 }
 
@@ -112,15 +125,18 @@ enum MediaType {
 enum VerificationStatus {
   VERIFIED
   UNVERIFIED
-}
-
-enum AlertStatus {
-  UNREAD
-  READ
+  PENDING
+  APPROVED
+  REJECTED
 }
 
 enum ContactType {
   POLICE
   AMBULANCE
   CARRIER
+}
+
+enum AlertStatus {
+  UNREAD
+  READ
 }

@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/app/Components/ui/dropdown-menu";
-import { LogOut, ShieldPlus, User } from "lucide-react";
+import { Bell, LogOut, ShieldPlus, User } from "lucide-react";
 import { ThemeToggle } from '@/app/Components/ThemeToggle'
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -18,8 +18,13 @@ import clsx from "clsx";
 import { useEffect, useState } from "react";
 import Settings from "../users/Settings";
 import { signOut } from "next-auth/react";
-import { fetchProfile } from "@/app/lib/action";
-import { UserRole } from "@prisma/client";
+import { fetchAlerts, fetchProfile } from "@/app/lib/action";
+import { AlertStatus, UserRole } from "@prisma/client";
+import { BellAlertIcon } from "@heroicons/react/24/outline";
+import useLocationTracker from "@/app/hooks/useLocationTracker";
+import { io } from "socket.io-client";
+
+const socket = io("http://localhost:49160", { transports: ["websocket"] });
 
 const routes = {
   USER: [
@@ -79,13 +84,26 @@ interface UserProfile{
   createdAt: Date;
   userRole: UserRole;
 }
+
+interface Alert {
+  id: string;
+  createdAt: Date;
+  userId: string;
+  message: string;
+  status: AlertStatus;
+}
 export function UserNav() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [profile, setProfile] = useState<UserProfile | null>(null);
-  
-  const avatar = `${profile?.firstName.substring(0, 1).toUpperCase()} ${profile?.secondName.substring(0, 1).toUpperCase()}`;
+  const [alerts, setAlerts] = useState<Alert[]>([]);
+console.log(alerts);
+  const avatar = profile?.profilePic || "";
+  const avatarFallback = `${profile?.firstName.substring(0, 1).toUpperCase()} ${profile?.secondName.substring(0, 1).toUpperCase()}`;
   const name = `${profile?.firstName} ${profile?.secondName}`;
   const userEmail = profile?.email;
+  const userId = profile?.id;
+
+  // useLocationTracker();
 
   useEffect(() => {
     const handleProfile = async () => {
@@ -98,6 +116,37 @@ export function UserNav() {
     }
     handleProfile();
   },[]);
+
+  // useEffect(() => {
+  //   const handleAlerts = async () => {
+  //     try{
+  //       const alerts = await fetchAlerts();
+  //       setAlerts(alerts);
+  //     }catch(error){
+  //       console.error("Error fetching alerts: ", error);
+  //     }
+  //   }
+
+  //   handleAlerts();
+  // },[]);
+
+  useEffect(() => {
+    if (!userId) return;
+  
+    // Join the user to their room
+    socket.emit("joinRoom", userId);
+    console.log("🟢 Joined room:", userId);
+  
+    // Listen for new alerts
+    socket.on("newAlert", (alert) => {
+      console.log("🔴 New Alert Received:", alert);
+      setAlerts((prevAlerts) => [...prevAlerts, alert]); // Add to alerts list
+    });
+  
+    return () => {
+      socket.off("newAlert"); // Cleanup listener
+    };
+  }, [userId]); 
 
   const pathname = usePathname();
 
@@ -142,14 +191,45 @@ export function UserNav() {
         </nav>
       <div className="flex space-x-4 space-y-3 items-center">
         <div className="mt-3">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant='outline' className="border-2 border-gray-300">
+              {alerts.some(alert => alert.status === "UNREAD") ? (
+                <BellAlertIcon className="h-[1.2rem] w-[1.2rem] animate-shake" />
+              ) : (
+                <Bell className="h-[1.2rem] w-[1.2rem]" />
+              )}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56" align="end" forceMount>
+              <DropdownMenuLabel className="font-normal">Notifications</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                {alerts.length > 0 ? (
+                  alerts.map((alert) => (
+                    <DropdownMenuItem key={alert.id}>
+                      <span>{alert.message}</span>
+                    </DropdownMenuItem>
+                  ))
+                ) : (
+                  <DropdownMenuItem>
+                    <span>No new notifications</span>
+                  </DropdownMenuItem>
+                  )
+                }
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+        <div className="mt-3">
           <ThemeToggle />
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
               <Avatar className="h-8 w-8">
-                <AvatarImage src="/avatars/01.png" alt="User avatar" />
-                <AvatarFallback>{avatar}</AvatarFallback>
+                <AvatarImage src={avatar} alt={name} />
+                <AvatarFallback>{avatarFallback}</AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
