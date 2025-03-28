@@ -1,32 +1,35 @@
+ 
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma"; // Ensure this import path is correct
+import { PrismaClient } from "@prisma/client";
 
-export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
-  console.log("Incoming request for user ID:", params.id);
+const prisma = new PrismaClient();
 
+export async function POST(req) {
   try {
-    if (!params.id) {
-      console.error("❌ No user ID provided!");
-      return NextResponse.json({ error: "User ID is required" }, { status: 400 });
+    const { firstName, secondName, phoneNumber, email, password, profilePic, userRole } = await req.json();
+
+    // Validate required fields
+    if (!firstName || !secondName || !phoneNumber || !email || !password) {
+      return NextResponse.json({ message: "All fields are required." }, { status: 400 });
     }
 
-    const user = await prisma.user.findUnique({
-      where: { id: params.id },
+    // Check if email or phone number already exists
+    const existingUser = await prisma.user.findFirst({
+      where: { OR: [{ email }, { phoneNumber }] },
     });
 
-    console.log("Fetched user:", user);
-
-    if (!user) {
-      console.warn("⚠️ User not found");
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    if (existingUser) {
+      return NextResponse.json({ message: "User with this email or phone number already exists." }, { status: 400 });
     }
 
-    return NextResponse.json(user);
+    // Create user
+    const newUser = await prisma.user.create({
+      data: { firstName, secondName, phoneNumber, email, password, profilePic, userRole },
+    });
+
+    return NextResponse.json(newUser, { status: 201 });
   } catch (error) {
-    console.error("🔥 Internal Server Error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    console.error("Error creating user:", error);
+    return NextResponse.json({ message: "Internal server error." }, { status: 500 });
   }
 }
