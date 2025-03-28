@@ -23,9 +23,7 @@ import { AlertStatus, UserRole } from "@prisma/client";
 import { BellAlertIcon } from "@heroicons/react/24/outline";
 import useLocationTracker from "@/app/hooks/useLocationTracker";
 import { io } from "socket.io-client";
-
 const socket = io("http://localhost:49160", { transports: ["websocket"] });
-
 const routes = {
   USER: [
     {
