@@ -97,7 +97,6 @@ model EmergencyContact {
 enum UserRole {
   USER
   ADMIN
-  POLICE
   EMERGENCY_RESPONDER
 }
 

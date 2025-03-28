@@ -50,7 +50,7 @@ export default function MapsPage() {
   },[])
   return (
     <div className='w-[100vw] h-screen items-center flex overflow-hidden'>
-      {/* Toggle between CrimeMap and IncidentsHeatMap */}
+      {/* Toggle between IncidentsMap and IncidentsHeatMap */}
       {openForm ? (
         <div className="w-full h-full">
           <IncidentsHeatMap />
