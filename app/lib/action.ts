@@ -184,13 +184,17 @@ export async function createAlertForIncident(reportId: string) {
       }));
 
       // Store alerts in the database
-      const alert = await prisma.alert.createMany({ data: alertData });
+      await prisma.alert.createMany({ data: alertData });
+
+      const createdAlerts = await prisma.alert.findMany({
+        where: { reportId: report.id },
+      });
 
       // Notify users in real-time
       nearbyUsers.forEach((user) => {
         console.log(`📡 Sending alert to user: ${user.id}`);
         newIo.to(user.id).emit("newAlert", {
-            alert: alert,
+          alerts: createdAlerts.filter(alert => alert.userId === user.id), // Send only the alerts for this user
             message: `New Alert: Title: ${report.title}, ${report.type} near ${report.location}`,
             alertId: report.id,
         });
@@ -217,7 +221,10 @@ export async function fetchAlerts(){
     const userId = user?.id;
 
     const alerts = await prisma.alert.findMany({
-        where: {userId},
+        where: {
+          userId: userId,
+          status: 'UNREAD',
+        },
         orderBy: {createdAt: 'desc'},
     });
 
@@ -225,5 +232,29 @@ export async function fetchAlerts(){
   }catch(error){
     console.error("Error fetching alerts: ", error);
     throw new Error("Could not fetch alerts");
+  }
+}
+
+export async function deleteIncident(reportId: string){
+  try{
+    const session = await getServerSession(authOptions);
+    const email = session?.user?.email;
+    
+    const user = await prisma.user.findUnique({
+      where: {email: email!},
+      select: {id: true},
+    });
+    const userId = user?.id;
+
+    await prisma.report.delete({
+      where:{
+        id: reportId,
+        userId: userId,
+      }
+    })
+
+    
+  }catch(error){
+    console.error("Error deleting incident: ", error)
   }
 }
