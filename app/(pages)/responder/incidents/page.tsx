@@ -1,5 +1,6 @@
 "use client";
 
+import IncidentVerificationDialog from "@/app/Components/responder/IncidentVerificationDialog";
 import Search from "@/app/Components/Search";
 import { Badge } from "@/app/Components/ui/badge";
 import {
@@ -17,7 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/app/Components/ui/table";
-import { fetchUserReports } from "@/app/lib/action";
+import { fetchAllIncidents } from "@/app/lib/action";
 import { IncidentType, MediaType, SeverityLevel, VerificationStatus } from "@prisma/client";
 import { CheckIcon, EyeIcon } from "lucide-react";
 import { Suspense, useEffect, useState } from "react";
@@ -45,11 +46,17 @@ export default function Page() {
   const [reports, setReports] = useState<Report[]>([]);
   const [searchTerm, setSearchTerm] = useState<string | null>(null);
   const [searchDate, setSearchDate] = useState<Date | null>(null);
+  const [openDelete, setOpenDelete] = useState(false);
+  const [reportId, setReportId] = useState("");
+
+  const handleOpenDelete = () => {
+    setOpenDelete((prev) => !prev);
+  }
 
   useEffect(() => {
     const handleReports = async () => {
       try{
-        const results = await fetchUserReports();
+        const results = await fetchAllIncidents();
         
         setReports(results);
       }catch(error){
@@ -59,6 +66,7 @@ export default function Page() {
     };
     handleReports();
   }, []);
+
   return (
     <div className="mx-5">
         <div className="my-5">
@@ -107,8 +115,8 @@ export default function Page() {
                             </TableCell>
                             <TableCell>{report.createdAt.toLocaleDateString()}</TableCell>
                             <TableCell className="flex justify-between">
-                                <EyeIcon className="w-5 h-5 " />
-                                <CheckIcon className="w-5 h-5" />
+                                <EyeIcon className="w-5 h-5 cursor-pointer" />
+                                <CheckIcon className="w-5 h-5 cursor-pointer text-green-400" onClick={() => {setReportId(report.id); handleOpenDelete();}}/>
                             </TableCell>
                             </TableRow>
                         ))
@@ -123,6 +131,7 @@ export default function Page() {
                 </Card>
             </Suspense>
         </div>
+        <IncidentVerificationDialog open={openDelete} id={reportId}/>
     </div>
   );
 }

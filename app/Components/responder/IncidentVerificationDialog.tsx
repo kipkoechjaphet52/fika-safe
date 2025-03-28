@@ -25,19 +25,19 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 const formSchema = z.object({
-  delete: z.string().min(1, "Delete Statment is required"),
+  verify: z.string().min(1, "Delete Statment is required"),
 });
 
 interface DeleteIncidentDialogProps {
     open: boolean;
     id: string;
 }
-export default function DeleteIncidentDialog({open, id}: DeleteIncidentDialogProps) {
+export default function IncidentVerificationDialog({open, id}: DeleteIncidentDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      delete: "",
+        verify: "",
     },
   });
 
@@ -64,7 +64,7 @@ export default function DeleteIncidentDialog({open, id}: DeleteIncidentDialogPro
         body: JSON.stringify(
           {
             reportId: id,
-            confirmation: form.getValues("delete"),
+            confirmation: form.getValues("verify"),
           }
         ),
       });
@@ -90,28 +90,28 @@ export default function DeleteIncidentDialog({open, id}: DeleteIncidentDialogPro
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Delete School</DialogTitle>
+          <DialogTitle>Incident Verification</DialogTitle>
           <DialogDescription>
-            Delete an incident
+            Verify an incident
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
-              name="delete"
+              name="verify"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Delete Incident. Type &quot;DELETE INCIDENT&quot;</FormLabel>
+                  <FormLabel>Type &quot;VERIFY INCIDENT&quot;</FormLabel>
                   <FormControl>
-                    <Input placeholder="DELETE INCIDENT" {...field} />
+                    <Input placeholder="VERIFY INCIDENT" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <DialogFooter>
-              <Button type="submit" className="bg-destructive items-center" onClick={() => handleDelete()}>Delete Incident</Button>
+              <Button type="submit" className="bg-destructive items-center" onClick={() => handleDelete()}>Verify Incident</Button>
             </DialogFooter>
           </form>
         </Form>
