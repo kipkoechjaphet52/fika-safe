@@ -40,7 +40,7 @@ interface Report {
   verifierId: string | null;
   updatedAt: Date;
 }
-export function ResponseHistory({onEdit}: {onEdit: (report: Report) => void}) {
+export function ResponseHistory() {
   const [reports, setReports] = useState<Report[]>([]);
   const [reportId, setReportId] = useState("");
   const [openDelete, setOpenDelete] = useState(false);

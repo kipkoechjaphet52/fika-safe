@@ -21,6 +21,7 @@ import { IncidentType, MediaType, SeverityLevel, VerificationStatus } from "@pri
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { Button } from "../ui/button";
+import RespondDialog from "./RespondDialog";
 
 interface Report {
   id: string;
@@ -41,6 +42,8 @@ interface Report {
 }
 export function ActiveIncidents() {
   const [reports, setReports] = useState<Report[]>([]);
+  const [reportId, setReportId] = useState('');
+  const [isResponderOn, setIsResponderOn] = useState(false)
 
   useEffect(() => {
     const handleReports = async () => {
@@ -90,7 +93,7 @@ export function ActiveIncidents() {
                   </TableCell> */}
                   <TableCell>{report.createdAt.toLocaleDateString()}</TableCell>
                   <TableCell className="flex justify-between">
-                    <Button className='rounded-full'>Respond</Button>
+                    <Button className='rounded-full' onClick={() => {setReportId(report.id); setIsResponderOn(true)}}>Respond</Button>
                   </TableCell>
                 </TableRow>
               ))
@@ -103,6 +106,7 @@ export function ActiveIncidents() {
         </Table>
       </CardContent>
     </Card>
+    <RespondDialog id={reportId} isOpen={isResponderOn} onClose={() => setIsResponderOn(false)}/>
     </div>
   );
 }
