@@ -295,3 +295,41 @@ export async function fetchStaffStats() {
     throw new Error("Could not fetch staff stats");
   }
 }
+
+export async function respondToAnIncident(id: string){
+  try{
+    const session = await getServerSession(authOptions);
+    const email = session?.user?.email;
+    if(!email){
+      throw new Error("User not authenticated");
+    }
+    const staff = await prisma.staff.findUnique({
+      where: {email},
+      select: {id: true},
+    })
+    if(!staff){
+      throw new Error('Staff not found');
+    }
+    const staffId = staff.id;
+
+    const report = await prisma.report.findUnique({
+      where: {id},
+    })
+    if(!report){
+      throw new Error('Report not found');
+    }
+
+    const respondedIncident = await prisma.report.update({
+      where: {id},
+      data: {
+        verifier: {
+          connect: {id: staffId},
+        }
+      }
+    })
+
+    return respondedIncident;
+  }catch(error){
+    console.error('Error responding to the incident: ', error);
+  }
+}
