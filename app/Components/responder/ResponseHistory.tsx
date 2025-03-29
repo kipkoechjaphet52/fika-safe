@@ -21,7 +21,7 @@ import { IncidentType, MediaType, SeverityLevel, VerificationStatus } from "@pri
 import { EyeIcon, Pencil, TrashIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import DeleteIncidentDialog from "../users/DeleteIncidentDialog";
+import DeleteResponseDialog from "./DeleteResponseDialog";
 
 interface Report {
   id: string;
@@ -76,7 +76,7 @@ export function ResponseHistory({onEdit}: {onEdit: (report: Report) => void}) {
               <TableHead>Title</TableHead>
               <TableHead>Incident Type</TableHead>
               <TableHead>Location</TableHead>
-              <TableHead>Status</TableHead>
+              {/* <TableHead>Status</TableHead> */}
               <TableHead>Reported On</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
@@ -88,13 +88,13 @@ export function ResponseHistory({onEdit}: {onEdit: (report: Report) => void}) {
                   <TableCell className="font-medium">{report.title}</TableCell>
                   <TableCell className="font-medium">{report.type}</TableCell>
                   <TableCell>{report.location}</TableCell>
-                  <TableCell>
+                  {/* <TableCell>
                     <Badge
                       variant={report.verificationStatus === "UNVERIFIED" ? "secondary" : "success"}
                     >
                       {report.verificationStatus}
                     </Badge>
-                  </TableCell>
+                  </TableCell> */}
                   <TableCell>{report.createdAt.toLocaleDateString()}</TableCell>
                   <TableCell className="flex justify-between">
                     <EyeIcon className="w-5 h-5 " />
@@ -111,7 +111,7 @@ export function ResponseHistory({onEdit}: {onEdit: (report: Report) => void}) {
         </Table>
       </CardContent>
     </Card>
-    <DeleteIncidentDialog open={openDelete} id={reportId} />
+    <DeleteResponseDialog open={openDelete} id={reportId} />
     </div>
   );
 }
