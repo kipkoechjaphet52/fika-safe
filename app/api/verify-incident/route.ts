@@ -1,6 +1,7 @@
 import { authOptions } from "@/app/utils/authOptions";
 import { PrismaClient } from "@prisma/client";
 import { getServerSession } from "next-auth";
+import { revalidatePath } from "next/cache";
 
 const prisma = new PrismaClient();
 
@@ -46,6 +47,7 @@ export async function PUT(req: Request){
                 }
             }
         })
+        revalidatePath("/responder/incidents");
 
         return new Response(JSON.stringify({message: "Report verified successfully", verifiedReport}), {status:200});
     }catch(error){
