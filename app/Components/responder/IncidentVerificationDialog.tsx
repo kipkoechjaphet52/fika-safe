@@ -56,8 +56,8 @@ export default function IncidentVerificationDialog({open, id}: DeleteIncidentDia
   const handleDelete = async () => {
     try{
       toast.loading('Sending Request...');
-      const response = await fetch('/api/delete-incident', {
-        method: 'DELETE',
+      const response = await fetch('/api/verify-incident', {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -78,12 +78,12 @@ export default function IncidentVerificationDialog({open, id}: DeleteIncidentDia
         const errorData = await response.json();
         toast.error(errorData.error);
       } else {
-        toast.error('Failed to delete school');
+        toast.error('Failed to verify incident');
       }
       
     }catch(error){
-      console.error('Error Deleting school: ',error);
-      toast.error('An error occurred while deleting school');
+      console.error('Error verifying incident: ',error);
+      toast.error('An error occurred while verifying incident');
     }
   };
   return (

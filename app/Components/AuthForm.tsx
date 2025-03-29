@@ -51,8 +51,10 @@ export default function AuthForm({isOpen, onClose}: {isOpen: boolean, onClose: (
       const userRole = session.userRole as UserRole;
       if(userRole === 'USER'){
         router.push('/users');
-      }else if(userRole === 'ADMIN' || userRole === 'EMERGENCY_RESPONDER' || userRole === 'POLICE') {
+      }else if(userRole === 'ADMIN') {
         router.push('/admin');
+      }else if(userRole === 'EMERGENCY_RESPONDER'){
+        router.push('/responder')
       }
     }
   },[status, session, router]);

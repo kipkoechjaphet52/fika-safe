@@ -78,12 +78,12 @@ export default function DeleteResponseDialog({open, id}: DeleteResponseDialogPro
         const errorData = await response.json();
         toast.error(errorData.error);
       } else {
-        toast.error('Failed to delete school');
+        toast.error('Failed to delete response');
       }
       
     }catch(error){
-      console.error('Error Deleting school: ',error);
-      toast.error('An error occurred while deleting school');
+      console.error('Error Deleting response: ',error);
+      toast.error('An error occurred while deleting response');
     }
   };
   return (
@@ -102,7 +102,7 @@ export default function DeleteResponseDialog({open, id}: DeleteResponseDialogPro
               name="delete"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Delete Incident. Type &quot;DELETE RESPONSE&quot;</FormLabel>
+                  <FormLabel>Delete Response. Type &quot;DELETE RESPONSE&quot;</FormLabel>
                   <FormControl>
                     <Input placeholder="DELETE RESPONSE" {...field} />
                   </FormControl>
