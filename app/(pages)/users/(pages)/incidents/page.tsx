@@ -115,58 +115,6 @@ export default function Page() {
         } catch (error) {
           console.error("Error fetching location details:", error);
         }
-<<<<<<< HEAD
-    }
-
-    return (
-        <div className='w-full h-full mx-5'>
-            <div className='flex'>
-                <div className='w-1/3 h-[calc(100vh-3.5rem)] flex flex-col'>
-                    <div className='py-4 sticky top-0 bg-card z-10'>
-                        <Suspense fallback={<Loading />}>
-                            <Search 
-                                placeholder='Search Incidents...'
-                                onSearch={(term, date) => {
-                                    setSearchTerm(term);
-                                    setSearchDate(date);
-                                }}
-                            />
-                        </Suspense>
-                    </div>
-                    <Suspense fallback={<Loading />}>
-                        <div className='flex-1 overflow-y-scroll'>
-                            {/* Latest Incident */}
-                            <div className='border-b-2'>
-                                {incidents.slice(0, 1).map((incident) => (
-                                    <div className='p-4' key={incident.id}>
-                                        {incident.mediaType === 'VIDEO' ? (
-                                            <video className="w-full" autoPlay loop muted>
-                                                <source src={incident.mediaUrl || ''} type="video/mp4" />
-                                                Your browser does not support the video tag.
-                                            </video>
-                                        ) : (
-                                            <Image src={incident.mediaUrl || ''} alt={incident.description} className='w-full' height={500} width={500} />
-                                        )}
-                                        <div className='flex justify-between items-center space-x-4'>
-                                            <h1 className='font-bold text-2xl truncate w-2/3'>{incident.title}</h1>
-                                            <h1 className='font-thin text-xs text-gray-400 w-1/3'>{formatDate(incident.createdAt)}</h1>
-                                        </div>
-                                        <h1 className='font-thin text-base'>{locations[incident.id]?.state}, {locations[incident.id]?.country}</h1>
-                                        <h1 className='font-thin text-sm text-gray-400'>{incident.location}</h1>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </Suspense>
-                </div>
-                <div className='w-2/3'>
-                    <CrimeMap incidents={incidents} />
-                </div>
-            </div>
-        </div>
-    );
-}
-=======
       }
   return (
     <div className='w-full h-full relative'>
@@ -276,4 +224,3 @@ export default function Page() {
     </div>
   )
 }
->>>>>>> main

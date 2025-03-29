@@ -1,12 +1,13 @@
- 
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
+import { NextRequest } from "next/server"; // ✅ Import NextRequest for type safety
 
 const prisma = new PrismaClient();
 
-export async function POST(req) {
+export async function POST(req: NextRequest) {
   try {
-    const { firstName, secondName, phoneNumber, email, password, profilePic, userRole } = await req.json();
+    const body = await req.json();
+    const { firstName, secondName, phoneNumber, email, password, profilePic, userRole } = body;
 
     // Validate required fields
     if (!firstName || !secondName || !phoneNumber || !email || !password) {
@@ -27,7 +28,7 @@ export async function POST(req) {
       data: { firstName, secondName, phoneNumber, email, password, profilePic, userRole },
     });
 
-    return NextResponse.json(newUser, { status: 201 });
+    return NextResponse.json({ message: "User created successfully", user: newUser }, { status: 201 });
   } catch (error) {
     console.error("Error creating user:", error);
     return NextResponse.json({ message: "Internal server error." }, { status: 500 });

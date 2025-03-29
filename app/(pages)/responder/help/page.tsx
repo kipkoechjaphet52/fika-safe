@@ -2,13 +2,36 @@
 
 import { Input } from '@/app/Components/ui/input';
 import { Button } from '@/app/Components/ui/button';
-import Header from '@/app/Components/Header';
-import Footer from '@/app/Components/Footer';
+import { useEffect, useState } from 'react';
+import { fetchProfile } from '@/app/lib/action';
+import { UserRole } from '@prisma/client';
 
+interface Profile {
+    id: string;
+    createdAt: Date;
+    firstName: string;
+    secondName: string;
+    phoneNumber: string;
+    email: string;
+    password: string;
+    profilePic: string | null;
+    userRole: UserRole;
+}
 export default function ContactPage() {
+    const [profile, setProfile] = useState<Profile | null>(null);
+
+    useEffect(() => {
+        const handleProfile = async () => {
+            try{
+                const profile = await fetchProfile();
+                setProfile(profile);
+            }catch(error){
+                console.error("Error fetching profile: ", error);
+            }
+        }
+    },[])
   return (
     <div className='w-full h-full'>
-      <Header/>
       <div className="max-w-3xl mx-auto py-12 px-6 md:py-16 md:px-12">
         <h1 className="text-3xl md:text-4xl font-bold text-center mb-4">
           Contact Our Team
@@ -24,27 +47,27 @@ export default function ContactPage() {
               <label htmlFor="firstName" className="block text-sm font-medium">
                 First Name
               </label>
-              <Input id="firstName" type="text" placeholder="First name" required />
+              <Input id="firstName" type="text" placeholder={profile?.firstName || "First name"} disabled={true} required />
             </div>
             <div>
               <label htmlFor="lastName" className="block text-sm font-medium">
                 Last Name
               </label>
-              <Input id="lastName" type="text" placeholder="Last name" required />
+              <Input id="lastName" type="text" placeholder={profile?.secondName || "Second name"} disabled={true} required />
             </div>
           </div>
 
           {/* Email */}
           <div>
-            <label htmlFor="email" className="block text-sm font-medium">
+            <label htmlFor="email" className="block text-sm font-medium ">
               Email
             </label>
-            <Input id="email" type="email" placeholder="your@company.com" required />
+            <Input id="email" type="email" placeholder={profile?.email || "your@company.com"} disabled={true} required/>
           </div>
 
           {/* Message */}
           <div>
-            <label htmlFor="message" className="block text-sm font-medium">
+            <label htmlFor="message" className="block text-sm font-medium ">
               Message
             </label>
             <textarea
@@ -58,16 +81,12 @@ export default function ContactPage() {
 
           {/* Submit Button */}
           <div className="flex justify-center">
-            <Button 
-              type="submit" 
-              className="w-full md:w-auto px-6 py-3 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 transition-colors"
-            >
+            <Button className="w-full md:w-auto px-6 py-3 bg-blue-600  font-semibold rounded-md hover:bg-blue-700 transition-colors">
               Send Message
             </Button>
           </div>
         </form>
       </div>
-      <Footer/>
     </div>
   );
 }
