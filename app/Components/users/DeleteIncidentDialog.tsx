@@ -78,12 +78,12 @@ export default function DeleteIncidentDialog({open, id}: DeleteIncidentDialogPro
         const errorData = await response.json();
         toast.error(errorData.error);
       } else {
-        toast.error('Failed to delete school');
+        toast.error('Failed to delete incident');
       }
       
     }catch(error){
-      console.error('Error Deleting school: ',error);
-      toast.error('An error occurred while deleting school');
+      console.error('Error Deleting incident: ',error);
+      toast.error('An error occurred while deleting incident');
     }
   };
   return (

@@ -24,13 +24,15 @@ export default async function UsersLayout({
   children: React.ReactNode;
 }>) {
   const session = await getServerSession(authOptions);
-//   if(!session){
-//     redirect('/')
-//   }
-//   const userRole = session?.userRole;
-//   if(userRole === 'ADMIN' || userRole === 'EMERGENCY_RESPONDER' || userRole === 'POLICE'){
-//     redirect('/admin')
-//   }
+  if(!session){
+    redirect('/')
+  }
+  const userRole = session?.userRole;
+  if(userRole === 'ADMIN'){
+    redirect('/admin')
+  } else if(userRole === 'USER'){
+    redirect('/users')
+  }
   return (
     <>
     <div> 

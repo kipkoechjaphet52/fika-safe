@@ -258,3 +258,78 @@ export async function deleteIncident(reportId: string){
     console.error("Error deleting incident: ", error)
   }
 }
+
+export async function fetchStaffStats() {
+  try{
+    const session = await getServerSession(authOptions);
+    if(!session || !session.user?.email){
+        throw new Error("User not authenticated");
+    }
+    const email = session?.user?.email;
+
+    const staff = await prisma.staff.findUnique({
+        where: {email},
+        select: {id: true},
+    });
+    const staffId = staff?.id;
+
+    const totalReports = await prisma.report.count({
+        where: {verifierId: staffId},
+    });
+    const unverifiedReports = await prisma.report.count({
+        where: {
+          verifierId: staffId,
+          verificationStatus: 'UNVERIFIED',
+        },
+    });
+    const verifiedReports = await prisma.report.count({
+        where: {
+          verifierId: staffId,
+          verificationStatus: 'VERIFIED',
+        },
+    });
+
+    return {totalReports, unverifiedReports, verifiedReports};
+  }catch(error){
+    console.error("Error fetching staff stats: ", error);
+    throw new Error("Could not fetch staff stats");
+  }
+}
+
+export async function respondToAnIncident(id: string){
+  try{
+    const session = await getServerSession(authOptions);
+    const email = session?.user?.email;
+    if(!email){
+      throw new Error("User not authenticated");
+    }
+    const staff = await prisma.staff.findUnique({
+      where: {email},
+      select: {id: true},
+    })
+    if(!staff){
+      throw new Error('Staff not found');
+    }
+    const staffId = staff.id;
+
+    const report = await prisma.report.findUnique({
+      where: {id},
+    })
+    if(!report){
+      throw new Error('Report not found');
+    }
+
+    const respondedIncident = await prisma.report.update({
+      where: {id},
+      data: {
+        verifier: {
+          connect: {id: staffId},
+        }
+      }
+    })
+
+    return respondedIncident;
+  }catch(error){
+    console.error('Error responding to the incident: ', error);
+  }
+}

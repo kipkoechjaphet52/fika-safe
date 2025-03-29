@@ -25,19 +25,19 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 const formSchema = z.object({
-  verify: z.string().min(1, "Delete Statment is required"),
+  delete: z.string().min(1, "Delete Statment is required"),
 });
 
-interface DeleteIncidentDialogProps {
+interface DeleteResponseDialogProps {
     open: boolean;
     id: string;
 }
-export default function IncidentVerificationDialog({open, id}: DeleteIncidentDialogProps) {
+export default function DeleteResponseDialog({open, id}: DeleteResponseDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-        verify: "",
+      delete: "",
     },
   });
 
@@ -56,15 +56,15 @@ export default function IncidentVerificationDialog({open, id}: DeleteIncidentDia
   const handleDelete = async () => {
     try{
       toast.loading('Sending Request...');
-      const response = await fetch('/api/verify-incident', {
-        method: 'PUT',
+      const response = await fetch('/api/delete-incident', {
+        method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(
           {
             reportId: id,
-            confirmation: form.getValues("verify"),
+            confirmation: form.getValues("delete"),
           }
         ),
       });
@@ -78,40 +78,40 @@ export default function IncidentVerificationDialog({open, id}: DeleteIncidentDia
         const errorData = await response.json();
         toast.error(errorData.error);
       } else {
-        toast.error('Failed to verify incident');
+        toast.error('Failed to delete response');
       }
       
     }catch(error){
-      console.error('Error verifying incident: ',error);
-      toast.error('An error occurred while verifying incident');
+      console.error('Error Deleting response: ',error);
+      toast.error('An error occurred while deleting response');
     }
   };
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Incident Verification</DialogTitle>
+          <DialogTitle>Delete Response</DialogTitle>
           <DialogDescription>
-            Verify an incident
+            Delete a response
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
-              name="verify"
+              name="delete"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Type &quot;VERIFY INCIDENT&quot;</FormLabel>
+                  <FormLabel>Delete Response. Type &quot;DELETE RESPONSE&quot;</FormLabel>
                   <FormControl>
-                    <Input placeholder="VERIFY INCIDENT" {...field} />
+                    <Input placeholder="DELETE RESPONSE" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <DialogFooter>
-              <Button type="submit" className="bg-destructive items-center" onClick={() => handleDelete()}>Verify Incident</Button>
+              <Button type="submit" className="bg-destructive items-center" onClick={() => handleDelete()}>Delete Response</Button>
             </DialogFooter>
           </form>
         </Form>

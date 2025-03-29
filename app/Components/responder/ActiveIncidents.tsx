@@ -21,6 +21,7 @@ import { IncidentType, MediaType, SeverityLevel, VerificationStatus } from "@pri
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { Button } from "../ui/button";
+import RespondDialog from "./RespondDialog";
 
 interface Report {
   id: string;
@@ -41,6 +42,8 @@ interface Report {
 }
 export function ActiveIncidents() {
   const [reports, setReports] = useState<Report[]>([]);
+  const [reportId, setReportId] = useState('');
+  const [isResponderOn, setIsResponderOn] = useState(false)
 
   useEffect(() => {
     const handleReports = async () => {
@@ -69,7 +72,7 @@ export function ActiveIncidents() {
               <TableHead>Title</TableHead>
               <TableHead>Incident Type</TableHead>
               <TableHead>Location</TableHead>
-              <TableHead>Status</TableHead>
+              {/* <TableHead>Status</TableHead> */}
               <TableHead>Reported On</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
@@ -81,16 +84,16 @@ export function ActiveIncidents() {
                   <TableCell className="font-medium">{report.title}</TableCell>
                   <TableCell className="font-medium">{report.type}</TableCell>
                   <TableCell>{report.location}</TableCell>
-                  <TableCell>
+                  {/* <TableCell>
                     <Badge
                       variant={report.verificationStatus === "UNVERIFIED" ? "secondary" : "success"}
                     >
                       {report.verificationStatus}
                     </Badge>
-                  </TableCell>
+                  </TableCell> */}
                   <TableCell>{report.createdAt.toLocaleDateString()}</TableCell>
                   <TableCell className="flex justify-between">
-                    <Button className='rounded-full'>Respond</Button>
+                    <Button className='rounded-full' onClick={() => {setReportId(report.id); setIsResponderOn(true)}}>Respond</Button>
                   </TableCell>
                 </TableRow>
               ))
@@ -103,6 +106,7 @@ export function ActiveIncidents() {
         </Table>
       </CardContent>
     </Card>
+    <RespondDialog id={reportId} isOpen={isResponderOn} onClose={() => setIsResponderOn(false)}/>
     </div>
   );
 }
