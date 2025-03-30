@@ -5,6 +5,7 @@ import {authOptions} from "../utils/authOptions";
 import { getDistance } from "geolib";
 import { Server } from "socket.io";
 import { io } from "../utils/socket";
+import nodemailer from "nodemailer";
 
 const prisma = new PrismaClient();
 
@@ -331,5 +332,54 @@ export async function respondToAnIncident(id: string){
     return respondedIncident;
   }catch(error){
     console.error('Error responding to the incident: ', error);
+  }
+}
+
+async function sendEmail(to: string, subject: string, text: string) {
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+  });
+
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to,
+    subject,
+    text,
+  };
+
+  await transporter.sendMail(mailOptions);
+}
+
+const subject = 'This is a test';
+const text = 'This is a test email from nodemailer';
+// sendEmail(email, subject, text)
+
+export async function sendEmailToUser(){
+  try{
+    const session = await getServerSession(authOptions);
+    const userEmail = session?.user?.email;
+    if(!userEmail){
+      throw new Error("User not authenticated");
+    }
+    const user = await prisma.user.findUnique({
+      where: {email: userEmail},
+    })
+    if(!user){
+      throw new Error("User not found");
+    }
+
+    const subject = 'Incident Alert';
+    const text = `Hello ${user.firstName} ${user.secondName},\n\nYou have created an incident and it is being verified by the staff. You will be notified once the incident is verified. A staff member is responding to the incident and they will be in touch with you if they need any more information about the incident.\n\nThank you for using our service.\n\nBest regards,\nFika safe team`;
+    await sendEmail(userEmail, subject, text);
+
+    const message = `Email sent to ${user.firstName} ${user.secondName} (${userEmail})`;
+    return message;
+  }catch(error){
+    console.error("Error sending emails: ", error);
+    throw new Error("Could not send emails to users");
   }
 }
