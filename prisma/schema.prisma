@@ -16,9 +16,19 @@ model Staff {
   email       String   @unique
   password    String
   profilePic  String?
-  userRole    UserRole @default(EMERGENCY_RESPONDER)
+  userRole    UserRole @default(CARRIER)
   reports     Report[]
-  location    UserLocation[]
+  locations    StaffLocation[]
+  emergencyContacts EmergencyContact[]
+}
+
+model StaffLocation {
+  id        String   @id @default(uuid())
+  staffId   String
+  staff     Staff    @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  latitude  Float
+  longitude Float
+  timestamp DateTime @default(now()) // Tracks when the location was recorded
 }
 
 model User {
@@ -40,9 +50,7 @@ model User {
 model UserLocation {
   id        String   @id @default(uuid())
   userId    String
-  staffId   String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  staff     Staff    @relation(fields: [staffId], references: [id], onDelete: Cascade)
   latitude  Float
   longitude Float
   timestamp DateTime @default(now()) // Tracks when the location was recorded
@@ -94,13 +102,17 @@ model EmergencyContact {
   id    String      @id @default(uuid())
   name  String
   phone String      @unique
-  type  ContactType
+  contactType       ContactType
+  staffId String
+  staff Staff       @relation(fields: [staffId], references: [id], onDelete: Cascade)
 }
 
 enum UserRole {
   USER
   ADMIN
-  EMERGENCY_RESPONDER
+  POLICE
+  AMBULANCE
+  CARRIER
 }
 
 enum IncidentType {
