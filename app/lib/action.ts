@@ -457,3 +457,25 @@ Fika Safe Team`;
     throw new Error("Could not send emails to staff");
   }
 }
+
+export async function fetchActiveIncidents(){ //Active events are those that are unverified and have been created in the last hour
+  try{
+    const oneHourAgo = new Date();
+    oneHourAgo.setHours(oneHourAgo.getHours() - 1);
+
+    const incidents = await prisma.report.findMany({
+      where: {
+        verificationStatus: 'UNVERIFIED',
+        createdAt: {
+          gte: oneHourAgo,
+        },
+      },
+      orderBy: {createdAt: 'desc'},
+    })
+
+    return incidents;
+  }catch(error){
+    console.error("Error fetching active incidents: ", error);
+    throw new Error("Could not fetch active incidents");
+  }
+}
