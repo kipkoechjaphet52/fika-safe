@@ -16,9 +16,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/app/Components/ui/table";
-import { deleteIncident, fetchUserReports } from "@/app/lib/action";
+import { fetchStaffResponses } from "@/app/lib/action";
 import { IncidentType, MediaType, SeverityLevel, VerificationStatus } from "@prisma/client";
-import { EyeIcon, Pencil, TrashIcon } from "lucide-react";
+import { EyeIcon, TrashIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import DeleteResponseDialog from "./DeleteResponseDialog";
@@ -52,7 +52,7 @@ export function ResponseHistory() {
   useEffect(() => {
     const handleReports = async () => {
       try{
-        const results = await fetchUserReports();
+        const results = await fetchStaffResponses();
         
         setReports(results);
       }catch(error){
