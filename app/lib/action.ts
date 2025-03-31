@@ -381,4 +381,79 @@ export async function sendEmailToUser(){
   }
 }
 
-// export async function sendEmailToStaff(){}
+export async function sendEmailToStaff(reportId:string){
+  try{
+    const report = await prisma.report.findUnique({
+      where: { id: reportId },
+    });
+    if (!report) {
+      throw new Error("Report not found");
+    }
+
+    const staff = await prisma.staff.findMany({
+      include:{
+        locations: {
+          orderBy: { timestamp: "desc" }, // Get the latest location
+          take: 1, // Limit to the latest location
+        },
+      }
+    });
+    if (!staff || staff.length === 0) {
+      throw new Error("No staff found");
+    }
+
+    // Filter staff within 5 km of the incident
+    const nearbyStaff = staff
+      .map((staff) => {
+        if (staff.locations.length === 0) return null; // Skip staff without location
+
+        const location = staff.locations[0]; // Get the latest location
+        const distance = getDistance(
+          { latitude: location.latitude, longitude: location.longitude },
+          { latitude: report.latitude, longitude: report.longitude }
+        ) / 1000; // Convert meters to km
+
+        return { ...staff, distance };
+      })
+      .filter((staff) => staff !== null && staff.distance <= 5); // Filter valid staff
+
+    if (nearbyStaff.length === 0) {
+      throw new Error("No staff found within 5 km of the incident");
+    }
+    // Send personalized emails
+    const subject = "Incident Alert";
+    const emailPromises = nearbyStaff.map((staff) => {
+      if (!staff) {
+        throw new Error("Staff is null");
+      }
+      const text = `Hello ${staff.firstName} ${staff.secondName},
+
+An incident has occurred near your location.
+Title: ${report.title}
+Location: ${report.location}
+Longitude: ${report.longitude}
+Latitude: ${report.latitude}
+Severity: ${report.severity}
+Incident Type: ${report.type}
+
+You are approximately ${staff.distance.toFixed(2)} km away from the incident.
+
+Please respond to the incident as soon as possible.
+
+Best regards,  
+Fika Safe Team`;
+
+      console.log(`Sending email to ${staff.firstName} ${staff.secondName} (${staff.email})...`);
+
+      return sendEmail(staff.email, subject, text);
+    });
+
+    console.log(`Sending email to ${nearbyStaff.length} staff members...`);
+    await Promise.all(emailPromises);
+
+    return emailPromises;
+  }catch(error){
+    console.error("Error sending emails to staff: ", error);
+    throw new Error("Could not send emails to staff");
+  }
+}
