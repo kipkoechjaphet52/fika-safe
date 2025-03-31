@@ -32,7 +32,6 @@ export async function POST(req: NextRequest) {
     // Check if the email belongs to a Staff member
     const staff = await prisma.staff.findUnique({
       where: { email },
-      select: { id: true },
     });
 
     // If user exists, update User's location
@@ -47,8 +46,8 @@ export async function POST(req: NextRequest) {
       return new Response(JSON.stringify(newLocation), { status: 201 });
     }
 
-    // If staff exists, update Staff's location
-    if (staff) {
+    // If staff exists, update Staff's location, but only if they are not a USER and are a CARRIER
+    if (staff && staff.userRole !== "USER" && staff.userRole === "CARRIER" ) {
       const newLocation = await prisma.staffLocation.create({
         data: {
           latitude,
