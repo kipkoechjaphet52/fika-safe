@@ -108,7 +108,7 @@ console.log(alerts);
   const userEmail = profile?.email;
   const userId = profile?.id;
 
-  // useLocationTracker();
+  useLocationTracker();
 
   useEffect(() => {
     const handleProfile = async () => {

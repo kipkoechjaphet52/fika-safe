@@ -27,8 +27,10 @@ export default async function UsersLayout({
     redirect('/')
   }
   const userRole = session?.userRole;
-  if(userRole === 'ADMIN' || userRole === 'EMERGENCY_RESPONDER' || userRole === 'POLICE'){
+  if(userRole === 'ADMIN'){
     redirect('/admin')
+  } else if(userRole === 'CARRIER' || userRole === 'POLICE' || userRole === 'AMBULANCE'){
+    redirect('/responder')
   }
   return (
     <>

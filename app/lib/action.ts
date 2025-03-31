@@ -5,6 +5,7 @@ import {authOptions} from "../utils/authOptions";
 import { getDistance } from "geolib";
 import { Server } from "socket.io";
 import { io } from "../utils/socket";
+import nodemailer from "nodemailer";
 
 const prisma = new PrismaClient();
 
@@ -331,5 +332,128 @@ export async function respondToAnIncident(id: string){
     return respondedIncident;
   }catch(error){
     console.error('Error responding to the incident: ', error);
+  }
+}
+
+async function sendEmail(to: string, subject: string, text: string) {
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+  });
+
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to,
+    subject,
+    text,
+    replyTo: process.env.EMAIL_USER,
+  };
+
+  await transporter.sendMail(mailOptions);
+}
+
+export async function sendEmailToUser(){
+  try{
+    const session = await getServerSession(authOptions);
+    const userEmail = session?.user?.email;
+    if(!userEmail){
+      throw new Error("User not authenticated");
+    }
+    const user = await prisma.user.findUnique({
+      where: {email: userEmail},
+    })
+    if(!user){
+      throw new Error("User not found");
+    }
+
+    const subject = 'Incident Alert';
+    const text = `Hello ${user.firstName} ${user.secondName},\n\nYou have created an incident and it is being verified by the staff. You will be notified once the incident is verified. A staff member is responding to the incident and they will be in touch with you if they need any more information about the incident.\n\nThank you for using our service.\n\nBest regards,\nFika safe team`;
+    await sendEmail(userEmail, subject, text);
+
+    const message = `Email sent to ${user.firstName} ${user.secondName} (${userEmail})`;
+    return message;
+  }catch(error){
+    console.error("Error sending emails: ", error);
+    throw new Error("Could not send emails to users");
+  }
+}
+
+export async function sendEmailToStaff(reportId:string){
+  try{
+    const report = await prisma.report.findUnique({
+      where: { id: reportId },
+    });
+    if (!report) {
+      throw new Error("Report not found");
+    }
+
+    const staff = await prisma.staff.findMany({
+      include:{
+        locations: {
+          orderBy: { timestamp: "desc" }, // Get the latest location
+          take: 1, // Limit to the latest location
+        },
+      }
+    });
+    if (!staff || staff.length === 0) {
+      throw new Error("No staff found");
+    }
+
+    // Filter staff within 5 km of the incident
+    const nearbyStaff = staff
+      .map((staff) => {
+        if (staff.locations.length === 0) return null; // Skip staff without location
+
+        const location = staff.locations[0]; // Get the latest location
+        const distance = getDistance(
+          { latitude: location.latitude, longitude: location.longitude },
+          { latitude: report.latitude, longitude: report.longitude }
+        ) / 1000; // Convert meters to km
+
+        return { ...staff, distance };
+      })
+      .filter((staff) => staff !== null && staff.distance <= 5); // Filter valid staff
+
+    if (nearbyStaff.length === 0) {
+      throw new Error("No staff found within 5 km of the incident");
+    }
+    // Send personalized emails
+    const subject = "Incident Alert";
+    const emailPromises = nearbyStaff.map((staff) => {
+      if (!staff) {
+        throw new Error("Staff is null");
+      }
+      const text = `Hello ${staff.firstName} ${staff.secondName},
+
+An incident has occurred near your location.
+Title: ${report.title}
+Location: ${report.location}
+Longitude: ${report.longitude}
+Latitude: ${report.latitude}
+Severity: ${report.severity}
+Incident Type: ${report.type}
+
+You are approximately ${staff.distance.toFixed(2)} km away from the incident.
+
+Please respond to the incident as soon as possible.
+
+Best regards,  
+Fika Safe Team`;
+
+      console.log(`Sending email to ${staff.firstName} ${staff.secondName} (${staff.email})...`);
+
+      return sendEmail(staff.email, subject, text);
+    });
+
+    console.log(`Sending email to ${nearbyStaff.length} staff members...`);
+    await Promise.all(emailPromises);
+
+    return emailPromises;
+  }catch(error){
+    console.error("Error sending emails to staff: ", error);
+    throw new Error("Could not send emails to staff");
   }
 }
