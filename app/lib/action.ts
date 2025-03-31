@@ -460,12 +460,19 @@ Fika Safe Team`;
 
 export async function fetchActiveIncidents(){ //Active events are those that are unverified and have been created in the last hour
   try{
+    const session = await getServerSession(authOptions);
+    const email = session?.user?.email;
+    if(!email){
+      throw new Error("User not authenticated");
+    }
+
     const oneHourAgo = new Date();
     oneHourAgo.setHours(oneHourAgo.getHours() - 1);
 
     const incidents = await prisma.report.findMany({
       where: {
         verificationStatus: 'UNVERIFIED',
+        verifierId: null,
         createdAt: {
           gte: oneHourAgo,
         },
@@ -473,9 +480,74 @@ export async function fetchActiveIncidents(){ //Active events are those that are
       orderBy: {createdAt: 'desc'},
     })
 
-    return incidents;
+    const staff = await prisma.staff.findUnique({
+      where: {email},
+      include: {
+        locations: true,
+      },
+    });
+    if(!staff){
+      throw new Error("Staff not found");
+    }
+    // Ensure staff has a recorded location
+    if (!staff.locations || staff.locations.length === 0) {
+      throw new Error("Staff location not available");
+    }
+
+    const staffLocation = staff.locations[0];
+
+    // Map and filter incidents within 5 km
+    const staffActiveIncidents = incidents
+      .map((incident) => {
+        if (!incident.latitude || !incident.longitude) return null; // Skip if incident has no coordinates
+
+        const distance = getDistance(
+          { latitude: incident.latitude, longitude: incident.longitude },
+          { latitude: staffLocation.latitude, longitude: staffLocation.longitude }
+        ) / 1000; // Convert meters to km
+
+        return distance <= 5 ? { ...incident } : null;
+      })
+      .filter(Boolean); // Remove null values
+
+    if (staffActiveIncidents.length === 0) {
+      throw new Error("No active incidents found within 5 km of the staff member's location");
+    }
+    if(!staffActiveIncidents){
+      throw new Error("No active incidents found");
+    }
+
+    return staffActiveIncidents;
   }catch(error){
     console.error("Error fetching active incidents: ", error);
     throw new Error("Could not fetch active incidents");
+  }
+}
+
+export async function fetchStaffResponses(){
+  try{
+    const session = await getServerSession(authOptions);
+    if(!session || !session.user?.email){
+        throw new Error("User not authenticated");
+    }
+    const email = session?.user?.email;
+
+    const staff = await prisma.staff.findUnique({
+        where: {email},
+        select: {id: true},
+    });
+    const staffId = staff?.id;
+
+    const incidents = await prisma.report.findMany({
+      where: {
+        verifierId: staffId,
+      },
+      orderBy: {createdAt: 'desc'},
+    })
+
+    return incidents;
+  }catch(error){
+    console.error("Error fetching staff responses: ", error);
+    throw new Error("Could not fetch staff responses");
   }
 }

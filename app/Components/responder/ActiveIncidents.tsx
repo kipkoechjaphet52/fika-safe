@@ -50,7 +50,9 @@ export function ActiveIncidents() {
       try{
         const results = await fetchActiveIncidents();
         
-        setReports(results);
+        if (results) {
+          setReports(results.filter((report): report is Report => report !== null));
+        }
       }catch(error){
         toast.error("Error fetching reports");
         console.error("Error fetching reports: ", error);
