@@ -349,14 +349,11 @@ async function sendEmail(to: string, subject: string, text: string) {
     to,
     subject,
     text,
+    replyTo: process.env.EMAIL_USER,
   };
 
   await transporter.sendMail(mailOptions);
 }
-
-const subject = 'This is a test';
-const text = 'This is a test email from nodemailer';
-// sendEmail(email, subject, text)
 
 export async function sendEmailToUser(){
   try{
@@ -383,3 +380,5 @@ export async function sendEmailToUser(){
     throw new Error("Could not send emails to users");
   }
 }
+
+// export async function sendEmailToStaff(){}

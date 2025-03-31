@@ -37,6 +37,7 @@ export async function POST(req: NextRequest) {
         latitude,
         longitude,
         user: { connect: { id: user.id } },
+        staff: { connect: { id: "default-staff-id" } }, // Replace "default-staff-id" with an appropriate staff ID
       },
     });
 
