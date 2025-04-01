@@ -27,6 +27,24 @@ export async function fetchProfile() {
   }
 }
 
+export async function fetchStaffProfile() {
+  try{
+    const session = await getServerSession(authOptions);
+    if(!session || !session.user?.email){
+        throw new Error("User not authenticated");
+    }
+    const email = session?.user?.email;
+
+    const staff = await prisma.staff.findUnique({
+        where: {email: email,},
+    });
+    return staff;
+  }catch(error){
+    console.error("Error fetching profile: ", error);
+    throw new Error("Could not fetch user profile");
+  }
+}
+
 export async function userReportStats () {
   try{
     const session = await getServerSession(authOptions);
@@ -549,5 +567,55 @@ export async function fetchStaffResponses(){
   }catch(error){
     console.error("Error fetching staff responses: ", error);
     throw new Error("Could not fetch staff responses");
+  }
+}
+
+export async function sendMessage(subject:string, message:string){
+  try{
+    const session = await getServerSession(authOptions);
+    const email = session?.user?.email;
+    if(!email){
+      throw new Error("User not authenticated");
+    }
+
+    const staff = await prisma.staff.findUnique({
+      where:{email},
+    });
+    if(!staff){
+      throw new Error('Staff not found');
+    }
+
+    const admin = await prisma.staff.findFirst({
+      where: {userRole: 'ADMIN'},
+      select: {
+        email:true,
+        firstName: true,
+        secondName: true,
+      }
+    });
+    if(!admin){
+      throw new Error('Admin not found'); 
+    }
+
+    const adminEmail = admin?.email;
+    const name = `${staff.firstName} ${staff.secondName}`
+    const text = `Hello ${admin.firstName} ${admin.secondName},
+
+A new issue has been created by ${name}, ${staff.userRole}, 
+Message Details:
+------------------
+"${message}"
+
+Please review and take the necessary action.
+
+Best regards,  
+Fika safe`
+
+    await sendEmail(adminEmail, subject, text)
+
+    return name;
+  }catch(error){
+    console.error("Error sending message: ", error);
+    throw new Error('Could not send message')
   }
 }

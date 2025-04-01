@@ -3,8 +3,9 @@
 import { Input } from '@/app/Components/ui/input';
 import { Button } from '@/app/Components/ui/button';
 import { useEffect, useState } from 'react';
-import { fetchProfile } from '@/app/lib/action';
+import { fetchStaffProfile, sendMessage } from '@/app/lib/action';
 import { UserRole } from '@prisma/client';
+import toast from 'react-hot-toast';
 
 interface Profile {
     id: string;
@@ -19,20 +20,38 @@ interface Profile {
 }
 export default function ContactPage() {
     const [profile, setProfile] = useState<Profile | null>(null);
+    const [message, setMessage] = useState('');
+    const [subject, setSubject] = useState('');
 
     useEffect(() => {
-        const handleProfile = async () => {
-            try{
-                const profile = await fetchProfile();
-                setProfile(profile);
-            }catch(error){
-                console.error("Error fetching profile: ", error);
-            }
-        }
+      const handleProfile = async () => {
+          try{
+              const profile = await fetchStaffProfile();
+              setProfile(profile);
+          }catch(error){
+              console.error("Error fetching profile: ", error);
+          }
+      }
+      handleProfile();
     },[])
+
+    const handleSubmit = async () => {
+      try{
+        toast.loading('Sending message')
+        const res = await sendMessage(subject,message)
+
+        toast.dismiss();
+        if(res){
+          toast.success('Message sent successfully')
+        }
+      }catch(error){
+        toast.error('Could not send message');
+        console.error("Error sending message: ", error);
+      }
+    }
   return (
     <div className='w-full h-full'>
-      <div className="max-w-3xl mx-auto py-12 px-6 md:py-16 md:px-12">
+      <div className="max-w-3xl mx-auto py-4 px-6 md:py-5 md:px-12">
         <h1 className="text-3xl md:text-4xl font-bold text-center mb-4">
           Contact Our Team
         </h1>
@@ -40,7 +59,7 @@ export default function ContactPage() {
           Our team is available 24/7 to help.
         </p>
 
-        <form className="space-y-6 border-2 shadow-md rounded-lg p-6 md:p-8">
+        <form onSubmit={handleSubmit} className="space-y-6 border-2 shadow-md rounded-lg p-6 md:p-8">
           {/* First & Last Name */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -65,6 +84,14 @@ export default function ContactPage() {
             <Input id="email" type="email" placeholder={profile?.email || "your@company.com"} disabled={true} required/>
           </div>
 
+          {/* Subject */}
+          <div>
+            <label htmlFor="subject" className="block text-sm font-medium ">
+              Subject
+            </label>
+            <Input id="subject" type="text" placeholder="Enter a subject" required value={subject} onChange={(e) => (setSubject(e.target.value))}/>
+          </div>
+
           {/* Message */}
           <div>
             <label htmlFor="message" className="block text-sm font-medium ">
@@ -76,12 +103,14 @@ export default function ContactPage() {
               rows={4}
               placeholder="Leave us a message..."
               required
+              value={message}
+              onChange={(e) => (setMessage(e.target.value))}
             ></textarea>
           </div>
 
           {/* Submit Button */}
           <div className="flex justify-center">
-            <Button className="w-full md:w-auto px-6 py-3 bg-blue-600  font-semibold rounded-md hover:bg-blue-700 transition-colors">
+            <Button type='submit' className="w-full md:w-auto px-6 py-3 bg-blue-600  font-semibold rounded-md hover:bg-blue-700 transition-colors">
               Send Message
             </Button>
           </div>
