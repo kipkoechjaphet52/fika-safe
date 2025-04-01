@@ -16,7 +16,7 @@ import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 
 type Variant = 'REGISTER' | 'LOGIN';
 
-type UserRole = 'USER' | 'ADMIN' | 'POLICE' | 'EMERGENCY_RESPONDER';
+type UserRole = 'USER' | 'ADMIN' | 'POLICE' | 'AMBULANCE' | 'CARRIER';
 
 export default function StaffAuthForm() {
   const [variant, setVariant] = useState<Variant>('LOGIN');
@@ -50,7 +50,7 @@ export default function StaffAuthForm() {
         router.push('/users');
       }else if(userRole === 'ADMIN') {
         router.push('/admin');
-      } else if(userRole === 'EMERGENCY_RESPONDER'){
+      } else if(userRole === 'CARRIER' || userRole === 'AMBULANCE' || userRole === 'POLICE'){
         router.push('/responder')
       }
     }

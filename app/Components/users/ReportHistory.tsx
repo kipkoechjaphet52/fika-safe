@@ -16,7 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/app/Components/ui/table";
-import { deleteIncident, fetchUserReports } from "@/app/lib/action";
+import { fetchUserReports } from "@/app/lib/action";
 import { IncidentType, MediaType, SeverityLevel, VerificationStatus } from "@prisma/client";
 import { EyeIcon, Pencil, TrashIcon } from "lucide-react";
 import { useEffect, useState } from "react";

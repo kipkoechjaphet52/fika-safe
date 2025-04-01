@@ -16,7 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/app/Components/ui/table";
-import { fetchUserReports } from "@/app/lib/action";
+import { fetchActiveIncidents } from "@/app/lib/action";
 import { IncidentType, MediaType, SeverityLevel, VerificationStatus } from "@prisma/client";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -48,9 +48,11 @@ export function ActiveIncidents() {
   useEffect(() => {
     const handleReports = async () => {
       try{
-        const results = await fetchUserReports();
+        const results = await fetchActiveIncidents();
         
-        setReports(results);
+        if (results) {
+          setReports(results.filter((report): report is Report => report !== null));
+        }
       }catch(error){
         toast.error("Error fetching reports");
         console.error("Error fetching reports: ", error);
