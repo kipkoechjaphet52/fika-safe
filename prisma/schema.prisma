@@ -20,6 +20,7 @@ model Staff {
   reports     Report[]
   locations    StaffLocation[]
   emergencyContacts EmergencyContact[]
+  helpMessages HelpMessage[]
 }
 
 model StaffLocation {
@@ -105,6 +106,21 @@ model EmergencyContact {
   contactType       ContactType
   staffId String
   staff Staff       @relation(fields: [staffId], references: [id], onDelete: Cascade)
+}
+
+model HelpMessage {
+  id         String   @id @default(uuid())
+  createdAt  DateTime @default(now())
+  staffId    String
+  staff      Staff     @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  message    String
+  status     MessageStatus @default(PENDING)  // Message status (Pending, Resolved, etc.)
+}
+  
+enum MessageStatus {
+  PENDING
+  IN_PROGRESS
+  RESOLVED
 }
 
 enum UserRole {
