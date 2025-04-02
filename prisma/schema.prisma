@@ -19,6 +19,7 @@ model Staff {
   reports     Report[]
   locations    StaffLocation[]
   emergencyContacts EmergencyContact[]
+  createdAt DateTime @default(now())
 }
 
 model StaffLocation {

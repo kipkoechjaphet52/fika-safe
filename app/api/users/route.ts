@@ -4,6 +4,17 @@ import { NextRequest } from "next/server"; // ✅ Import NextRequest for type sa
 
 const prisma = new PrismaClient();
 
+// ✅ GET: Fetch all users
+export async function GET() {
+  try {
+    const users = await prisma.user.findMany(); // Fetch users
+    return NextResponse.json(users, { status: 200 });
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    return NextResponse.json({ message: "Internal server error." }, { status: 500 });
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
