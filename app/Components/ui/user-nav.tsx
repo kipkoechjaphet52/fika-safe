@@ -67,7 +67,6 @@ console.log(alerts);
     const handleProfile = async () => {
       try{
         const user = await fetchProfile();
-        setProfile(user);
         const staff = await fetchStaffProfile();
         if (staff) {
           setProfile(staff);

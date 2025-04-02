@@ -109,7 +109,7 @@ export function DashboardNav() {
   const userRole = pathname.includes("/admin")
     ? "ADMIN"
     : pathname.includes("/responder")
-    ? ["POLICE", "AMBULANCE", "CARRIER"]
+    ? "RESPONDER"
     : "USER";
 
   const currentRoutes = routes[userRole as keyof typeof routes];
