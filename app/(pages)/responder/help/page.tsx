@@ -3,7 +3,7 @@
 import { Input } from '@/app/Components/ui/input';
 import { Button } from '@/app/Components/ui/button';
 import { useEffect, useState } from 'react';
-import { fetchStaffProfile, sendMessage } from '@/app/lib/action';
+import { fetchStaffProfile } from '@/app/lib/action';
 import { UserRole } from '@prisma/client';
 import toast from 'react-hot-toast';
 
@@ -22,6 +22,7 @@ export default function ContactPage() {
     const [profile, setProfile] = useState<Profile | null>(null);
     const [message, setMessage] = useState('');
     const [subject, setSubject] = useState('');
+    const [disabled, setDisabled] = useState(false);
 
     useEffect(() => {
       const handleProfile = async () => {
@@ -35,18 +36,36 @@ export default function ContactPage() {
       handleProfile();
     },[])
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (e: React.FormEvent) => {
+      e.preventDefault(); // Prevents form from reloading the page
+      
       try{
+        setDisabled(true);
         toast.loading('Sending message')
-        const res = await sendMessage(subject,message)
+        const response = await fetch('/api/send-help-message', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ subject, message }),
+        })
 
         toast.dismiss();
-        if(res){
-          toast.success('Message sent successfully')
+        if (response.ok || response.status === 200 || response.status === 201) {
+          toast.success('Message submitted successfully');
+          setDisabled(false);
+        } else if (response.status === 400) {
+          toast.error('Please fill all the fields');
+          setDisabled(false);
+        } else{
+          toast.error('Error submitting report');
+          setDisabled(false);
         }
       }catch(error){
-        toast.error('Could not send message');
-        console.error("Error sending message: ", error);
+        toast.dismiss();
+        toast.error('Could not submit message');
+        console.error("Error submitting message: ", error);
+        setDisabled(false);
       }
     }
   return (
@@ -89,7 +108,7 @@ export default function ContactPage() {
             <label htmlFor="subject" className="block text-sm font-medium ">
               Subject
             </label>
-            <Input id="subject" type="text" placeholder="Enter a subject" required value={subject} onChange={(e) => (setSubject(e.target.value))}/>
+            <Input id="subject" type="text" placeholder="Enter a subject" required value={subject} disabled={disabled} onChange={(e) => (setSubject(e.target.value))}/>
           </div>
 
           {/* Message */}
@@ -103,6 +122,7 @@ export default function ContactPage() {
               rows={4}
               placeholder="Leave us a message..."
               required
+              disabled={disabled}
               value={message}
               onChange={(e) => (setMessage(e.target.value))}
             ></textarea>
@@ -110,7 +130,7 @@ export default function ContactPage() {
 
           {/* Submit Button */}
           <div className="flex justify-center">
-            <Button type='submit' className="w-full md:w-auto px-6 py-3 bg-blue-600  font-semibold rounded-md hover:bg-blue-700 transition-colors">
+            <Button type='submit' disabled={disabled} className="w-full md:w-auto px-6 py-3 bg-blue-600  font-semibold rounded-md hover:bg-blue-700 transition-colors">
               Send Message
             </Button>
           </div>

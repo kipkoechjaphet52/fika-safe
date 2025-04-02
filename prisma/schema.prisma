@@ -112,9 +112,10 @@ model HelpMessage {
   id         String   @id @default(uuid())
   createdAt  DateTime @default(now())
   staffId    String
-  staff      Staff     @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  subject    String
   message    String
   status     MessageStatus @default(PENDING)  // Message status (Pending, Resolved, etc.)
+  staff      Staff     @relation(fields: [staffId], references: [id], onDelete: Cascade)
 }
   
 enum MessageStatus {
