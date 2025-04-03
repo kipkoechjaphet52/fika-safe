@@ -31,6 +31,8 @@ export default function AdminPage() {
       }
     }
     handleTotals();
+    const interval = setInterval(handleTotals, 3000); // Poll every 3 seconds
+    return () => clearInterval(interval);
   },[])
 
   return (

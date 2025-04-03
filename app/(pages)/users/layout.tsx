@@ -3,6 +3,7 @@ import { UserNav } from "@/app/Components/ui/user-nav";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import {authOptions} from "@/app/utils/authOptions";
+import { DashboardNav } from "@/app/Components/DashboardNav";
 
 export const metadata: Metadata = {
   title: "Fika Safe",
@@ -42,7 +43,7 @@ export default async function UsersLayout({
             </div>
           </header>
           <div className="flex-1 flex overflow-hidden">
-            {/* <DashboardNav /> */}
+            <DashboardNav />
             <main className="flex-1 overflow-x-clip overflow-y-auto">{children}</main>
           </div>
       </div>
