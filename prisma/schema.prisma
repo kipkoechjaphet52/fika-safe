@@ -9,7 +9,6 @@ datasource db {
 
 model Staff {
   id          String   @id @default(uuid())
-  createdAt   DateTime @default(now())
   firstName   String
   secondName  String
   phoneNumber String   @unique
@@ -20,7 +19,7 @@ model Staff {
   reports     Report[]
   locations    StaffLocation[]
   emergencyContacts EmergencyContact[]
-  helpMessages HelpMessage[]
+  createdAt DateTime @default(now())
 }
 
 model StaffLocation {
@@ -33,17 +32,17 @@ model StaffLocation {
 }
 
 model User {
-  id          String   @id @default(uuid())
-  createdAt   DateTime @default(now())
+  id          String         @id @default(uuid())
   firstName   String
   secondName  String
-  phoneNumber String   @unique
-  email       String   @unique
+  phoneNumber String         @unique
+  email       String         @unique
   password    String
   profilePic  String?
-  userRole    UserRole @default(USER)
-  reports     Report[]
+  createdAt   DateTime       @default(now())
+  userRole    UserRole       @default(USER)
   alerts      Alert[]
+  reports     Report[]
   routes      Route[]
   locations   UserLocation[]
 }
@@ -51,51 +50,51 @@ model User {
 model UserLocation {
   id        String   @id @default(uuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   latitude  Float
   longitude Float
-  timestamp DateTime @default(now()) // Tracks when the location was recorded
+  timestamp DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Report {
-  id           String             @id @default(uuid())
-  createdAt    DateTime           @default(now())
-  userId       String
-  title        String
-  location     String
-  latitude     Float
-  longitude    Float
-  type         IncidentType
-  severity     SeverityLevel
-  description  String
-  mediaUrl     String?
-  mediaType    MediaType
+  id                 String             @id @default(uuid())
+  userId             String
+  location           String
+  latitude           Float
+  longitude          Float
+  type               IncidentType
+  severity           SeverityLevel
+  description        String
+  mediaUrl           String?
+  mediaType          MediaType
+  verifierId         String?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
   verificationStatus VerificationStatus @default(UNVERIFIED)
-  verifierId   String?
-  updatedAt    DateTime           @updatedAt
-  user         User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  verifier     Staff?             @relation(fields: [verifierId], references: [id], onDelete: Cascade)
-  alerts       Alert[]
+  title              String
+  alerts             Alert[]
+  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  verifier           Staff?             @relation(fields: [verifierId], references: [id], onDelete: Cascade)
 }
 
 model Alert {
   id        String      @id @default(uuid())
-  createdAt DateTime    @default(now())
   userId    String
-  reportId  String      
   message   String
   status    AlertStatus @default(UNREAD)
+  createdAt DateTime    @default(now())
+  reportId  String
   report    Report      @relation(fields: [reportId], references: [id], onDelete: Cascade)
   user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Route {
   id          String   @id @default(uuid())
-  createdAt   DateTime @default(now())
   userId      String
   origin      String
   destination String
   routeData   Json
+  createdAt   DateTime @default(now())
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
