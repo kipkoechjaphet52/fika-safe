@@ -569,3 +569,37 @@ export async function fetchStaffResponses(){
     throw new Error("Could not fetch staff responses");
   }
 }
+
+export async function fetchAdminStats(){
+  try{
+    const session = await getServerSession(authOptions);
+    if(!session || !session.user?.email){
+        throw new Error("User not authenticated");
+    }
+    const email = session?.user?.email;
+
+    const admin = await prisma.staff.findUnique({
+        where: {
+          email,
+          userRole: 'ADMIN',
+        },
+        select: {id: true},
+    });
+    if(!admin){
+      throw new Error("Admin not found");
+    }
+
+    const totalUsers = await prisma.user.count();
+    const totalStaff = await prisma.staff.count({
+      where: {
+        userRole: {in: ['AMBULANCE', 'CARRIER', 'POLICE']},
+      }
+    });
+    const totalReports = await prisma.report.count();
+
+    return {totalUsers, totalStaff, totalReports};
+  }catch(error){
+    console.error("Error fetching admin stats: ", error);
+    throw new Error("Could not fetch admin stats");
+  }
+}

@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 //   },
 };
 
-export default async function ResponderLayout({
+export default async function AdminLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -28,8 +28,8 @@ export default async function ResponderLayout({
     redirect('/')
   }
   const userRole = session?.userRole;
-  if(userRole === 'ADMIN'){
-    redirect('/admin')
+  if(userRole === 'AMBULANCE' || userRole === 'CARRIER' || userRole === 'POLICE'){
+    redirect('/responder')
   } else if(userRole === 'USER'){
     redirect('/users')
   }
