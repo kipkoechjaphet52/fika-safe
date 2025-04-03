@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/app/Components/ui/ca
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip } from "recharts";
 import { Users, AlertTriangle, Shield } from "lucide-react";
 import { useEffect, useState } from 'react';
-import { fetchAdminStats } from '@/app/lib/action';
+import { fetchAdminStats, fetchIncidentsStats } from '@/app/lib/action';
 
 // Sample Data
 const data = [
@@ -18,7 +18,7 @@ export default function AdminPage() {
   const [reportTotals, setReportTotals] = useState(0);
   const [userTotals, setUserTotals] = useState(0);
   const [responderTotals, setResponderTotals] = useState(0);
-
+  
   useEffect(() => {
     const handleTotals = async () => {
       try {
@@ -32,6 +32,24 @@ export default function AdminPage() {
     }
     handleTotals();
     const interval = setInterval(handleTotals, 3000); // Poll every 3 seconds
+    return () => clearInterval(interval);
+  },[])
+
+  const [incidentStats, setIncidentStats] = useState<{month:string, incidents:number}[]>([]);
+
+  useEffect(() => {
+    const handleStats = async () => {
+      try {
+        const response = await fetchIncidentsStats();
+        if(response){
+          setIncidentStats(response.monthlyData);
+        }
+      }catch(error){
+        console.error("Error fetching stats:", error);
+      }
+    }
+    handleStats();
+    const interval = setInterval(handleStats, 3000); // Poll every 3 seconds
     return () => clearInterval(interval);
   },[])
 
@@ -77,8 +95,8 @@ export default function AdminPage() {
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={data}>
-              <XAxis dataKey="name" />
+            <BarChart data={incidentStats}>
+              <XAxis dataKey="month" />
               <YAxis />
               <Tooltip />
               <Bar dataKey="incidents" fill="#3182CE" />
