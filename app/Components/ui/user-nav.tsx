@@ -155,37 +155,39 @@ console.log(alerts);
           </div>
         </nav> */}
       <div className="flex space-x-4 space-y-3 items-center">
-        <div className="mt-3">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant='outline' className="border-2 border-gray-300">
-              {alerts.some(alert => alert.status === "UNREAD") ? (
-                <BellAlertIcon className="h-[1.2rem] w-[1.2rem] animate-shake" />
-              ) : (
-                <Bell className="h-[1.2rem] w-[1.2rem]" />
-              )}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56 overflow-y-scroll h-[40vh]" align="end" forceMount>
-              <DropdownMenuLabel className="font-normal">Notifications</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuGroup>
-                {alerts.length > 0 ? (
-                  alerts.map((alert, index) => (
-                    <DropdownMenuItem key={index}>
-                      <span>{alert.message}</span>
-                    </DropdownMenuItem>
-                  ))
+        {userRole !== "ADMIN" && (
+          <div className="mt-3">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant='outline' className="border-2 border-gray-300">
+                {alerts.some(alert => alert.status === "UNREAD") ? (
+                  <BellAlertIcon className="h-[1.2rem] w-[1.2rem] animate-shake" />
                 ) : (
-                  <DropdownMenuItem>
-                    <span>No new notifications</span>
-                  </DropdownMenuItem>
-                  )
-                }
-              </DropdownMenuGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+                  <Bell className="h-[1.2rem] w-[1.2rem]" />
+                )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56 overflow-y-scroll h-[40vh]" align="end" forceMount>
+                <DropdownMenuLabel className="font-normal">Notifications</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  {alerts.length > 0 ? (
+                    alerts.map((alert, index) => (
+                      <DropdownMenuItem key={index}>
+                        <span>{alert.message}</span>
+                      </DropdownMenuItem>
+                    ))
+                  ) : (
+                    <DropdownMenuItem>
+                      <span>No new notifications</span>
+                    </DropdownMenuItem>
+                    )
+                  }
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )}
         <div className="mt-3">
           <ThemeToggle />
         </div>
