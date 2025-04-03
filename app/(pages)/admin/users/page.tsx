@@ -6,7 +6,8 @@ import { Button } from "@/app/Components/ui/button";
 
 interface User {
   id: number;
-  name: string;
+  firstName: string;
+  secondName: string;
   email: string;
   phone: string;
   role: string;
@@ -14,7 +15,15 @@ interface User {
 
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
-  const [newUser, setNewUser] = useState({ name: "", email: "", phone: "", role: "" });
+  const [newUser, setNewUser] = useState({
+    firstName: "",
+    secondName: "",
+    phoneNumber: "",
+    email: "",
+    password: "",
+    profilePic: "", // Optional
+    userRole: "",   // Default to an empty string, the dropdown will handle role selection
+  });
 
   useEffect(() => {
     fetchUsers();
@@ -35,18 +44,42 @@ export default function UsersPage() {
   // Handle adding a user
   const handleAddUser = async () => {
     try {
+      // Validation for empty fields (excluding profilePic)
+      if (!newUser.firstName || !newUser.secondName || !newUser.phoneNumber || !newUser.email || !newUser.password || !newUser.userRole) {
+        alert("All fields except Profile Pic are required.");
+        return;
+      }
+
+      // Add the newUser object to the API
       const res = await fetch("/api/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newUser),
       });
 
-      if (!res.ok) throw new Error("Failed to add user");
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.error("Error creating user:", errorData.message || "Unknown error");
+        alert("Failed to add user");
+        return;
+      }
 
-      setNewUser({ name: "", email: "", phone: "", role: "" });
+      // Clear form after successful submission
+      setNewUser({
+        firstName: "",
+        secondName: "",
+        phoneNumber: "",
+        email: "",
+        password: "",
+        profilePic: "",  // Optional
+        userRole: "",    // Reset the role
+      });
+
+      // Fetch updated users list
       fetchUsers();
     } catch (error) {
-      console.error(error);
+      console.error("Unexpected error:", error);
+      alert("An unexpected error occurred.");
     }
   };
 
@@ -76,9 +109,23 @@ export default function UsersPage() {
           <div className="mb-4">
             <input
               type="text"
-              placeholder="Name"
-              value={newUser.name}
-              onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+              placeholder="First Name"
+              value={newUser.firstName}
+              onChange={(e) => setNewUser({ ...newUser, firstName: e.target.value })}
+              className="border p-2 mr-2"
+            />
+            <input
+              type="text"
+              placeholder="Second Name"
+              value={newUser.secondName}
+              onChange={(e) => setNewUser({ ...newUser, secondName: e.target.value })}
+              className="border p-2 mr-2"
+            />
+            <input
+              type="text"
+              placeholder="Phone Number"
+              value={newUser.phoneNumber}
+              onChange={(e) => setNewUser({ ...newUser, phoneNumber: e.target.value })}
               className="border p-2 mr-2"
             />
             <input
@@ -89,19 +136,34 @@ export default function UsersPage() {
               className="border p-2 mr-2"
             />
             <input
-              type="text"
-              placeholder="Phone"
-              value={newUser.phone}
-              onChange={(e) => setNewUser({ ...newUser, phone: e.target.value })}
+              type="password"
+              placeholder="Password"
+              value={newUser.password}
+              onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
               className="border p-2 mr-2"
             />
             <input
               type="text"
-              placeholder="Role"
-              value={newUser.role}
-              onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
+              placeholder="Profile Pic URL (Optional)"
+              value={newUser.profilePic}
+              onChange={(e) => setNewUser({ ...newUser, profilePic: e.target.value })}
               className="border p-2 mr-2"
             />
+
+            {/* User Role Dropdown */}
+            <select
+              value={newUser.userRole}
+              onChange={(e) => setNewUser({ ...newUser, userRole: e.target.value })}
+              className="border p-2 mr-2"
+            >
+              <option value="" disabled>Select a Role</option>
+              <option value="USER">User</option>
+              <option value="ADMIN">Admin</option>
+              <option value="POLICE">Police</option>
+              <option value="AMBULANCE">Ambulance</option>
+              <option value="CARRIER">Carrier</option>
+            </select>
+
             <Button onClick={handleAddUser}>Add User</Button>
           </div>
 
@@ -109,7 +171,8 @@ export default function UsersPage() {
           <table className="w-full border">
             <thead>
               <tr className="border-b">
-                <th className="p-2">Name</th>
+                <th className="p-2">First Name</th>
+                <th className="p-2">Second Name</th>
                 <th className="p-2">Email</th>
                 <th className="p-2">Phone</th>
                 <th className="p-2">Role</th>
@@ -119,7 +182,8 @@ export default function UsersPage() {
             <tbody>
               {users.map((user) => (
                 <tr key={user.id} className="border-b">
-                  <td className="p-2">{user.name}</td>
+                  <td className="p-2">{user.firstName}</td>
+                  <td className="p-2">{user.secondName}</td>
                   <td className="p-2">{user.email}</td>
                   <td className="p-2">{user.phone}</td>
                   <td className="p-2">{user.role}</td>
