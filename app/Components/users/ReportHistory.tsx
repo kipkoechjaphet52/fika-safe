@@ -21,29 +21,14 @@ import { IncidentType, MediaType, SeverityLevel, VerificationStatus } from "@pri
 import { EyeIcon, Pencil, TrashIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-
-const reports = [
-  {
-    id: 1,
-    incidentType: "THEFT",
-    location: "Sichirai",
-    status: "pending",
-    reportedAt: "2024-03-20",
-  },
-  {
-    id: 2,
-    incidentType: "MEDICAL",
-    location: "Kooromatangi",
-    status: "resolved",
-    reportedAt: "2024-03-15",
-  },
-];
+import DeleteIncidentDialog from "./DeleteIncidentDialog";
 
 interface Report {
   id: string;
   createdAt: Date;
   userId: string;
   location: string;
+  title: string;
   latitude: number;
   longitude: number;
   type: IncidentType;
@@ -55,8 +40,14 @@ interface Report {
   verifierId: string | null;
   updatedAt: Date;
 }
-export function ReportHistory() {
+export function ReportHistory({onEdit}: {onEdit: (report: Report) => void}) {
   const [reports, setReports] = useState<Report[]>([]);
+  const [reportId, setReportId] = useState("");
+  const [openDelete, setOpenDelete] = useState(false);
+
+  const handleOpenDelete = () => {
+    setOpenDelete((prev) => !prev);
+  }
 
   useEffect(() => {
     const handleReports = async () => {
@@ -70,8 +61,11 @@ export function ReportHistory() {
       }
     };
     handleReports();
+    const interval = setInterval(handleReports, 3000); // Poll every 3 seconds
+    return () => clearInterval(interval);
   }, []);
   return (
+    <div>
     <Card>
       <CardHeader>
         <CardTitle>Incidents History</CardTitle>
@@ -81,6 +75,7 @@ export function ReportHistory() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead>Title</TableHead>
               <TableHead>Incident Type</TableHead>
               <TableHead>Location</TableHead>
               <TableHead>Status</TableHead>
@@ -92,6 +87,7 @@ export function ReportHistory() {
             {reports.length > 0 ? (
               reports.map((report) => (
                 <TableRow key={report.id}>
+                  <TableCell className="font-medium">{report.title}</TableCell>
                   <TableCell className="font-medium">{report.type}</TableCell>
                   <TableCell>{report.location}</TableCell>
                   <TableCell>
@@ -104,8 +100,8 @@ export function ReportHistory() {
                   <TableCell>{report.createdAt.toLocaleDateString()}</TableCell>
                   <TableCell className="flex justify-between">
                     <EyeIcon className="w-5 h-5 " />
-                    <Pencil className="w-5 h-5 text-sky-500" />
-                    <TrashIcon className="w-5 h-5 text-destructive" />
+                    <Pencil onClick={() => onEdit(report)} className="w-5 h-5 text-sky-500 cursor-pointer" />
+                    <TrashIcon onClick={() => {setReportId(report.id); handleOpenDelete();}} className="w-5 h-5 text-destructive cursor-pointer" />
                   </TableCell>
                 </TableRow>
               ))
@@ -118,5 +114,7 @@ export function ReportHistory() {
         </Table>
       </CardContent>
     </Card>
+    <DeleteIncidentDialog open={openDelete} id={reportId} />
+    </div>
   );
 }

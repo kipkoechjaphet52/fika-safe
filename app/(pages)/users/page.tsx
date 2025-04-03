@@ -4,15 +4,34 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/app/Components/ui/ca
 import { IncidentReport } from "@/app/Components/users/incident-report";
 import { ReportHistory } from "@/app/Components/users/ReportHistory";
 import { userReportStats } from "@/app/lib/action";
+import { IncidentType, MediaType, SeverityLevel, VerificationStatus } from "@prisma/client";
 import { BookOpen, FileCheck, AlertTriangle } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
+interface Report {
+  id: string;
+  createdAt: Date;
+  userId: string;
+  title: string;
+  location: string;
+  latitude: number;
+  longitude: number;
+  type: IncidentType;
+  severity: SeverityLevel;
+  description: string;
+  mediaUrl: string | null;
+  mediaType: MediaType;
+  verificationStatus: VerificationStatus;
+  verifierId: string | null;
+  updatedAt: Date;
+}
 export default function Dashboard() {
   const [totalReports, setTotalReports] = useState(0);
   const [unverifiedReports, setUnverifiedReports] = useState(0);
   const [verifiedReports, setVerifiedReports] = useState(0);
-
+  const [selectedReport, setSelectedReport] = useState<Report | null>(null);
+console.log(selectedReport);
   useEffect(() => {
     const fetchReportStats = async () => {
       try{
@@ -26,6 +45,8 @@ export default function Dashboard() {
       }
     };
     fetchReportStats();
+    const interval = setInterval(fetchReportStats, 3000); // Poll every 3 seconds
+    return () => clearInterval(interval);
   }, []);
   return (
     <div className="space-y-8">
@@ -60,8 +81,8 @@ export default function Dashboard() {
       </div>
       <div className="grid gap-8 md:grid-cols-2">
         {/* <EnrolledCourses /> */}
-        <IncidentReport />
-        <ReportHistory />
+        <IncidentReport selectedReport={selectedReport} onUpdate={() => setSelectedReport(null)}/>
+        <ReportHistory onEdit={setSelectedReport} />
       </div>
     </div>
   );

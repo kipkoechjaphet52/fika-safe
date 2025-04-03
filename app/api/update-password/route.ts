@@ -22,20 +22,39 @@ export async function PUT(req:Request){
             where: {email},
             select: {id: true, password: true},
         });
-        if(!user){
+
+        const staff = await prisma.staff.findUnique({
+            where: {email},
+            select: {id: true, password: true},
+        });
+        if(!user && !staff){
             return new Response(JSON.stringify({message: "User not found"}), {status: 404});
         }
 
-        const isMatch = await bcrypt.compare(currentPassword, user.password);
-        if(!isMatch){
-            return new Response(JSON.stringify({ message: "Current password is incorrect" }), { status: 400 });
+        if(user){
+            const isMatch = await bcrypt.compare(currentPassword, user.password);
+            if(!isMatch){
+                return new Response(JSON.stringify({ message: "Current password is incorrect" }), { status: 400 });
+            }
+        } else if(staff){
+            const isMatch = await bcrypt.compare(currentPassword, staff.password);
+            if(!isMatch){
+                return new Response(JSON.stringify({ message: "Current password is incorrect" }), { status: 400 });
+            }
         }
         const hashedNewPassword = await bcrypt.hash(newPassword, 10);
         
-        await prisma.user.update({
-            where: {email},
-            data: {password: hashedNewPassword},
-        });
+        if(user){
+            await prisma.user.update({
+                where: {email},
+                data: {password: hashedNewPassword},
+            });
+        } else if(staff){
+            await prisma.staff.update({
+                where: {email},
+                data: {password: hashedNewPassword},
+            });
+        }
 
         return new Response(JSON.stringify({ message: "Password updated successfully" }), { status: 200 });
     }catch(error){

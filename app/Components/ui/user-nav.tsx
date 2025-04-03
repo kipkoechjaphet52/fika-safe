@@ -18,58 +18,13 @@ import clsx from "clsx";
 import { useEffect, useState } from "react";
 import Settings from "../users/Settings";
 import { signOut } from "next-auth/react";
-import { fetchAlerts, fetchProfile } from "@/app/lib/action";
+import { fetchAlerts, fetchProfile, fetchStaffProfile } from "@/app/lib/action";
 import { AlertStatus, UserRole } from "@prisma/client";
 import { BellAlertIcon } from "@heroicons/react/24/outline";
 import useLocationTracker from "@/app/hooks/useLocationTracker";
 import { io } from "socket.io-client";
+
 const socket = io("http://localhost:49160", { transports: ["websocket"] });
-const routes = {
-  USER: [
-    {
-      title: "Dashboard",
-      href: "/users",
-    },
-    {
-      title: "Live Maps",
-      href: "/users/maps",
-    },
-    {
-      title: "Incidents",
-      href: "/users/incidents",
-    },
-    {
-      title: "Help",
-      href: "/users/help",
-    },
-    {
-      title: "Settings",
-      href: "#settings",
-    },
-  ],
-  ADMIN: [
-    {
-      title: "Dashboard",
-      href: "/admin",
-    },
-    {
-      title: "Users",
-      href: "/admin/users",
-    },
-    {
-      title: "Incidents",
-      href: "/admin/incidents",
-    },
-    {
-      title: "Logs",
-      href: "/admin/logs",
-    },
-    {
-      title: "Settings",
-      href: "#settings",
-    },
-  ],
-}
 
 interface UserProfile{
   id: string;
@@ -90,6 +45,11 @@ interface Alert {
   message: string;
   status: AlertStatus;
 }
+interface NearbyUsersAlert {
+  alerts: Alert[]; // Filtered alerts for the specific user
+  message: string; // Alert message for the user
+  alertId: string; // ID of the specific alert
+}
 export function UserNav() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -101,13 +61,18 @@ console.log(alerts);
   const userEmail = profile?.email;
   const userId = profile?.id;
 
-  // useLocationTracker();
+  useLocationTracker();
 
   useEffect(() => {
     const handleProfile = async () => {
       try{
         const user = await fetchProfile();
-        setProfile(user);
+        const staff = await fetchStaffProfile();
+        if (staff) {
+          setProfile(staff);
+        } else {
+          setProfile(user);
+        }
       }catch(error){
         console.error("Error fetching profile: ", error);
       }
@@ -115,18 +80,18 @@ console.log(alerts);
     handleProfile();
   },[]);
 
-  // useEffect(() => {
-  //   const handleAlerts = async () => {
-  //     try{
-  //       const alerts = await fetchAlerts();
-  //       setAlerts(alerts);
-  //     }catch(error){
-  //       console.error("Error fetching alerts: ", error);
-  //     }
-  //   }
+  useEffect(() => {
+    const handleAlerts = async () => {
+      try{
+        const alerts = await fetchAlerts();
+        setAlerts(alerts);
+      }catch(error){
+        console.error("Error fetching alerts: ", error);
+      }
+    }
 
-  //   handleAlerts();
-  // },[]);
+    handleAlerts();
+  },[]);
 
   useEffect(() => {
     if (!userId) return;
@@ -136,9 +101,11 @@ console.log(alerts);
     console.log("🟢 Joined room:", userId);
   
     // Listen for new alerts
-    socket.on("newAlert", (alert) => {
-      console.log("🔴 New Alert Received:", alert);
-      setAlerts((prevAlerts) => [...prevAlerts, alert]); // Add to alerts list
+    socket.on("newAlert", (data) => {
+      console.log("🔴 New Alert Received:", data);
+      const newAlert = data.alerts;
+      console.log(newAlert)
+      setAlerts((prevAlerts) => [...prevAlerts, data.alerts]); // Add to alerts list
     });
   
     return () => {
@@ -149,10 +116,10 @@ console.log(alerts);
   const pathname = usePathname();
 
   const userRole = pathname.includes("/admin")
-    ? ["ADMIN", "EMERGENCY_RESPONDER", "POLICE"].includes("ADMIN")
-    : "USER";
-
-  const currentRoutes = routes[userRole as keyof typeof routes];
+  ? "ADMIN"
+  : pathname.includes("/responder")
+  ? ["POLICE", "AMBULANCE", "CARRIER"]
+  : "USER";
 
   const handleLogout = () => {
     signOut({callbackUrl: '/'})
@@ -163,8 +130,8 @@ console.log(alerts);
         <ShieldPlus className="h-6 w-6" />
         <span className="font-semibold">Fika Safe</span>
       </div>
-        <nav className="items-center space-x-6 text-sm font-medium hidden md:block">
-          <div className="flex flex-row">
+        {/* <nav className="items-center space-x-6 text-sm font-medium hidden md:block">
+          <div className="flex flex-1 flex-row">
             {currentRoutes.map((route) => (
               <Link
                 key={route.href}
@@ -176,7 +143,7 @@ console.log(alerts);
                   }
                 }}
                 className={clsx(
-                  "relative flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-primary after:transition-all after:duration-500",
+                  "relative flex items-center cursor-pointer gap-3 px-3 py-2 rounded-lg text-sm transition-all after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-primary after:transition-all after:duration-500",
                   pathname === route.href
                     ? " text-primary after:w-full"
                     : "hover:bg-muted"
@@ -186,7 +153,7 @@ console.log(alerts);
               </Link>
             ))}
           </div>
-        </nav>
+        </nav> */}
       <div className="flex space-x-4 space-y-3 items-center">
         <div className="mt-3">
           <DropdownMenu>
@@ -199,13 +166,13 @@ console.log(alerts);
               )}
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end" forceMount>
+            <DropdownMenuContent className="w-56 overflow-y-scroll h-[40vh]" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">Notifications</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
                 {alerts.length > 0 ? (
-                  alerts.map((alert) => (
-                    <DropdownMenuItem key={alert.id}>
+                  alerts.map((alert, index) => (
+                    <DropdownMenuItem key={index}>
                       <span>{alert.message}</span>
                     </DropdownMenuItem>
                   ))
@@ -240,13 +207,6 @@ console.log(alerts);
                 </p>
               </div>
             </DropdownMenuLabel>
-            {/* <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <User className="mr-2 h-4 w-4" />
-                <span>Profile</span>
-              </DropdownMenuItem>
-            </DropdownMenuGroup> */}
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout}>
               <LogOut className="mr-2 h-4 w-4" />

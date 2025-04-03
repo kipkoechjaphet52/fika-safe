@@ -5,7 +5,6 @@ import { Button } from '@/app/Components/ui/button';
 import Header from '@/app/Components/Header';
 import Footer from '@/app/Components/Footer';
 
-
 export default function ContactPage() {
   return (
     <div className='w-full h-full'>
@@ -37,7 +36,7 @@ export default function ContactPage() {
 
           {/* Email */}
           <div>
-            <label htmlFor="email" className="block text-sm font-medium ">
+            <label htmlFor="email" className="block text-sm font-medium">
               Email
             </label>
             <Input id="email" type="email" placeholder="your@company.com" required />
@@ -45,7 +44,7 @@ export default function ContactPage() {
 
           {/* Message */}
           <div>
-            <label htmlFor="message" className="block text-sm font-medium ">
+            <label htmlFor="message" className="block text-sm font-medium">
               Message
             </label>
             <textarea
@@ -59,7 +58,10 @@ export default function ContactPage() {
 
           {/* Submit Button */}
           <div className="flex justify-center">
-            <Button className="w-full md:w-auto px-6 py-3 bg-blue-600  font-semibold rounded-md hover:bg-blue-700 transition-colors">
+            <Button 
+              type="submit" 
+              className="w-full md:w-auto px-6 py-3 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 transition-colors"
+            >
               Send Message
             </Button>
           </div>

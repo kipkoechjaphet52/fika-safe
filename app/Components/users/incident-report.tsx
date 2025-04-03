@@ -29,9 +29,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Textarea } from "../ui/textarea";
 import Input from "../Input";
 import { useEffect, useState } from "react";
-import { MediaType } from "@prisma/client";
+import { IncidentType, MediaType, SeverityLevel, VerificationStatus } from "@prisma/client";
 import toast from "react-hot-toast";
 import { fromLonLat } from "ol/proj";
+import { set } from "ol/transform";
 
 const formSchema = z.object({
   incidentType: z.string().min(1, "Incident type is required"),
@@ -40,8 +41,24 @@ const formSchema = z.object({
   file: z.string().optional(),
 });
 
-
-export function IncidentReport() {
+interface Report {
+  id: string;
+  createdAt: Date;
+  userId: string;
+  title: string;
+  location: string;
+  latitude: number;
+  longitude: number;
+  type: IncidentType;
+  severity: SeverityLevel;
+  description: string;
+  mediaUrl: string | null;
+  mediaType: MediaType;
+  verificationStatus: VerificationStatus;
+  verifierId: string | null;
+  updatedAt: Date;
+}
+export function IncidentReport({selectedReport, onUpdate}: {selectedReport: Report | null, onUpdate: () => void}) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   });
@@ -54,11 +71,25 @@ export function IncidentReport() {
   const [fileUrl, setFileUrl] = useState('');
   const [longitude, setLongitude] = useState(0);
   const [latitude, setLatitude] = useState(0);
+  const [reportId, setReportId] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const incidentType = form.watch('incidentType');
   const severity = form.watch('severity');
   const description = form.watch('description');
   
+  useEffect(() => {
+    if(selectedReport){
+      setReportId(selectedReport.id);
+      setTitle(selectedReport.title);
+      setStreet(selectedReport.location);
+      setFileUrl(selectedReport.mediaUrl || '');
+      setMediaType(selectedReport.mediaType);
+      form.setValue('incidentType', selectedReport.type);
+      form.setValue('severity', selectedReport.severity);
+      form.setValue('description', selectedReport.description);
+    }
+  },[selectedReport, form]);
 
   // Check if the file is an image or video and get user coordinates
   useEffect(() => {
@@ -150,53 +181,99 @@ export function IncidentReport() {
   }
 
   const handleSubmit = async () => {
-    const reportData = {
-      title, 
-      location: street,
-      latitude,
-      longitude,
-      description: description,
-      type: incidentType,
-      severity: severity,
-      mediaUrl: fileUrl,
-      mediaType: mediaType,
-    };
+    if (selectedReport) {
+      // Edit existing task
+      try {
+        toast.loading("Updating task...");
+        const response = await fetch('/api/update-incident', {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id: reportId,
+            title,
+            location: street,
+            description,
+            type: incidentType,
+            severity,
+            mediaUrl: fileUrl,
+            mediaType,
+          }),
+        });
+        
+        toast.dismiss()
+        if (response.ok) {
+          toast.success("Task updated successfully");
+          onUpdate();
+          setLoading(false);
+          setFile(null);
+          setTitle("");
+          setStreet("");
+          setFileUrl("");
+          setMediaType("");
+          setReportId("");
+          form.reset({
+            incidentType: "",
+            severity: "",
+            description: "",
+            file: "",
+          });
+        } else {
+          toast.error("Failed to update task");
+          setDisabled(false)
+        }
+      } catch (error) {
+        console.error("Error updating task:", error);
+        toast.error("Error updating task");
+      }
+    } else {
+      const reportData = {
+        title, 
+        location: street,
+        latitude,
+        longitude,
+        description: description,
+        type: incidentType,
+        severity: severity,
+        mediaUrl: fileUrl,
+        mediaType: mediaType,
+      };
 
-    try{
-      setDisabled(true);
-      toast.loading('Submitting report...');
-      const response = await fetch('/api/create-report', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(reportData),
-      });
-      
-      toast.dismiss();
-      if (response.ok || response.status === 200 || response.status === 201) {
-        toast.success('Report submitted successfully');
-        setDisabled(false);
-      } else if (response.status === 400) {
-        toast.error('Please fill all the fields');
-        setDisabled(false);
-      } else{
+      try{
+        setDisabled(true);
+        toast.loading('Submitting report...');
+        const response = await fetch('/api/create-report', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(reportData),
+        });
+        
+        toast.dismiss();
+        if (response.ok || response.status === 200 || response.status === 201) {
+          toast.success('Report submitted successfully');
+          setDisabled(false);
+        } else if (response.status === 400) {
+          toast.error('Please fill all the fields');
+          setDisabled(false);
+        } else{
+          toast.error('Error submitting report');
+          setDisabled(false);
+        }
+      }catch(error){
+        toast.dismiss();
         toast.error('Error submitting report');
+        console.error("Error submitting report: ", error);
         setDisabled(false);
       }
-    }catch(error){
-      toast.dismiss();
-      toast.error('Error submitting report');
-      console.error("Error submitting report: ", error);
-      setDisabled(false);
     }
   }
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Report an Incident</CardTitle>
-        <CardDescription>Submit a new incident report</CardDescription>
+        <CardTitle>{selectedReport ? "Edit Incident Report" : "Report an Incident"}</CardTitle>
+        <CardDescription>{selectedReport ? "Modify the report details" : "Submit a new incident report"}</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -229,7 +306,7 @@ export function IncidentReport() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Incident Type</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select type of incident" />
@@ -254,7 +331,7 @@ export function IncidentReport() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Incident Severity</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a level of severity" />
@@ -297,7 +374,9 @@ export function IncidentReport() {
                 </FormItem>
               )}
             />
-            <Button disabled={disabled} type="submit" onClick={() => handleSubmit()} className="w-full">Submit Report</Button>
+            <Button disabled={disabled} type="submit" onClick={() => handleSubmit()} className="w-full">
+            {selectedReport ? "Update Report" : "Submit Report"}
+            </Button>
           </form>
         </Form>
       </CardContent>

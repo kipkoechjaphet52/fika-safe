@@ -18,7 +18,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 
 type Variant = 'REGISTER' | 'LOGIN';
 
-type UserRole = 'USER' | 'ADMIN' | 'POLICE' | 'EMERGENCY_RESPONDER';
+type UserRole = 'USER' | 'ADMIN' | 'POLICE' | 'AMBULANCE' | 'CARRIER';
 
 export default function AuthForm({isOpen, onClose}: {isOpen: boolean, onClose: () => void}) {
   const [variant, setVariant] = useState<Variant>('LOGIN');
@@ -51,8 +51,10 @@ export default function AuthForm({isOpen, onClose}: {isOpen: boolean, onClose: (
       const userRole = session.userRole as UserRole;
       if(userRole === 'USER'){
         router.push('/users');
-      }else if(userRole === 'ADMIN' || userRole === 'EMERGENCY_RESPONDER' || userRole === 'POLICE') {
+      }else if(userRole === 'ADMIN') {
         router.push('/admin');
+      }else if(userRole === 'CARRIER' || userRole === 'AMBULANCE' || userRole === 'POLICE'){
+        router.push('/responder')
       }
     }
   },[status, session, router]);
