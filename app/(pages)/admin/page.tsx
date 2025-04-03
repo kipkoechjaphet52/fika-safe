@@ -1,47 +1,57 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from '@/app/Components/ui/card'
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip } from "recharts";
 import { Users, AlertTriangle, Shield } from "lucide-react";
 import { useEffect, useState } from 'react';
 import { fetchAdminStats, fetchIncidentsStats } from '@/app/lib/action';
 
-// Fetch Data from API to display real-time data
-const fetchIncidentsData = async () => {
-  try {
-    const res = await fetch("/api/incidents"); // Make sure to have an API endpoint to fetch incidents data
-    if (!res.ok) throw new Error("Failed to fetch incidents data.");
-    return await res.json(); // Assume the API returns an array with data
-  } catch (error) {
-    console.error("Error fetching incidents data:", error);
-    return [];
-  }
-};
+// Sample Data
+const data = [
+  { name: "Jan", incidents: 30 },
+  { name: "Feb", incidents: 45 },
+  { name: "Mar", incidents: 25 },
+  { name: "Apr", incidents: 50 },
+];
 
 export default function AdminPage() {
-  const [incidentsData, setIncidentsData] = useState([]);
-  const [totalIncidents, setTotalIncidents] = useState(0);
-  const [totalUsers, setTotalUsers] = useState(0);
-  const [totalResponders, setTotalResponders] = useState(0);
+  const [reportTotals, setReportTotals] = useState(0);
+  const [userTotals, setUserTotals] = useState(0);
+  const [responderTotals, setResponderTotals] = useState(0);
+  
+  useEffect(() => {
+    const handleTotals = async () => {
+      try {
+        const response = await fetchAdminStats();
+        setReportTotals(response.totalReports);
+        setUserTotals(response.totalUsers);
+        setResponderTotals(response.totalStaff);
+      } catch (error) {
+        console.error("Error fetching totals:", error);
+      }
+    }
+    handleTotals();
+    const interval = setInterval(handleTotals, 3000); // Poll every 3 seconds
+    return () => clearInterval(interval);
+  },[])
+
+  const [incidentStats, setIncidentStats] = useState<{month:string, incidents:number}[]>([]);
 
   useEffect(() => {
-    // Fetch incidents data and update state
-    const getIncidentsData = async () => {
-      const data = await fetchIncidentsData();
-      setIncidentsData(data);
-
-      // Example of how you might calculate totals if the data includes such details
-      const incidents = data.reduce((acc: number, item: any) => acc + item.incidents, 0);
-      setTotalIncidents(incidents);
-
-      // Here you'd fetch users and responders from the backend similarly
-      setTotalUsers(500); // Set this dynamically from a backend fetch if needed
-      setTotalResponders(75); // Set this dynamically from a backend fetch if needed
-    };
-
-    getIncidentsData();
-  }, []);
+    const handleStats = async () => {
+      try {
+        const response = await fetchIncidentsStats();
+        if(response){
+          setIncidentStats(response.monthlyData);
+        }
+      }catch(error){
+        console.error("Error fetching stats:", error);
+      }
+    }
+    handleStats();
+    const interval = setInterval(handleStats, 3000); // Poll every 3 seconds
+    return () => clearInterval(interval);
+  },[])
 
   return (
     <div className="space-y-6 p-6">
@@ -52,7 +62,7 @@ export default function AdminPage() {
             <CardTitle>Total Incidents</CardTitle>
           </CardHeader>
           <CardContent className="flex items-center justify-between p-6">
-            <span className="text-3xl font-bold">{totalIncidents}</span>
+            <span className="text-3xl font-bold">{reportTotals}</span>
             <AlertTriangle className="text-red-500 w-10 h-10" />
           </CardContent>
         </Card>
@@ -62,7 +72,7 @@ export default function AdminPage() {
             <CardTitle>Total Users</CardTitle>
           </CardHeader>
           <CardContent className="flex items-center justify-between p-6">
-            <span className="text-3xl font-bold">{totalUsers}</span>
+            <span className="text-3xl font-bold">{userTotals}</span>
             <Users className="text-blue-500 w-10 h-10" />
           </CardContent>
         </Card>
@@ -72,7 +82,7 @@ export default function AdminPage() {
             <CardTitle>Total Emergency Responders</CardTitle>
           </CardHeader>
           <CardContent className="flex items-center justify-between p-6">
-            <span className="text-3xl font-bold">{totalResponders}</span>
+            <span className="text-3xl font-bold">{responderTotals}</span>
             <Shield className="text-green-500 w-10 h-10" />
           </CardContent>
         </Card>
@@ -85,8 +95,8 @@ export default function AdminPage() {
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={incidentsData}>
-              <XAxis dataKey="name" />
+            <BarChart data={incidentStats}>
+              <XAxis dataKey="month" />
               <YAxis />
               <Tooltip />
               <Bar dataKey="incidents" fill="#3182CE" />

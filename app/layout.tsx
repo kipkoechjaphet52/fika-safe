@@ -1,16 +1,16 @@
 import type { Metadata } from "next";
-import { Inter, Roboto_Mono } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import AuthContext from "./context/AuthContext";
 import { ThemeProvider } from "./Components/ThemeProvider";
 import ToasterContext from "./context/ToasterContext";
 
-const inter = Inter({
+const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
 });
 
-const robotoMono = Roboto_Mono({
+const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
@@ -28,7 +28,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${inter.variable} ${robotoMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AuthContext>
           <ToasterContext />
@@ -39,6 +39,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             {children}
+            {/* <Toaster /> */}
           </ThemeProvider>
         </AuthContext>
       </body>
