@@ -60,8 +60,8 @@ export default function AccountSettings() {
                 body: JSON.stringify(formData),
             });
 
-            const data = await response.json();
             toast.dismiss();
+            const data = await response.json();
 
             if(response.ok || response.status === 200){
                 toast.success("Password updated successfully");

@@ -45,6 +45,8 @@ console.log(selectedReport);
       }
     };
     fetchReportStats();
+    const interval = setInterval(fetchReportStats, 3000); // Poll every 3 seconds
+    return () => clearInterval(interval);
   }, []);
   return (
     <div className="space-y-8">

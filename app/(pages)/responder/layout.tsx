@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 //   },
 };
 
-export default async function UsersLayout({
+export default async function ResponderLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;

@@ -61,6 +61,8 @@ export function ReportHistory({onEdit}: {onEdit: (report: Report) => void}) {
       }
     };
     handleReports();
+    const interval = setInterval(handleReports, 3000); // Poll every 3 seconds
+    return () => clearInterval(interval);
   }, []);
   return (
     <div>

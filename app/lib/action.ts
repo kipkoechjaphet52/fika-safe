@@ -27,6 +27,24 @@ export async function fetchProfile() {
   }
 }
 
+export async function fetchStaffProfile() {
+  try{
+    const session = await getServerSession(authOptions);
+    if(!session || !session.user?.email){
+        throw new Error("User not authenticated");
+    }
+    const email = session?.user?.email;
+
+    const staff = await prisma.staff.findUnique({
+        where: {email: email,},
+    });
+    return staff;
+  }catch(error){
+    console.error("Error fetching profile: ", error);
+    throw new Error("Could not fetch user profile");
+  }
+}
+
 export async function userReportStats () {
   try{
     const session = await getServerSession(authOptions);
@@ -335,7 +353,7 @@ export async function respondToAnIncident(id: string){
   }
 }
 
-async function sendEmail(to: string, subject: string, text: string) {
+export async function sendEmail(to: string, subject: string, text: string) {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -549,5 +567,100 @@ export async function fetchStaffResponses(){
   }catch(error){
     console.error("Error fetching staff responses: ", error);
     throw new Error("Could not fetch staff responses");
+  }
+}
+
+export async function fetchAdminStats(){
+  try{
+    const session = await getServerSession(authOptions);
+    if(!session || !session.user?.email){
+        throw new Error("User not authenticated");
+    }
+    const email = session?.user?.email;
+
+    const admin = await prisma.staff.findUnique({
+        where: {
+          email,
+          userRole: 'ADMIN',
+        },
+        select: {id: true},
+    });
+    if(!admin){
+      throw new Error("Admin not found");
+    }
+
+    const totalUsers = await prisma.user.count();
+    const totalStaff = await prisma.staff.count({
+      where: {
+        userRole: {in: ['AMBULANCE', 'CARRIER', 'POLICE']},
+      }
+    });
+    const totalReports = await prisma.report.count();
+
+    return {totalUsers, totalStaff, totalReports};
+  }catch(error){
+    console.error("Error fetching admin stats: ", error);
+    throw new Error("Could not fetch admin stats");
+  }
+}
+
+export async function fetchIncidentsStats(){
+  try{
+    const session = await getServerSession(authOptions);
+    if(!session || !session.user?.email){
+        throw new Error("User not authenticated");
+    }
+    const email = session?.user?.email;
+
+    const admin = await prisma.staff.findUnique({
+        where: {
+          email,
+          userRole: 'ADMIN',
+        },
+        select: {id: true},
+    });
+    if(!admin){
+      throw new Error("Admin not found");
+    }
+
+    const incidents = await prisma.report.groupBy({
+      by: ["type"], //fetch based on type of incident
+      _count: { type: true }, // Count incidents in each category i.e assault, theft, etc.
+    })
+
+    const formattedData = incidents.map((incident) => ({
+      category: incident.type,
+      count: incident._count.type,
+    }));
+
+    const reportStats = await prisma.report.groupBy({
+      by: ['createdAt'],
+      _count: {_all: true},
+      orderBy: {createdAt: 'asc'},
+    })
+    // Transform the results to group data by month
+    const monthlyData = reportStats.reduce((acc, record) => {
+    const month = new Date(record.createdAt).toLocaleString('default', { month: 'short' });
+    const year = new Date(record.createdAt).getFullYear();
+    const monthKey = `${month} ${year}`; // Example: "Jan 2025"
+
+    if (!acc[monthKey]) {
+      acc[monthKey] = {
+        month: monthKey,
+        incidents: 0,
+      };
+    }
+
+    acc[monthKey].incidents += record._count._all;
+
+    return acc;
+  }, {} as Record<string, { month: string; incidents: number }>);
+
+  // Object.values(monthlyData) is used to Convert the grouped data to an array
+
+    return {formattedData, monthlyData: Object.values(monthlyData)};
+  }catch(error){
+    console.error("Error fetching graph stats: ", error);
+    throw new Error("Could not fetch graph stats");
   }
 }

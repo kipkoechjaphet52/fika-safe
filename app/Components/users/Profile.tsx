@@ -6,7 +6,7 @@ import profilePic from '@/public/images/face.webp';
 import { Button } from '../ui/button'
 import Input from '../Input'
 import { useToast } from '../../hooks/use-toast'
-import { fetchProfile } from '@/app/lib/action';
+import { fetchProfile, fetchStaffProfile } from '@/app/lib/action';
 import { UserRole } from '@prisma/client';
 import { ProfilePicDialog } from './ProfilePicDialog';
 
@@ -41,7 +41,12 @@ export default function Profile() {
         const handleProfile = async () => {
           try{
             const user = await fetchProfile();
-            setProfile(user);
+            const staff = await fetchStaffProfile();
+            if (staff) {
+              setProfile(staff);
+            } else {
+              setProfile(user);
+            }
           }catch(error){
             console.error("Error fetching profile: ", error);
           }
