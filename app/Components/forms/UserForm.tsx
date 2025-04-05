@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Input } from "@/app/Components/ui/input";
 import { Button } from "@/app/Components/ui/button";
 
-export default function UserForm({ onSubmit }: { onSubmit: (data: any) => void }) {
+export default function UserForm() {
   const [formData, setFormData] = useState({
     firstName: "",
     secondName: "",
@@ -19,7 +19,6 @@ export default function UserForm({ onSubmit }: { onSubmit: (data: any) => void }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
   };
 
   return (

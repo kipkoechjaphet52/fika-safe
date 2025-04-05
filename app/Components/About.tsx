@@ -6,7 +6,7 @@ export default function About() {
         <h1 className='text-3xl font-bold '>About Us</h1>
         <div className='my-4'>
           <h1 className='font-bold text-lg'>
-            Emgit powering communities, Enhancing Safety.
+            Empowering communities, Enhancing Safety.
           </h1>
           <p>
               At Fika-Safe, we believe that a safer world starts with awareness and action.
