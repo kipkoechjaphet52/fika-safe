@@ -91,7 +91,7 @@ export default function page() {
           </ul>
           <p className="mb-4">To exercise your rights, contact us at <strong>[{email}]</strong>.</p>
 
-          <h2 className="text-2xl font-semibold mt-8 mb-2">6. Children’s Privacy</h2>
+          <h2 className="text-2xl font-semibold mt-8 mb-2">6. Children&apos;s Privacy</h2>
           <p className="mb-4">Our services are not intended for individuals under the age of 13. If you are a parent or guardian and believe your child has provided us with personal information, please contact us.</p>
 
           <h2 className="text-2xl font-semibold mt-8 mb-2">7. Changes to This Policy</h2>
