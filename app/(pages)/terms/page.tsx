@@ -11,7 +11,7 @@ export default function page() {
             <p className="text-sm text-gray-500 mb-6">Effective Date: <strong>01/04/2025</strong></p>
 
             <p className="mb-4">
-            Welcome to our platform. These Terms and Conditions ("Terms") govern your use of our application and services ("the Service"). By accessing or using the Service, you agree to be bound by these Terms. If you do not agree, please do not use the Service.
+            Welcome to our platform. These Terms and Conditions (&quot;Terms&quot;) govern your use of our application and services (&quot;the Service&quot;). By accessing or using the Service, you agree to be bound by these Terms. If you do not agree, please do not use the Service.
             </p>
 
             <h2 className="text-xl font-semibold text-blue-600 mt-6 mb-2">1. Acceptance of Terms</h2>
@@ -57,7 +57,7 @@ export default function page() {
 
             <h2 className="text-xl font-semibold text-blue-600 mt-6 mb-2">7. Third-Party Services</h2>
             <p className="mb-4">
-            We may use third-party tools (e.g., maps, analytics). We're not responsible for their privacy practices or actions.
+            We may use third-party tools (e.g., maps, analytics). We&apos;re not responsible for their privacy practices or actions.
             </p>
 
             <h2 className="text-xl font-semibold text-blue-600 mt-6 mb-2">8. Termination</h2>

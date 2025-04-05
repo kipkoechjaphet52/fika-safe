@@ -10,7 +10,7 @@ export default function page() {
         <div className="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-md">
           <h1 className="text-3xl font-bold mb-2">Privacy Policy</h1>
           <p className="text-sm text-gray-500 mb-6">Effective Date: 01/04/2025</p>
-          <p className="mb-6">This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our platform ("the Service"). Your privacy is important to us, and we are committed to protecting your personal data.</p>
+          <p className="mb-6">This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our platform (&quot;the Service&quot;). Your privacy is important to us, and we are committed to protecting your personal data.</p>
 
           <h2 className="text-2xl font-semibold mt-8 mb-2">1. Information We Collect</h2>
           <p className="mb-4">We collect several types of information to provide and improve our services:</p>
