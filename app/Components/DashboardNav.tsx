@@ -36,16 +36,6 @@ const routes = {
       icon: Users,
       href: "/admin/users",
     },
-    {
-      title: "Programs",
-      icon: GraduationCapIcon,
-      href: "/admin/programs",
-    },
-    {
-      title: "Courses",
-      icon: BookOpen,
-      href: "/admin/courses",
-    },
   ],
   RESPONDER: [
     {
