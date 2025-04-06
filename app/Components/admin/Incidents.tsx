@@ -16,11 +16,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/app/Components/ui/table";
-import { fetchUserReports } from "@/app/lib/action";
+import { fetchAllIncidents, fetchUserReports } from "@/app/lib/action";
 import { IncidentType, MediaType, SeverityLevel, VerificationStatus } from "@prisma/client";
 import { EyeIcon, Pencil, TrashIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import Loader from "../Loader";
 
 const reports = [
   {
@@ -43,7 +44,48 @@ const reports = [
   },
 ];
 
+interface Report {
+  id: string;
+  createdAt: Date;
+  userId: string;
+  title: string;
+  location: string;
+  latitude: number;
+  longitude: number;
+  type: IncidentType;
+  severity: SeverityLevel;
+  description: string;
+  mediaUrl: string | null;
+  mediaType: MediaType;
+  verificationStatus: VerificationStatus;
+  verifierId: string | null;
+  updatedAt: Date;
+}
 export function Incidents() {
+  const [reports, setReports] = useState<Report[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchReports = async () => {
+      try {
+        setLoading(true);
+        const response = await fetchAllIncidents();
+        if (response) {
+          setReports(response);
+          toast.success("Reports fetched successfully");
+        } 
+      } catch (error) {
+        toast.error("Error fetching reports: " + error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchReports();
+  }, []);
+
+  if (loading){
+    return <Loader />;
+  }
   return (
     <Card>
       <CardHeader>
@@ -67,28 +109,27 @@ export function Incidents() {
             {reports.length > 0 ? (
               reports.map((report) => (
                 <TableRow key={report.id}>
-                  <TableCell className="font-medium">{report.incidentTitle}</TableCell>
-                  <TableCell>{report.incidentSeverity}</TableCell>
-                  <TableCell>{report.incidentsType}</TableCell>
+                  <TableCell className="font-medium">{report.title}</TableCell>
+                  <TableCell>{report.severity}</TableCell>
+                  <TableCell>{report.type}</TableCell>
                   <TableCell>{report.location}</TableCell>
                   <TableCell>
                     <Badge
-                      variant={report.status === "UNVERIFIED" ? "secondary" : "success"}
+                      variant={report.verificationStatus === "UNVERIFIED" ? "secondary" : "success"}
                     >
-                      {report.status}
+                      {report.verificationStatus}
                     </Badge>
                   </TableCell>
-                  <TableCell>{report.dateSubmitted}</TableCell>
+                  <TableCell>{report.createdAt.toLocaleString()}</TableCell>
                   <TableCell className="flex justify-between">
                     <EyeIcon className="w-5 h-5 " />
-                    <Pencil className="w-5 h-5 text-sky-500" />
                     <TrashIcon className="w-5 h-5 text-destructive" />
                   </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={5} className="text-center">No reports found</TableCell>
+                <TableCell colSpan={7} className="text-center">No reports found</TableCell>
               </TableRow>
             )}
           </TableBody>
