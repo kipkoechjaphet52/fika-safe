@@ -1,7 +1,7 @@
 'use client'
 import React, { useCallback, useEffect, useState } from 'react';
-import Input from './Input';
-import Button from './Button';
+import Input from '@/app/Components/Input';
+import Button from '@/app/Components/Button';
 import { signIn, useSession } from 'next-auth/react';
 
 // Extend the Session type to include userType
@@ -13,14 +13,12 @@ declare module 'next-auth' {
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
-
 
 type Variant = 'REGISTER' | 'LOGIN';
 
 type UserRole = 'USER' | 'ADMIN' | 'POLICE' | 'AMBULANCE' | 'CARRIER';
 
-export default function AuthForm({isOpen, onClose}: {isOpen: boolean, onClose: () => void}) {
+export default function StaffAuthForm() {
   const [variant, setVariant] = useState<Variant>('LOGIN');
   const [loading, setisLoading] = useState(false);
   const [disabled, setDisabled] = useState(false);
@@ -32,7 +30,6 @@ export default function AuthForm({isOpen, onClose}: {isOpen: boolean, onClose: (
     email: '',
     password: '',
     phoneNumber: '0',
-    // userType:'STUDENT'
   });
 
   const toggleLoading = () => {
@@ -53,7 +50,7 @@ export default function AuthForm({isOpen, onClose}: {isOpen: boolean, onClose: (
         router.push('/users');
       }else if(userRole === 'ADMIN') {
         router.push('/admin');
-      }else if(userRole === 'CARRIER' || userRole === 'AMBULANCE' || userRole === 'POLICE'){
+      } else if(userRole === 'CARRIER' || userRole === 'AMBULANCE' || userRole === 'POLICE'){
         router.push('/responder')
       }
     }
@@ -109,7 +106,7 @@ export default function AuthForm({isOpen, onClose}: {isOpen: boolean, onClose: (
           toast.loading("Sending request...");
       
           // Send POST request to the server
-          const response = await fetch('/api/register-user', {
+          const response = await fetch('/api/register-staff', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -121,13 +118,12 @@ export default function AuthForm({isOpen, onClose}: {isOpen: boolean, onClose: (
 
           // Check response status and act accordingly
           if (response.ok && response.status === 200 || response.status === 201) {
-            toast.success('User Registered Successfully');
-            onClose();
+            toast.success('Staff Registered Successfully');
           } else if (response.status === 400) {
             const errorData = await response.json();
             toast.error(errorData.error);
           } else if (response.status === 409) {
-            toast.error('User with these credentials already exists');
+            toast.error('Staff with these credentials already exists');
           } else {
             toast.error('Unexpected error occurred');
           }
@@ -142,7 +138,7 @@ export default function AuthForm({isOpen, onClose}: {isOpen: boolean, onClose: (
 
 
       if (variant === 'LOGIN') {
-        toast.loading("Authenticating user...")
+        toast.loading("Authenticating staff...")
 
         const callback = await signIn('credentials', {
           ...formData,
@@ -157,7 +153,6 @@ export default function AuthForm({isOpen, onClose}: {isOpen: boolean, onClose: (
         } else if (callback?.ok && !callback?.error) {
           toast.dismiss();
           toast.success('Logged In');
-          onClose();
         }
       }
     } catch (error) {
@@ -210,16 +205,7 @@ export default function AuthForm({isOpen, onClose}: {isOpen: boolean, onClose: (
   };
   return (
     <>
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className='sm:max-w-[375px]'>
-      <DialogHeader>
-          <DialogTitle>{variant == 'LOGIN' ? "Login" : "Sign Up"}</DialogTitle>
-          <DialogDescription>
-            {variant === 'LOGIN'
-              ? "Enter your credentials to login."
-              : "Create an account to get started."}
-          </DialogDescription>
-        </DialogHeader>
+    <div className=' mx-16 bg-card px-4 lg:px-10 py-6 mt-2 gap-2 rounded-md  shadow-lg border-2'>
         <form>
           {variant === 'REGISTER' && (
              <>
@@ -312,8 +298,7 @@ export default function AuthForm({isOpen, onClose}: {isOpen: boolean, onClose: (
             {variant === 'LOGIN' ? 'Sign up' : 'Login'}
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+    </div>
     </>
   );
 }

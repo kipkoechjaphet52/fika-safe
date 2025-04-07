@@ -20,11 +20,24 @@ export async function PUT(req: Request){
         const user = await prisma.user.findUnique({
             where: {email},
         });
-    
-        await prisma.user.update({
-            where: {id: user?.id},
-            data: {profilePic: url},
+
+        const staff = await prisma.staff.findUnique({
+            where: {email},
         });
+        if(!user && !staff){
+            return new Response(JSON.stringify({message:"User not found"}), {status: 404});
+        }
+        if(staff){
+            await prisma.staff.update({
+                where: {id: staff?.id},
+                data: {profilePic: url},
+            });
+        } else if(user){  
+            await prisma.user.update({
+                where: {id: user?.id},
+                data: {profilePic: url},
+            });
+        }
 
         return new Response(JSON.stringify({message:"User profile updated"}), {status: 200});
     }catch(error){

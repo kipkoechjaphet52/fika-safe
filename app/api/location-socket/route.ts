@@ -46,9 +46,9 @@ export async function GET() {
         if (!userId || !latitude || !longitude) return new Response(JSON.stringify("Missing required fields"), { status: 400 });
 
         try {
-          await prisma.userLocation.create({
-            data: { latitude, longitude, user: { connect: { id: userId } } },
-          });
+          // await prisma.userLocation.create({
+          //   data: { latitude, longitude, user: { connect: { id: userId } }, staff: { connect: { id: "defaultStaffId" } } },
+          // });
 
           if (io) {
             io.emit("updateLocation", data);

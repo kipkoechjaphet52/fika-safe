@@ -16,19 +16,40 @@ import {
   TableHeader,
   TableRow,
 } from "@/app/Components/ui/table";
-import { fetchUserReports } from "@/app/lib/action";
+import { fetchAllIncidents, fetchUserReports } from "@/app/lib/action";
 import { IncidentType, MediaType, SeverityLevel, VerificationStatus } from "@prisma/client";
 import { EyeIcon, Pencil, TrashIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import DeleteIncidentDialog from "./DeleteIncidentDialog";
+import Loader from "../Loader";
+
+const reports = [
+  {
+    id: 1,
+    incidentTitle: "THEFT",
+    location: "Sichirai",
+    incidentsType: "MEDICAL",
+    incidentSeverity: "CRITICAL",
+    status: "pending",
+    dateSubmitted: "2024-03-20",
+  },
+  {
+    id: 2,
+    incidentTitle: "MEDICAL",
+    incidentsType: "MEDICAL",
+    incidentSeverity: "CRITICAL",
+    location: "Kooromatangi",
+    status: "resolved",
+    dateSubmitted: "2024-03-15",
+  },
+];
 
 interface Report {
   id: string;
   createdAt: Date;
   userId: string;
-  location: string;
   title: string;
+  location: string;
   latitude: number;
   longitude: number;
   type: IncidentType;
@@ -40,32 +61,32 @@ interface Report {
   verifierId: string | null;
   updatedAt: Date;
 }
-export function ReportHistory({onEdit}: {onEdit: (report: Report) => void}) {
+export function Incidents() {
   const [reports, setReports] = useState<Report[]>([]);
-  const [reportId, setReportId] = useState("");
-  const [openDelete, setOpenDelete] = useState(false);
-
-  const handleOpenDelete = () => {
-    setOpenDelete((prev) => !prev);
-  }
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const handleReports = async () => {
-      try{
-        const results = await fetchUserReports();
-        
-        setReports(results);
-      }catch(error){
-        toast.error("Error fetching reports");
-        console.error("Error fetching reports: ", error);
+    const fetchReports = async () => {
+      try {
+        setLoading(true);
+        const response = await fetchAllIncidents();
+        if (response) {
+          setReports(response);
+          toast.success("Reports fetched successfully");
+        } 
+      } catch (error) {
+        toast.error("Error fetching reports: " + error);
+      } finally {
+        setLoading(false);
       }
     };
-    handleReports();
-    const interval = setInterval(handleReports, 3000); // Poll every 3 seconds
-    return () => clearInterval(interval);
+    fetchReports();
   }, []);
+
+  if (loading){
+    return <Loader />;
+  }
   return (
-    <div>
     <Card>
       <CardHeader>
         <CardTitle>Incidents History</CardTitle>
@@ -75,11 +96,12 @@ export function ReportHistory({onEdit}: {onEdit: (report: Report) => void}) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Title</TableHead>
-              <TableHead>Incident Type</TableHead>
+              <TableHead>Incident Title </TableHead>
+              <TableHead>Severity Level</TableHead>
+              <TableHead> IncidentsType</TableHead>
               <TableHead>Location</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Reported On</TableHead>
+              <TableHead>Approval Status</TableHead>
+              <TableHead>Date Submitted</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -88,7 +110,8 @@ export function ReportHistory({onEdit}: {onEdit: (report: Report) => void}) {
               reports.map((report) => (
                 <TableRow key={report.id}>
                   <TableCell className="font-medium">{report.title}</TableCell>
-                  <TableCell className="font-medium">{report.type}</TableCell>
+                  <TableCell>{report.severity}</TableCell>
+                  <TableCell>{report.type}</TableCell>
                   <TableCell>{report.location}</TableCell>
                   <TableCell>
                     <Badge
@@ -97,24 +120,21 @@ export function ReportHistory({onEdit}: {onEdit: (report: Report) => void}) {
                       {report.verificationStatus}
                     </Badge>
                   </TableCell>
-                  <TableCell>{report.createdAt.toLocaleDateString()}</TableCell>
+                  <TableCell>{report.createdAt.toLocaleString()}</TableCell>
                   <TableCell className="flex justify-between">
                     <EyeIcon className="w-5 h-5 " />
-                    <Pencil onClick={() => onEdit(report)} className="w-5 h-5 text-sky-500 cursor-pointer" />
-                    <TrashIcon onClick={() => {setReportId(report.id); handleOpenDelete();}} className="w-5 h-5 text-destructive cursor-pointer" />
+                    <TrashIcon className="w-5 h-5 text-destructive" />
                   </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={5} className="text-center">No reports found</TableCell>
+                <TableCell colSpan={7} className="text-center">No reports found</TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
       </CardContent>
     </Card>
-    <DeleteIncidentDialog open={openDelete} id={reportId} />
-    </div>
   );
 }

@@ -17,6 +17,7 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from 'react';
+import Settings from './users/Settings';
 
 const routes = {
   ADMIN: [
@@ -35,15 +36,32 @@ const routes = {
       icon: Users,
       href: "/admin/users",
     },
+  ],
+  RESPONDER: [
     {
-      title: "Programs",
-      icon: GraduationCapIcon,
-      href: "/admin/programs",
+      title: "Dashboard",
+      icon: LayoutDashboard,
+      href: "/responder",
     },
     {
-      title: "Courses",
-      icon: BookOpen,
-      href: "/admin/courses",
+      title: "Maps",
+      icon: MapIcon,
+      href: "/responder/maps",
+    },
+    {
+      title: "Incidents",
+      icon: MapPin,
+      href: "/responder/incidents",
+    },
+    {
+      title: "Help",
+      icon: HelpCircleIcon,
+      href: "/responder/help",
+    },
+    {
+      title: "Settings",
+      icon: SettingsIcon,
+      href: "#settings",
     },
   ],
   USER: [
@@ -70,7 +88,7 @@ const routes = {
     {
       title: "Settings",
       icon: SettingsIcon,
-      href: "/users/settings",
+      href: "#settings",
     },
   ],
 };
@@ -78,19 +96,16 @@ const routes = {
 export function DashboardNav() {
   const pathname = usePathname();
   // This should be dynamic based on user role from auth context
-  const userRole = pathname.includes("/Admin")
+  const userRole = pathname.includes("/admin")
     ? "ADMIN"
-    : pathname.includes("/dean")
-    ? "DEAN"
-    : pathname.includes("/cod")
-    ? "COD"
-    : pathname.includes("/Lecturer")
-    ? "LECTURER"
+    : pathname.includes("/responder")
+    ? "RESPONDER"
     : "USER";
 
   const currentRoutes = routes[userRole as keyof typeof routes];
 
   const [isOpen, setIsOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const toggleNav = () => {
     setIsOpen((prev) => !prev);
   };
@@ -105,7 +120,13 @@ export function DashboardNav() {
           {currentRoutes.map((route) => (
             <Link
               key={route.href}
-              href={route.href}
+              href={route.href === "#settings" ? "#" : route.href}
+              onClick={(e) => {
+                if (route.href === "#settings") {
+                  e.preventDefault(); // Prevent page reload
+                  setIsSettingsOpen(true); // Open settings dialog
+                }
+              }}
               className={cn(
                 "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors",
                 pathname === route.href
@@ -128,7 +149,7 @@ export function DashboardNav() {
           </div>
           <div className="flex items-center gap-2 px-2 mx-auto pt-1">
             <GraduationCap className="h-6 w-6" />
-            <span className="font-semibold">Missing Mark System</span>
+            <span className="font-semibold">Fika Safe</span>
           </div>
         </div>
         <div className={cn('w-full h-full bg-card z-50', !isOpen && 'hidden')}>
@@ -152,6 +173,7 @@ export function DashboardNav() {
           </div>
         </div>
       </nav>
+        <Settings isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
     </div>
   );
 }

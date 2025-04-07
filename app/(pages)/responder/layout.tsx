@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 //   },
 };
 
-export default async function UsersLayout({
+export default async function ResponderLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -30,8 +30,8 @@ export default async function UsersLayout({
   const userRole = session?.userRole;
   if(userRole === 'ADMIN'){
     redirect('/admin')
-  } else if(userRole === 'CARRIER' || userRole === 'POLICE' || userRole === 'AMBULANCE'){
-    redirect('/responder')
+  } else if(userRole === 'USER'){
+    redirect('/users')
   }
   return (
     <>
@@ -43,7 +43,7 @@ export default async function UsersLayout({
             </div>
           </header>
           <div className="flex-1 flex overflow-hidden">
-            <DashboardNav />
+            <DashboardNav/>
             <main className="flex-1 overflow-x-clip overflow-y-auto">{children}</main>
           </div>
       </div>

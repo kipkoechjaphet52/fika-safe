@@ -74,9 +74,9 @@ export const authOptions: AuthOptions = {
         });
 
         if(client){
-        const isStudentPassworValid = await bcrypt.compare(credentials.password, client.password);
+        const isUserPasswordValid = await bcrypt.compare(credentials.password, client.password);
 
-        if(!isStudentPassworValid){
+        if(!isUserPasswordValid){
           throw new Error('Incorrect email or password');
         }
 

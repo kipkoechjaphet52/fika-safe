@@ -50,22 +50,9 @@ export default function MapsPage() {
   },[])
   return (
     <div className='w-[100vw] h-screen items-center flex overflow-hidden'>
-      {/* Toggle between IncidentsMap and IncidentsHeatMap */}
-      {openForm ? (
         <div className="w-full h-full">
-          <IncidentsHeatMap />
-        </div>
-      ) : (
-        <div className="w-full h-full transition-all duration-300">
           <CrimeMap incidents={liveReports} hoveredIncidentId={hoveredIncidentId} setHoveredIncidentId={setHoveredIncidentId}/>
         </div>
-      )}
-      {/* Toggle Button */}
-      <div className="absolute top-20 right-4">
-        <Button onClick={toggleForm}>
-          {openForm ? "Toggle Live maps" : "Toggle Heat Map"}
-        </Button>
-      </div>
     </div>
   );
 }

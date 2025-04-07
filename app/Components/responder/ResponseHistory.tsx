@@ -16,12 +16,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/app/Components/ui/table";
-import { fetchUserReports } from "@/app/lib/action";
+import { fetchStaffResponses } from "@/app/lib/action";
 import { IncidentType, MediaType, SeverityLevel, VerificationStatus } from "@prisma/client";
-import { EyeIcon, Pencil, TrashIcon } from "lucide-react";
+import { EyeIcon, TrashIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import DeleteIncidentDialog from "./DeleteIncidentDialog";
+import DeleteResponseDialog from "./DeleteResponseDialog";
 
 interface Report {
   id: string;
@@ -40,7 +40,7 @@ interface Report {
   verifierId: string | null;
   updatedAt: Date;
 }
-export function ReportHistory({onEdit}: {onEdit: (report: Report) => void}) {
+export function ResponseHistory() {
   const [reports, setReports] = useState<Report[]>([]);
   const [reportId, setReportId] = useState("");
   const [openDelete, setOpenDelete] = useState(false);
@@ -52,7 +52,7 @@ export function ReportHistory({onEdit}: {onEdit: (report: Report) => void}) {
   useEffect(() => {
     const handleReports = async () => {
       try{
-        const results = await fetchUserReports();
+        const results = await fetchStaffResponses();
         
         setReports(results);
       }catch(error){
@@ -61,15 +61,13 @@ export function ReportHistory({onEdit}: {onEdit: (report: Report) => void}) {
       }
     };
     handleReports();
-    const interval = setInterval(handleReports, 3000); // Poll every 3 seconds
-    return () => clearInterval(interval);
   }, []);
   return (
     <div>
     <Card>
       <CardHeader>
-        <CardTitle>Incidents History</CardTitle>
-        <CardDescription>Your reported incidents and their status</CardDescription>
+        <CardTitle>Response History</CardTitle>
+        <CardDescription>Incidents you have responded to</CardDescription>
       </CardHeader>
       <CardContent>
         <Table>
@@ -78,7 +76,7 @@ export function ReportHistory({onEdit}: {onEdit: (report: Report) => void}) {
               <TableHead>Title</TableHead>
               <TableHead>Incident Type</TableHead>
               <TableHead>Location</TableHead>
-              <TableHead>Status</TableHead>
+              {/* <TableHead>Status</TableHead> */}
               <TableHead>Reported On</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
@@ -90,17 +88,16 @@ export function ReportHistory({onEdit}: {onEdit: (report: Report) => void}) {
                   <TableCell className="font-medium">{report.title}</TableCell>
                   <TableCell className="font-medium">{report.type}</TableCell>
                   <TableCell>{report.location}</TableCell>
-                  <TableCell>
+                  {/* <TableCell>
                     <Badge
                       variant={report.verificationStatus === "UNVERIFIED" ? "secondary" : "success"}
                     >
                       {report.verificationStatus}
                     </Badge>
-                  </TableCell>
+                  </TableCell> */}
                   <TableCell>{report.createdAt.toLocaleDateString()}</TableCell>
                   <TableCell className="flex justify-between">
                     <EyeIcon className="w-5 h-5 " />
-                    <Pencil onClick={() => onEdit(report)} className="w-5 h-5 text-sky-500 cursor-pointer" />
                     <TrashIcon onClick={() => {setReportId(report.id); handleOpenDelete();}} className="w-5 h-5 text-destructive cursor-pointer" />
                   </TableCell>
                 </TableRow>
@@ -114,7 +111,7 @@ export function ReportHistory({onEdit}: {onEdit: (report: Report) => void}) {
         </Table>
       </CardContent>
     </Card>
-    <DeleteIncidentDialog open={openDelete} id={reportId} />
+    <DeleteResponseDialog open={openDelete} id={reportId} />
     </div>
   );
 }
