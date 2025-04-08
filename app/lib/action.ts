@@ -27,6 +27,18 @@ export async function fetchProfile() {
   }
 }
 
+export async function fetchGuestProfile(){
+  try{
+    const guest = await prisma.user.findFirst({
+        where: {userRole: 'GUEST',},
+    });
+    return guest;
+  }catch(error){
+    console.error("Error fetching profile: ", error);
+    throw new Error("Could not fetch user profile");
+  }
+}
+
 export async function fetchStaffProfile() {
   try{
     const session = await getServerSession(authOptions);

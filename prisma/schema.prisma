@@ -46,6 +46,7 @@ model User {
   alerts      Alert[]
   routes      Route[]
   locations   UserLocation[]
+  helpMessages UserHelpMessage[]
 }
 
 model UserLocation {
@@ -117,6 +118,16 @@ model HelpMessage {
   status     MessageStatus @default(PENDING)  // Message status (Pending, Resolved, etc.)
   staff      Staff     @relation(fields: [staffId], references: [id], onDelete: Cascade)
 }
+model UserHelpMessage {
+  id         String   @id @default(uuid())
+  createdAt  DateTime @default(now())
+  userId     String
+  subject    String
+  message    String
+  status     MessageStatus @default(PENDING)  // Message status (Pending, Resolved, etc.)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+ 
   
 enum MessageStatus {
   PENDING
@@ -126,6 +137,7 @@ enum MessageStatus {
 
 enum UserRole {
   USER
+  GUEST
   ADMIN
   POLICE
   AMBULANCE
