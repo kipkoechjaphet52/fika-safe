@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/app/Components/ui/dropdown-menu";
-import { Bell, LogOut, ShieldPlus, User } from "lucide-react";
+import { Bell, LogOut, Menu, ShieldPlus, User } from "lucide-react";
 import { ThemeToggle } from '@/app/Components/ThemeToggle'
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -23,6 +23,18 @@ import { AlertStatus, UserRole } from "@prisma/client";
 import { BellAlertIcon } from "@heroicons/react/24/outline";
 import useLocationTracker from "@/app/hooks/useLocationTracker";
 import { io } from "socket.io-client";
+import { Sheet, SheetContent, SheetTrigger } from "./sheet";
+import {
+  GraduationCap,
+  LayoutDashboard,
+  Users,
+  HelpCircleIcon,
+  SettingsIcon,
+  XIcon,
+  MenuIcon,
+  MapIcon,
+  MapPin,
+} from "lucide-react";
 
 const socket = io("http://localhost:49160", { transports: ["websocket"] });
 
@@ -50,6 +62,80 @@ interface NearbyUsersAlert {
   message: string; // Alert message for the user
   alertId: string; // ID of the specific alert
 }
+
+const routes = {
+  ADMIN: [
+    {
+      title: "Dashboard",
+      icon: LayoutDashboard,
+      href: "/admin",
+    },
+    {
+      title: "Incidents",
+      icon: MapPin,
+      href: "/admin/incidents",
+    },
+    {
+      title: "Users",
+      icon: Users,
+      href: "/admin/users",
+    },
+  ],
+  RESPONDER: [
+    {
+      title: "Dashboard",
+      icon: LayoutDashboard,
+      href: "/responder",
+    },
+    {
+      title: "Maps",
+      icon: MapIcon,
+      href: "/responder/maps",
+    },
+    {
+      title: "Incidents",
+      icon: MapPin,
+      href: "/responder/incidents",
+    },
+    {
+      title: "Help",
+      icon: HelpCircleIcon,
+      href: "/responder/help",
+    },
+    {
+      title: "Settings",
+      icon: SettingsIcon,
+      href: "#settings",
+    },
+  ],
+  USER: [
+    {
+      title: "Dashboard",
+      icon: LayoutDashboard,
+      href: "/users",
+    },
+    {
+      title: "Live Maps",
+      icon: MapIcon,
+      href: "/users/maps",
+    },
+    {
+      title: "Incidents",
+      icon: MapPin,
+      href: "/users/incidents",
+    },
+    {
+      title: "Help",
+      icon: HelpCircleIcon,
+      href: "/users/help",
+    },
+    {
+      title: "Settings",
+      icon: SettingsIcon,
+      href: "#settings",
+    },
+  ],
+};
 export function UserNav() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -121,6 +207,8 @@ console.log(alerts);
   ? ["POLICE", "AMBULANCE", "CARRIER"]
   : "USER";
 
+  const currentRoutes = routes[userRole as keyof typeof routes];
+
   const handleLogout = () => {
     signOut({callbackUrl: '/'})
   };
@@ -188,7 +276,7 @@ console.log(alerts);
             </DropdownMenu>
           </div>
         )}
-        <div className="mt-3">
+        <div className="mt-3 hidden md:block">
           <ThemeToggle />
         </div>
         <DropdownMenu>
@@ -218,6 +306,44 @@ console.log(alerts);
         </DropdownMenu>
       </div>
       <Settings isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+      
+      {/* Mobile screen */}
+      <div className="mt-3 md:hidden">
+        <Sheet>
+          <SheetTrigger asChild className="md:hidden">
+            <Button variant="ghost" size="icon">
+              <Menu className="h-6 w-6" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent>
+            <div className="flex flex-col h-full">
+              <nav className="flex flex-col h-full items-center justify-center w-full gap-3">
+                {currentRoutes.map((route) => (
+                <Link
+                  key={route.href}
+                  href={route.href === "#settings" ? "#" : route.href}
+                  onClick={(e) => {
+                    if (route.href === "#settings") {
+                      e.preventDefault(); // Prevent page reload
+                      setIsSettingsOpen(true); // Open settings dialog
+                    }
+                  }}
+                  className={clsx(
+                    "relative flex items-center gap-3 px-3 py-2",
+                    pathname === route.href
+                      ? " text-primary after:w-full"
+                      : "hover:bg-muted"
+                  )}
+                >
+                  {route.title}
+                </Link>
+              ))}
+                <ThemeToggle />
+              </nav>
+            </div>
+          </SheetContent>
+        </Sheet>
+      </div>
     </div>
   );
 }

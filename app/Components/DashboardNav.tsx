@@ -2,13 +2,11 @@
 
 import { cn } from '@/app/lib/utils';
 import {
-  BookOpen,
   GraduationCap,
   LayoutDashboard,
   Users,
   HelpCircleIcon,
   SettingsIcon,
-  GraduationCapIcon,
   XIcon,
   MenuIcon,
   MapIcon,

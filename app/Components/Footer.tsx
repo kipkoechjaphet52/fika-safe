@@ -36,7 +36,7 @@ const Footer = () => {
                 <h3 className="font-semibold mb-4">SUPPORT</h3>
                 <ul className="space-y-2">
                     <li>
-                        <Link href="/support">Support</Link>
+                        <Link href="/contact">Support</Link>
                     </li>
                     <li>
                         <Link href="/privacy-policy">Privacy</Link>

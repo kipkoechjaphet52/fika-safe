@@ -1,13 +1,13 @@
 import type { Config } from "tailwindcss";
 
-const config: Config = {
+const config: Config = {  // Tailwind CSS configuration object, tells tilwind where to look for class names and how to generate them
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-    extend: {
+    extend: { // Extend the default theme with custom values
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-conic':
