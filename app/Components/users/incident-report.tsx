@@ -163,10 +163,19 @@ export function IncidentReport({selectedReport, onUpdate}: {selectedReport: Repo
         });
         
         const data = await res.json();
-        if (data.url) {
-          toast.dismiss();
+        // if (data.url) {
+        //   toast.dismiss();
+        //   toast.success('File uploaded successfully');
+        //   setFileUrl(data.url);
+        // }
+        toast.dismiss();
+        if(res.ok || res.status == 200 || res.status == 201){
           toast.success('File uploaded successfully');
           setFileUrl(data.url);
+        } else if (res.status === 400) {
+          toast.error('File is Required');
+        } else {
+          toast.error('Error submitting report');
         }
       } catch (error) {
         toast.dismiss();
