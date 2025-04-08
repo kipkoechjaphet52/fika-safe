@@ -34,15 +34,10 @@ export async function POST (req: Request){
 
         if (uploadResult.secure_url) {
             return new Response(
-              JSON.stringify({ message: 'File uploaded successfully', url: uploadResult.secure_url }),
-              { status: 200 }
+                JSON.stringify({ message: 'File uploaded successfully', url: uploadResult.secure_url }),
+                { status: 200 }
             );
-          } else {
-            return new Response(
-              JSON.stringify({ message: 'Upload failed, no URL returned' }),
-              { status: 500 }
-            );
-          }
+        }
         // const uploadResults = await cloudinary.uploader.upload(file, {
         //     folder: 'uploads',}
         // );
