@@ -1,12 +1,5 @@
 import cloudinary from "@/app/config/cloudinary";
 
-export async function GET() {
-  return new Response(JSON.stringify({ message: "Upload API alive" }), {
-    status: 200,
-  });
-}
-
-
 export const runtime = 'nodejs'; // Use Node.js runtime for file uploads instead of Edge runtime. Edge runtime does not fully support things like req.formData(), Buffer, or stream which you need for file uploads.
 
 export async function POST (req: Request){
