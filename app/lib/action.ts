@@ -676,3 +676,18 @@ export async function fetchIncidentsStats(){
     throw new Error("Could not fetch graph stats");
   }
 }
+
+export async function fetchSingleIncident(id: string){
+  try{
+    const incident = await prisma.report.findUnique({
+      where: {
+        id,
+      },
+    })
+
+    return incident;
+  }catch(error){
+    console.error("Error fetching single incident: ", error);
+    throw new Error("Could not fetch single incident");
+  }
+}

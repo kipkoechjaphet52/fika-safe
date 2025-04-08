@@ -5,6 +5,7 @@ import { fetchAllIncidents } from '@/app/lib/action';
 import { IncidentType, MediaType, SeverityLevel, VerificationStatus } from '@prisma/client';
 import clsx from 'clsx';
 import Image from 'next/image';
+import Link from 'next/link';
 import React, { Suspense, useEffect, useState } from 'react'
 import toast from 'react-hot-toast';
 
@@ -138,27 +139,29 @@ export default function Page() {
                             onMouseEnter={() => setHoveredIncidentId(incident.id)} 
                             onMouseLeave={() => setHoveredIncidentId(null)}
                         >
-                            <div className='p-4'>
-                                {incident.mediaType === 'VIDEO' ? (
-                                <video
-                                    className="w-full "
-                                    autoPlay
-                                    loop
-                                    muted
-                                >
-                                    <source src={incident.mediaUrl || ''} type="video/mp4" />
-                                    Your browser does not support the video tag.
-                                </video>
-                                ) : (
-                                    <Image src={incident.mediaUrl || ''} alt={incident.description} className='w-full' height={500} width={500}></Image>
-                                )}
-                                <div className='flex justify-between items-center space-x-4'>
-                                    <h1 className='font-bold text-2xl truncate w-2/3'>{incident.title}</h1>
-                                    <h1 className='font-thin text-xs text-gray-400 w-1/3'>{formatDate(incident.createdAt)}</h1>
+                            <Link href={`/users/incidents/${incident.id}`} key={incident.id}>
+                                <div className='p-4'>
+                                    {incident.mediaType === 'VIDEO' ? (
+                                    <video
+                                        className="w-full "
+                                        autoPlay
+                                        loop
+                                        muted
+                                    >
+                                        <source src={incident.mediaUrl || ''} type="video/mp4" />
+                                        Your browser does not support the video tag.
+                                    </video>
+                                    ) : (
+                                        <Image src={incident.mediaUrl || ''} alt={incident.description} className='w-full' height={500} width={500}></Image>
+                                    )}
+                                    <div className='flex justify-between items-center space-x-4'>
+                                        <h1 className='font-bold text-2xl truncate w-2/3'>{incident.title}</h1>
+                                        <h1 className='font-thin text-xs text-gray-400 w-1/3'>{formatDate(incident.createdAt)}</h1>
+                                    </div>
+                                    <h1 className='font-thin text-base'>{locations[incident.id]?.state}, {locations[incident.id]?.country}</h1>
+                                    <h1 className='font-thin text-sm text-gray-400'>{incident.location}</h1>
                                 </div>
-                                <h1 className='font-thin text-base'>{locations[incident.id]?.state}, {locations[incident.id]?.country}</h1>
-                                <h1 className='font-thin text-sm text-gray-400'>{incident.location}</h1>
-                            </div>
+                            </Link>
                         </div>
                     ))}
                     {/* Other Incidents */}
