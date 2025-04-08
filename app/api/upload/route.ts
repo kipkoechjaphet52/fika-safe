@@ -1,7 +1,6 @@
-import { PrismaClient } from "@prisma/client";
 import cloudinary from "@/app/config/cloudinary";
 
-const prisma = new PrismaClient();
+export const runtime = 'nodejs'; // Use Node.js runtime for file uploads instead of Edge runtime. Edge runtime does not fully support things like req.formData(), Buffer, or stream which you need for file uploads.
 
 export async function POST (req: Request){
     if(req.method !== 'POST'){
@@ -12,7 +11,7 @@ export async function POST (req: Request){
         const file = formData.get('file') as File | null;
         
         if(!file){
-            return new Response(JSON.stringify(JSON.stringify({message: 'File is required'})), {status: 400});
+            return new Response(JSON.stringify({ message: 'File is required' }), { status: 400 });
         }
 
         const arrayBuffer = await file.arrayBuffer();

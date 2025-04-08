@@ -169,6 +169,7 @@ export function IncidentReport({selectedReport, onUpdate}: {selectedReport: Repo
           setFileUrl(data.url);
         }
       } catch (error) {
+        toast.dismiss();
         toast.error('Error uploading file');
         console.error('Upload failed', error);
       }
