@@ -161,6 +161,12 @@ export function IncidentReport({selectedReport, onUpdate}: {selectedReport: Repo
           method: 'POST',
           body: formData,
         });
+
+        if (!res.ok) {
+          const text = await res.text(); // fallback
+          console.error("Upload failed:", res.status, text);
+          return;
+        }
         
         const data = await res.json();
         // if (data.url) {
