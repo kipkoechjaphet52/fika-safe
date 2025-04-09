@@ -33,6 +33,7 @@ import { IncidentType, MediaType, SeverityLevel, VerificationStatus } from "@pri
 import toast from "react-hot-toast";
 import { fromLonLat } from "ol/proj";
 import { set } from "ol/transform";
+import { uploadFileAction } from "@/app/lib/action";
 
 const formSchema = z.object({
   incidentType: z.string().min(1, "Incident type is required"),
@@ -157,32 +158,33 @@ export function IncidentReport({selectedReport, onUpdate}: {selectedReport: Repo
 
       try {
         toast.loading('Uploading file...');
-        const res = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData,
-        });
-
-        if (!res.ok) {
-          const text = await res.text(); // fallback
-          console.error("Upload failed:", res.status, text);
-          return;
+        const results = await uploadFileAction(formData);
+        if (results) {
+          toast.dismiss();
+          toast.success('File uploaded successfully');
+          setFileUrl(results);
         }
+
+        // const res = await fetch('/api/upload', {
+        //   method: 'POST',
+        //   body: formData,
+        // });
         
-        const data = await res.json();
-        // if (data.url) {
-        //   toast.dismiss();
+        // const data = await res.json();
+        // // if (data.url) {
+        // //   toast.dismiss();
+        // //   toast.success('File uploaded successfully');
+        // //   setFileUrl(data.url);
+        // // }
+        // toast.dismiss();
+        // if(res.ok || res.status == 200 || res.status == 201){
         //   toast.success('File uploaded successfully');
         //   setFileUrl(data.url);
+        // } else if (res.status === 400) {
+        //   toast.error('File is Required');
+        // } else {
+        //   toast.error('Error submitting report');
         // }
-        toast.dismiss();
-        if(res.ok || res.status == 200 || res.status == 201){
-          toast.success('File uploaded successfully');
-          setFileUrl(data.url);
-        } else if (res.status === 400) {
-          toast.error('File is Required');
-        } else {
-          toast.error('Error submitting report');
-        }
       } catch (error) {
         toast.dismiss();
         toast.error('Error uploading file');
