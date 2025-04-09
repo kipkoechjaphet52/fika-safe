@@ -158,33 +158,37 @@ export function IncidentReport({selectedReport, onUpdate}: {selectedReport: Repo
 
       try {
         toast.loading('Uploading file...');
-        const results = await uploadFileAction(formData);
-        if (results) {
+        // const results = await uploadFileAction(formData);
+        // if (results) {
+        //   toast.dismiss();
+        //   toast.success('File uploaded successfully');
+        //   setFileUrl(results);
+        // }
+
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+        
+        let data;
+        try {
+          data = await res.json();
+        } catch (e) {
           toast.dismiss();
-          toast.success('File uploaded successfully');
-          setFileUrl(results);
+          console.error("Upload failed: Invalid JSON response", e);
+          toast.error("Unexpected response from server");
+          return;
         }
 
-        // const res = await fetch('/api/upload', {
-        //   method: 'POST',
-        //   body: formData,
-        // });
-        
-        // const data = await res.json();
-        // // if (data.url) {
-        // //   toast.dismiss();
-        // //   toast.success('File uploaded successfully');
-        // //   setFileUrl(data.url);
-        // // }
-        // toast.dismiss();
-        // if(res.ok || res.status == 200 || res.status == 201){
-        //   toast.success('File uploaded successfully');
-        //   setFileUrl(data.url);
-        // } else if (res.status === 400) {
-        //   toast.error('File is Required');
-        // } else {
-        //   toast.error('Error submitting report');
-        // }
+        toast.dismiss();
+        if(res.ok || res.status == 200 || res.status == 201){
+          toast.success('File uploaded successfully');
+          setFileUrl(data.url);
+        } else if (res.status === 400) {
+          toast.error('File is Required');
+        } else {
+          toast.error('Error submitting report');
+        }
       } catch (error) {
         toast.dismiss();
         toast.error('Error uploading file');
