@@ -97,7 +97,7 @@ export default function AdminPage() {
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={incidentStats}>
               <XAxis dataKey="month" />
-              <YAxis />
+              <YAxis/>
               <Tooltip />
               <Bar dataKey="incidents" fill="#3182CE" />
             </BarChart>
