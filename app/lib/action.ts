@@ -703,20 +703,23 @@ export async function uploadFileAction(formData: FormData) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
+    interface UploadResult {
+      secure_url?: string;
+    }
     // Upload to Cloudinary using the stream API
-    const uploadResult: any = await new Promise((resolve, reject) => {
+    const uploadResult: UploadResult = await new Promise((resolve, reject) => {
       cloudinary.uploader.upload_stream(
         { resource_type: 'auto', folder: 'uploads' },
         (error, result) => {
           if (error) reject(error);
-          else resolve(result);
+          else resolve(result as UploadResult);
         }
       ).end(buffer);
     });
 
     // Check if upload was successful and return URL
     if (!uploadResult?.secure_url) {
-      throw new Error("Failed");
+      throw new Error("Upload Failed");
     }
     const url = uploadResult.secure_url
 
