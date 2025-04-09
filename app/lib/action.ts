@@ -6,6 +6,7 @@ import { getDistance } from "geolib";
 import { Server } from "socket.io";
 import { io } from "../utils/socket";
 import nodemailer from "nodemailer";
+import cloudinary from "../config/cloudinary";
 
 const prisma = new PrismaClient();
 
@@ -689,5 +690,42 @@ export async function fetchSingleIncident(id: string){
   }catch(error){
     console.error("Error fetching single incident: ", error);
     throw new Error("Could not fetch single incident");
+  }
+}
+
+export async function uploadFileAction(formData: FormData) {
+  try {
+    const file = formData.get('file') as File | null;
+    if (!file) {
+      throw new Error("File is required");
+    }
+    // Convert the file to a buffer for uploading to Cloudinary
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    interface UploadResult {
+      secure_url?: string;
+    }
+    // Upload to Cloudinary using the stream API
+    const uploadResult: UploadResult = await new Promise((resolve, reject) => {
+      cloudinary.uploader.upload_stream(
+        { resource_type: 'auto', folder: 'uploads' },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result as UploadResult);
+        }
+      ).end(buffer);
+    });
+
+    // Check if upload was successful and return URL
+    if (!uploadResult?.secure_url) {
+      throw new Error("Upload Failed");
+    }
+    const url = uploadResult.secure_url
+
+    return url;
+  } catch (error) {
+    console.error('Error uploading file:', error);
+    throw new Error("Could not Upload file");
   }
 }
