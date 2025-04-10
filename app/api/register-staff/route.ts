@@ -10,9 +10,9 @@ export async function POST(req:Request){
     }
 
     try{
-        const {firstName, secondName, email, phoneNumber, password} = await req.json();
+        const {firstName, secondName, email, phoneNumber, password, userRole} = await req.json();
 
-        if(!firstName || !secondName || !email || !phoneNumber || !password){
+        if(!firstName || !secondName || !email || !phoneNumber || !password || !userRole){
             return NextResponse.json({error: 'Please fill all fields'}, {status: 400});
         }
 
@@ -35,6 +35,7 @@ export async function POST(req:Request){
                 secondName,
                 email,
                 phoneNumber,
+                userRole,
                 password: hashedPassword,
             }
         });

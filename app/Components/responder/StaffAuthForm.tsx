@@ -30,6 +30,7 @@ export default function StaffAuthForm() {
     email: '',
     password: '',
     phoneNumber: '0',
+    userRole: 'CARRIER' as UserRole,
   });
 
   const toggleLoading = () => {
