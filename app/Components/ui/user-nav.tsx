@@ -38,7 +38,7 @@ import {
 
 const socket = io("http://localhost:49160", { transports: ["websocket"] });
 
-interface UserProfile{
+interface UserProfile {
   id: string;
   firstName: string;
   secondName: string;
@@ -136,14 +136,15 @@ const routes = {
     },
   ],
 };
+
 export function UserNav() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [alerts, setAlerts] = useState<Alert[]>([]);
-console.log(alerts);
+
   const avatar = profile?.profilePic || "";
-  const avatarFallback = `${profile?.firstName.substring(0, 1).toUpperCase()} ${profile?.secondName.substring(0, 1).toUpperCase()}`;
-  const name = `${profile?.firstName} ${profile?.secondName}`;
+  const avatarFallback = `${profile?.firstName?.[0]?.toUpperCase() ?? ""}${profile?.secondName?.[0]?.toUpperCase() ?? ""}`;
+  const name = `${profile?.firstName ?? ""} ${profile?.secondName ?? ""}`;
   const userEmail = profile?.email;
   const userId = profile?.id;
 
@@ -151,115 +152,87 @@ console.log(alerts);
 
   useEffect(() => {
     const handleProfile = async () => {
-      try{
+      try {
         const user = await fetchProfile();
         const staff = await fetchStaffProfile();
-        if (staff) {
-          setProfile(staff);
-        } else {
-          setProfile(user);
-        }
-      }catch(error){
+        setProfile(staff || user);
+      } catch (error) {
         console.error("Error fetching profile: ", error);
       }
-    }
+    };
     handleProfile();
-  },[]);
+  }, []);
 
   useEffect(() => {
     const handleAlerts = async () => {
-      try{
+      try {
         const alerts = await fetchAlerts();
-        setAlerts(alerts);
-      }catch(error){
+        setAlerts(alerts || []);
+      } catch (error) {
         console.error("Error fetching alerts: ", error);
       }
-    }
-
+    };
     handleAlerts();
-  },[]);
+  }, []);
 
   useEffect(() => {
     if (!userId) return;
-  
-    // Join the user to their room
+
     socket.emit("joinRoom", userId);
     console.log("🟢 Joined room:", userId);
-  
-    // Listen for new alerts
+
     socket.on("newAlert", (data) => {
       console.log("🔴 New Alert Received:", data);
-      const newAlert = data.alerts;
-      console.log(newAlert)
-      setAlerts((prevAlerts) => [...prevAlerts, data.alerts]); // Add to alerts list
+
+      const newAlerts = Array.isArray(data.alerts) ? data.alerts : [data.alerts];
+      setAlerts((prev) => [...prev, ...newAlerts]);
     });
-  
+
     return () => {
-      socket.off("newAlert"); // Cleanup listener
+      socket.off("newAlert");
     };
-  }, [userId]); 
+  }, [userId]);
 
   const pathname = usePathname();
 
-  const userRole = pathname.includes("/admin")
-  ? "ADMIN"
-  : pathname.includes("/responder")
-  ? ["POLICE", "AMBULANCE", "CARRIER"]
-  : "USER";
+  const userRole =
+    pathname.includes("/admin")
+      ? "ADMIN"
+      : pathname.includes("/responder")
+        ? "RESPONDER"
+        : "USER";
 
   const currentRoutes = routes[userRole as keyof typeof routes];
 
   const handleLogout = () => {
-    signOut({callbackUrl: '/'})
+    signOut({ callbackUrl: '/' });
   };
+
   return (
     <div className="ml-auto flex items-center justify-between ">
       <div className="flex items-center gap-2 px-2 pt-4">
         <ShieldPlus className="h-6 w-6" />
         <span className="font-semibold">Fika Safe</span>
       </div>
-        {/* <nav className="items-center space-x-6 text-sm font-medium hidden md:block">
-          <div className="flex flex-1 flex-row">
-            {currentRoutes.map((route) => (
-              <Link
-                key={route.href}
-                href={route.href === "#settings" ? "#" : route.href}
-                onClick={(e) => {
-                  if (route.href === "#settings") {
-                    e.preventDefault(); // Prevent page reload
-                    setIsSettingsOpen(true); // Open settings dialog
-                  }
-                }}
-                className={clsx(
-                  "relative flex items-center cursor-pointer gap-3 px-3 py-2 rounded-lg text-sm transition-all after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-primary after:transition-all after:duration-500",
-                  pathname === route.href
-                    ? " text-primary after:w-full"
-                    : "hover:bg-muted"
-                )}
-              >
-                {route.title}
-              </Link>
-            ))}
-          </div>
-        </nav> */}
+
       <div className="flex space-x-4 space-y-3 items-center">
         {userRole !== "ADMIN" && (
           <div className="mt-3">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant='outline' className="border-2 border-gray-300">
-                {alerts.some(alert => alert.status === "UNREAD") ? (
-                  <BellAlertIcon className="h-[1.2rem] w-[1.2rem] animate-shake" />
-                ) : (
-                  <Bell className="h-[1.2rem] w-[1.2rem]" />
-                )}
+                  {alerts.some(alert => alert.status === "UNREAD") ? (
+                    <BellAlertIcon className="h-[1.2rem] w-[1.2rem] animate-shake" />
+                  ) : (
+                    <Bell className="h-[1.2rem] w-[1.2rem]" />
+                  )}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56 overflow-y-scroll h-[40vh]" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">Notifications</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
-                  {alerts.length > 0 ? (
+                  {Array.isArray(alerts) && alerts.length > 0 ? (
                     alerts.map((alert, index) => (
                       <DropdownMenuItem key={index}>
                         <span>{alert.message}</span>
@@ -269,8 +242,7 @@ console.log(alerts);
                     <DropdownMenuItem>
                       <span>No new notifications</span>
                     </DropdownMenuItem>
-                    )
-                  }
+                  )}
                 </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -292,9 +264,7 @@ console.log(alerts);
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
                 <p className="text-sm font-medium leading-none">{name}</p>
-                <p className="text-xs leading-none text-muted-foreground">
-                  {userEmail}
-                </p>
+                <p className="text-xs leading-none text-muted-foreground">{userEmail}</p>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
@@ -305,8 +275,9 @@ console.log(alerts);
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
       <Settings isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
-      
+
       {/* Mobile screen */}
       <div className="mt-3 md:hidden">
         <Sheet>
@@ -319,25 +290,25 @@ console.log(alerts);
             <div className="flex flex-col h-full">
               <nav className="flex flex-col h-full items-center justify-center w-full gap-3">
                 {currentRoutes.map((route) => (
-                <Link
-                  key={route.href}
-                  href={route.href === "#settings" ? "#" : route.href}
-                  onClick={(e) => {
-                    if (route.href === "#settings") {
-                      e.preventDefault(); // Prevent page reload
-                      setIsSettingsOpen(true); // Open settings dialog
-                    }
-                  }}
-                  className={clsx(
-                    "relative flex items-center gap-3 px-3 py-2",
-                    pathname === route.href
-                      ? " text-primary after:w-full"
-                      : "hover:bg-muted"
-                  )}
-                >
-                  {route.title}
-                </Link>
-              ))}
+                  <Link
+                    key={route.href}
+                    href={route.href === "#settings" ? "#" : route.href}
+                    onClick={(e) => {
+                      if (route.href === "#settings") {
+                        e.preventDefault();
+                        setIsSettingsOpen(true);
+                      }
+                    }}
+                    className={clsx(
+                      "relative flex items-center gap-3 px-3 py-2",
+                      pathname === route.href
+                        ? " text-primary after:w-full"
+                        : "hover:bg-muted"
+                    )}
+                  >
+                    {route.title}
+                  </Link>
+                ))}
                 <ThemeToggle />
               </nav>
             </div>

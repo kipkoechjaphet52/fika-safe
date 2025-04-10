@@ -729,3 +729,33 @@ export async function uploadFileAction(formData: FormData) {
     throw new Error("Could not Upload file");
   }
 }
+
+export async function fetchUsers(){
+  try{
+    const session = await getServerSession(authOptions);
+    if(!session || !session.user?.email){
+        throw new Error("Admin not authenticated");
+    }
+    const email = session?.user?.email;
+
+    const admin = await prisma.staff.findUnique({
+        where: {
+          email,
+          userRole: 'ADMIN',
+        },
+        select: {id: true},
+    });
+    if(!admin){
+      throw new Error("Admin not found");
+    }
+
+    const users = await prisma.user.findMany({
+      orderBy: {createdAt: 'desc'},
+    })
+
+    return users;
+  }catch(error){
+    console.error("Error fetching users: ", error);
+    throw new Error("Could not fetch users");
+  }
+}
