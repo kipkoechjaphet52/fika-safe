@@ -753,7 +753,11 @@ export async function fetchUsers(){
       orderBy: {createdAt: 'desc'},
     })
 
-    return users;
+    const staff = await prisma.staff.findMany({
+      orderBy: {createdAt: 'desc'},
+    })
+
+    return {users, staff};
   }catch(error){
     console.error("Error fetching users: ", error);
     throw new Error("Could not fetch users");

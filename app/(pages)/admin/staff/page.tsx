@@ -23,7 +23,7 @@ import { Badge } from "@/app/Components/ui/badge";
 import { fetchUsers } from "@/app/lib/action";
 import { UserRole } from "@prisma/client";
 
-interface User{
+interface Staff{
     id: string;
     createdAt: Date;
     firstName: string;
@@ -36,7 +36,7 @@ interface User{
 }
 export default function UsersPage() {
   const [open, setOpen] = useState(false);
-  const [users, setUsers] = useState<User[]>([]);
+  const [users, setUsers] = useState<Staff[]>([]);
 
   const handleOpen = () => {
     setOpen((prev) => !prev);
@@ -44,8 +44,8 @@ export default function UsersPage() {
   useEffect(() => {
     const handleUsers = async () => {
       try{
-        const users = await fetchUsers();
-        setUsers(users.users || []);
+        const staff = await fetchUsers();
+        setUsers(staff.staff || []);
       }catch(error){
         console.error('Error fetching users', error);
       }
@@ -58,21 +58,21 @@ export default function UsersPage() {
     <div className="space-y-6 mx-5">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Users</h2>
+          <h2 className="text-2xl font-bold tracking-tight">Staff</h2>
           <p className="text-muted-foreground">
-            Manage system users and their roles
+            Manage system staff and their roles
           </p>
         </div>
         <Button onClick={() => handleOpen()}>
           <UserPlus className="mr-2 h-4 w-4" />
-          Add User
+          Add Staff
         </Button>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>All Users</CardTitle>
-          <CardDescription>A list of all users in the system</CardDescription>
+          <CardTitle>All Staff</CardTitle>
+          <CardDescription>A list of all staff in the system</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
@@ -108,7 +108,7 @@ export default function UsersPage() {
             ) : (
                 <TableRow>
                     <TableCell colSpan={5} className="text-center">
-                    No users found
+                    No staff found
                     </TableCell>
                 </TableRow>
             )}
