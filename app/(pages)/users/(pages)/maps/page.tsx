@@ -61,11 +61,11 @@ export default function MapsPage() {
         </div>
       )}
       {/* Toggle Button */}
-      <div className="absolute top-20 right-4">
+      {/* <div className="absolute top-20 right-4">
         <Button onClick={toggleForm}>
           {openForm ? "Toggle Live maps" : "Toggle Heat Map"}
         </Button>
-      </div>
+      </div> */}
     </div>
   );
 }

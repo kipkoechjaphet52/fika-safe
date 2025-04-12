@@ -22,6 +22,7 @@ import { UserPlus, PenSquare, Trash2 } from "lucide-react";
 import { Badge } from "@/app/Components/ui/badge";
 import { fetchUsers } from "@/app/lib/action";
 import { UserRole } from "@prisma/client";
+import DeleteUserDialog from "@/app/Components/admin/delete-user-dialog";
 
 interface Staff{
     id: string;
@@ -36,8 +37,15 @@ interface Staff{
 }
 export default function UsersPage() {
   const [open, setOpen] = useState(false);
-  const [users, setUsers] = useState<Staff[]>([]);
-
+  const [staff, setStaff] = useState<Staff[]>([]);
+  const [userId, setUserId] = useState("");
+  const [openDelete, setOpenDelete] = useState(false);
+  
+  const handleOpenDelete = (id: string) => {
+    setUserId(id);
+    setOpenDelete(true);
+  };
+    
   const handleOpen = () => {
     setOpen((prev) => !prev);
   }
@@ -45,7 +53,7 @@ export default function UsersPage() {
     const handleUsers = async () => {
       try{
         const staff = await fetchUsers();
-        setUsers(staff.staff || []);
+        setStaff(staff.staff || []);
       }catch(error){
         console.error('Error fetching users', error);
       }
@@ -86,20 +94,20 @@ export default function UsersPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {users.length > 0 ? (
-              users.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell className="font-medium">{user.firstName} {user.secondName}</TableCell>
-                  <TableCell>{user.email}</TableCell>
+              {staff.length > 0 ? (
+              staff.map((staff) => (
+                <TableRow key={staff.id}>
+                  <TableCell className="font-medium">{staff.firstName} {staff.secondName}</TableCell>
+                  <TableCell>{staff.email}</TableCell>
                   <TableCell>
-                    <Badge variant="secondary">{user.userRole}</Badge>
+                    <Badge variant="secondary">{staff.userRole}</Badge>
                   </TableCell>
-                  <TableCell>{user.phoneNumber}</TableCell>
+                  <TableCell>{staff.phoneNumber}</TableCell>
                   <TableCell className="flex items-center gap-2">
                     <Button variant="ghost" size="icon">
                       <PenSquare className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon">
+                    <Button variant="ghost" size="icon" onClick={() => handleOpenDelete(staff.id)}>
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   </TableCell>
@@ -118,6 +126,7 @@ export default function UsersPage() {
       </Card>
 
       <CreateUserDialog open={open} /*onOpenChange={setOpen}*/ />
+      <DeleteUserDialog open={openDelete} userId={userId} onClose={() => setOpenDelete(false)} /> {/* Placeholder for delete dialog */}
     </div>
   );
 }
