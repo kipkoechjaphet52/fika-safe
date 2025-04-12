@@ -122,13 +122,13 @@ export default function Page() {
             <div className='w-1/3 h-[calc(100vh-3.5rem)] flex flex-col pr-2'>
                 <div className='p-4 sticky top-0 bg-card z-10'>
                     <Suspense fallback={<Loading/>}>
-                        <Search 
+                        {/* <Search 
                         placeholder='Search Incidents...'
                         onSearch = {(term, date) => {
                             setSearchTerm(term);
                             setSearchDate(date);
                         }}
-                        ></Search>
+                        ></Search> */}
                     </Suspense>
                 </div>
                 <Suspense fallback={<Loading/>}>
@@ -170,6 +170,7 @@ export default function Page() {
                             onMouseEnter={() => setHoveredIncidentId(incident.id)} 
                             onMouseLeave={() => setHoveredIncidentId(null)}
                         >
+                            <Link href={`/users/incidents/${incident.id}`} key={incident.id}>
                             <div className='flex space-x-4 p-4 rounded-lg w-full max-w-2xl' >
                                 {incident.mediaType === 'VIDEO' ? (
                                 <video
@@ -193,6 +194,7 @@ export default function Page() {
                                     <h1 className='font-thin text-xs text-gray-400'>{incident.location}</h1>
                                 </div>
                             </div>
+                            </Link>
                         </div>
                     ))}
                 </div>

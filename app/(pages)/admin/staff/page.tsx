@@ -22,8 +22,9 @@ import { UserPlus, PenSquare, Trash2 } from "lucide-react";
 import { Badge } from "@/app/Components/ui/badge";
 import { fetchUsers } from "@/app/lib/action";
 import { UserRole } from "@prisma/client";
+import DeleteUserDialog from "@/app/Components/admin/delete-user-dialog";
 
-interface User{
+interface Staff{
     id: string;
     createdAt: Date;
     firstName: string;
@@ -36,16 +37,23 @@ interface User{
 }
 export default function UsersPage() {
   const [open, setOpen] = useState(false);
-  const [users, setUsers] = useState<User[]>([]);
-
+  const [staff, setStaff] = useState<Staff[]>([]);
+  const [userId, setUserId] = useState("");
+  const [openDelete, setOpenDelete] = useState(false);
+  
+  const handleOpenDelete = (id: string) => {
+    setUserId(id);
+    setOpenDelete(true);
+  };
+    
   const handleOpen = () => {
     setOpen((prev) => !prev);
   }
   useEffect(() => {
     const handleUsers = async () => {
       try{
-        const users = await fetchUsers();
-        setUsers(users.users || []);
+        const staff = await fetchUsers();
+        setStaff(staff.staff || []);
       }catch(error){
         console.error('Error fetching users', error);
       }
@@ -58,21 +66,21 @@ export default function UsersPage() {
     <div className="space-y-6 mx-5">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Users</h2>
+          <h2 className="text-2xl font-bold tracking-tight">Staff</h2>
           <p className="text-muted-foreground">
-            Manage system users and their roles
+            Manage system staff and their roles
           </p>
         </div>
         <Button onClick={() => handleOpen()}>
           <UserPlus className="mr-2 h-4 w-4" />
-          Add User
+          Add Staff
         </Button>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>All Users</CardTitle>
-          <CardDescription>A list of all users in the system</CardDescription>
+          <CardTitle>All Staff</CardTitle>
+          <CardDescription>A list of all staff in the system</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
@@ -86,20 +94,20 @@ export default function UsersPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {users.length > 0 ? (
-              users.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell className="font-medium">{user.firstName} {user.secondName}</TableCell>
-                  <TableCell>{user.email}</TableCell>
+              {staff.length > 0 ? (
+              staff.map((staff) => (
+                <TableRow key={staff.id}>
+                  <TableCell className="font-medium">{staff.firstName} {staff.secondName}</TableCell>
+                  <TableCell>{staff.email}</TableCell>
                   <TableCell>
-                    <Badge variant="secondary">{user.userRole}</Badge>
+                    <Badge variant="secondary">{staff.userRole}</Badge>
                   </TableCell>
-                  <TableCell>{user.phoneNumber}</TableCell>
+                  <TableCell>{staff.phoneNumber}</TableCell>
                   <TableCell className="flex items-center gap-2">
                     <Button variant="ghost" size="icon">
                       <PenSquare className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon">
+                    <Button variant="ghost" size="icon" onClick={() => handleOpenDelete(staff.id)}>
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   </TableCell>
@@ -108,7 +116,7 @@ export default function UsersPage() {
             ) : (
                 <TableRow>
                     <TableCell colSpan={5} className="text-center">
-                    No users found
+                    No staff found
                     </TableCell>
                 </TableRow>
             )}
@@ -118,6 +126,7 @@ export default function UsersPage() {
       </Card>
 
       <CreateUserDialog open={open} /*onOpenChange={setOpen}*/ />
+      <DeleteUserDialog open={openDelete} userId={userId} onClose={() => setOpenDelete(false)} /> {/* Placeholder for delete dialog */}
     </div>
   );
 }

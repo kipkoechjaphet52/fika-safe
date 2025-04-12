@@ -11,6 +11,7 @@ import {
   MenuIcon,
   MapIcon,
   MapPin,
+  UserPlus,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -33,6 +34,11 @@ const routes = {
       title: "Users",
       icon: Users,
       href: "/admin/users",
+    },
+    {
+      title: "Staff",
+      icon: UserPlus,
+      href: "/admin/staff",
     },
   ],
   RESPONDER: [

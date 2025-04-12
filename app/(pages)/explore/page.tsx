@@ -124,13 +124,13 @@ export default function Page() {
             <div className='w-1/3 h-[calc(100vh-3.5rem)] flex flex-col pr-2'>
                 <div className='p-4 sticky top-0 bg-card z-10'>
                     <Suspense fallback={<Loading/>}>
-                        <Search 
+                        {/* <Search 
                         placeholder='Search Incidents...'
                         onSearch = {(term, date) => {
                             setSearchTerm(term);
                             setSearchDate(date);
                         }}
-                        ></Search>
+                        ></Search> */}
                     </Suspense>
                 </div>
                 <Suspense fallback={<Loading/>}>

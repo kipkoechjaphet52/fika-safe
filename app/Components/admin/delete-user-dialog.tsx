@@ -28,11 +28,12 @@ const formSchema = z.object({
   delete: z.string().min(1, "Delete Statment is required"),
 });
 
-interface DeleteIncidentDialogProps {
+interface DeleteUserDialogProps {
     open: boolean;
-    id: string;
+    userId: string;
+    onClose: () => void;
 }
-export default function DeleteIncidentDialog({open, id}: DeleteIncidentDialogProps) {
+export default function DeleteUserDialog({open, userId, onClose}: DeleteUserDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -63,7 +64,7 @@ export default function DeleteIncidentDialog({open, id}: DeleteIncidentDialogPro
         },
         body: JSON.stringify(
           {
-            reportId: id,
+            reportId: userId,
             confirmation: form.getValues("delete"),
           }
         ),
@@ -87,12 +88,12 @@ export default function DeleteIncidentDialog({open, id}: DeleteIncidentDialogPro
     }
   };
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Delete Incident</DialogTitle>
+          <DialogTitle>Delete User</DialogTitle>
           <DialogDescription>
-            Delete an incident
+            Delete a user
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -102,16 +103,16 @@ export default function DeleteIncidentDialog({open, id}: DeleteIncidentDialogPro
               name="delete"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Delete Incident. Type &quot;DELETE INCIDENT&quot;</FormLabel>
+                  <FormLabel>Delete User. Type &quot;DELETE USER&quot;</FormLabel>
                   <FormControl>
-                    <Input placeholder="DELETE INCIDENT" {...field} />
+                    <Input placeholder="DELETE USER" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <DialogFooter>
-              <Button type="submit" className="bg-destructive items-center" onClick={() => handleDelete()}>Delete Incident</Button>
+              <Button type="submit" className="bg-destructive items-center" onClick={() => handleDelete()}>Delete User</Button>
             </DialogFooter>
           </form>
         </Form>
